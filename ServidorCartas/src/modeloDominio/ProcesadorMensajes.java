@@ -80,7 +80,11 @@ public class ProcesadorMensajes {
             throw new RuntimeException(e);
         }
     }
-	
+
+    public static boolean enEsperaXML(Socket s) throws IOException {
+        return s.getInputStream().available()!=0;
+    }
+
 	public static void xmlError(codigoXML codigo,int valor,Socket s) {
 		
 	}
