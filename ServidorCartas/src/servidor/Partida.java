@@ -1,12 +1,12 @@
 package servidor;
 
 
+import modeloDominio.Asistente;
+import modeloDominio.Jugador;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import modeloDominio.Asistente;
-import modeloDominio.Jugador;
 
 public abstract class Partida{
 	private static final int MAXEspectadores=128;

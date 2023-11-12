@@ -1,18 +1,16 @@
 package cliente;
 
 
-import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Scanner;
-
-import org.w3c.dom.Attr;
+import modeloDominio.ProcesadorMensajes;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import modeloDominio.ProcesadorMensajes;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Scanner;
 
 public class Cliente {
 

@@ -1,25 +1,20 @@
 package servidor;
 
 
-import java.io.IOException;
-
-import java.net.Socket;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-
+import modeloDominio.ProcesadorMensajes;
+import modeloDominio.codigoXML;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import modeloDominio.Humano;
-import modeloDominio.ProcesadorMensajes;
-import modeloDominio.codigoXML;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.net.Socket;
 
 public class AtenderCliente extends Thread {
-	private Socket s;
+	private final Socket s;
 	
 	public AtenderCliente(Socket s) {
 		this.s=s;
