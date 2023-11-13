@@ -5,18 +5,22 @@ import modeloDominio.Mano;
 import java.io.IOException;
 import java.net.Socket;
 
+/*
+Clase de la partida general del cliente
+ */
 public abstract class PartidaCliente {
     private Mano mano;
-    private PresentacionI interfaz;
     private boolean salida;
-    Socket s;
+    protected Socket s;
+    private boolean turno;
 
-    protected PartidaCliente(Socket s,PresentacionI interfaz) {
+    protected PartidaCliente(Socket s) {
         this.s = s;
-        this.interfaz=interfaz;
         salida=false;
     }
-
+    /*
+    Bucle de recepción de mensajes del servidor.
+     */
     public void bucleJuego(){
         try{
             while(!salida){
@@ -28,17 +32,17 @@ public abstract class PartidaCliente {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     public abstract void atenderServidor() throws IOException;
 
-    public PresentacionI getInterfaz(){
-        return this.interfaz;
-    }
-
     public Mano getMano(){
         return this.mano;
+    }
+
+    public abstract void bienvenidaPartida();
+
+    public boolean partidaENCUrso(){
+        return this.salida;
     }
 }

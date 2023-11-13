@@ -27,7 +27,12 @@ public class Cliente {
 			this.s=new Socket("localhost",55555);
 			System.out.println("conexion establecida");
 			this.bienvenida();
-			
+			//Proceso lo que sea
+
+            //Inicio juego
+            this.iniciarPartida();
+
+            //Cierre cliente
 			System.out.println("Cerrando conexión");
             s.close();
 		} catch (UnknownHostException e) {
@@ -87,5 +92,13 @@ public class Cliente {
             }
         }
         scanner.close();
+    }
+
+    private void iniciarPartida(){
+        PartidaClienteChinchon partida=new PartidaClienteChinchon(this.s);
+        ConsolaChinchon presentacion=new ConsolaChinchon(partida);
+        presentacion.start();//Problema concurrencia?
+        partida.bucleJuego();
+
     }
 }

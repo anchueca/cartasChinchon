@@ -1,10 +1,12 @@
 package cliente;
 
 import modeloDominio.Carta;
-
+/*
+Accioens del jugador en el chinchón
+ */
 public interface ChinchonI {
-    public Carta cogerCartaCubierta();
-    public Carta cogerCartaDescubierta();
-    public boolean echarCarta(Carta carta);
-    public boolean cerrar(Carta carta);
+    Carta cogerCartaCubierta();
+    Carta cogerCartaDescubierta();
+    boolean echarCarta(Carta carta);
+    boolean cerrar(Carta carta);
 }

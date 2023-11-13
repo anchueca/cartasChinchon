@@ -2,14 +2,14 @@ package modeloDominio;
 
 import java.util.*;
 
-public class Baraja {
+public class Baraja implements Iterable<Carta> {
     private Deque<Carta> cartas;
 
     public Baraja(Deque<Carta> cartas) {
         this.cartas = cartas;
     }
     public Baraja(Collection<Carta> cartas){
-        this.cartas= new ArrayDeque(cartas);
+        this.cartas= new ArrayDeque<>(cartas);
     }
 
     public static Baraja barajaFactoria(){//Comvendría establecer otros parámetros
@@ -39,5 +39,10 @@ public class Baraja {
 
     public int numCartas(){
         return this.cartas.size();
+    }
+
+    @Override
+    public Iterator<Carta> iterator() {
+        return this.cartas.iterator();
     }
 }

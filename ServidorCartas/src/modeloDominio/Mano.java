@@ -1,10 +1,12 @@
 package modeloDominio;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
-public class Mano {
+public class Mano implements Iterable<Carta>, Serializable {
     private List<Carta> cartas;
 
     public Mano(List<Carta> cartas) {
@@ -22,6 +24,11 @@ public class Mano {
             return carta1;
         }
         return null;
+    }
+    public Carta tomarCarta(int carta){
+            Carta carta1=this.cartas.get(carta);
+            this.cartas.remove(carta);
+            return carta1;
     }
     public Carta verCarta(int i){
         try {
@@ -43,5 +50,10 @@ public class Mano {
         Carta carta=this.cartas.get(i);
         this.cartas.add(i,this.cartas.get(j));
         this.cartas.add(j,carta);
+    }
+
+    @Override
+    public Iterator<Carta> iterator() {
+        return this.cartas.iterator();
     }
 }

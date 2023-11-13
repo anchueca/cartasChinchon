@@ -1,5 +1,5 @@
 package modeloDominio;
 
 public enum Palo{
-	ESPADA,BASTO,ORO,COPA;
+	ESPADA,BASTO,ORO,COPA
 }

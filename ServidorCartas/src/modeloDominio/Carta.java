@@ -1,8 +1,8 @@
 package modeloDominio;
 
-import java.util.Comparator;
+import java.io.Serializable;
 
-public class Carta implements Comparable<Carta> {
+public class Carta implements Comparable<Carta>, Serializable {
 	private Palo palo;
 
 
