@@ -1,9 +1,8 @@
-package modeloDominio;
+package servidor.usuarios;
 
-public class IA extends Jugador{
+public abstract class IA extends Jugador {
 
 	protected IA(String nombre) {
-		super(nombre);
 		// TODO Auto-generated constructor stub
 	}
 

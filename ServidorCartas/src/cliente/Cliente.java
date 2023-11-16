@@ -11,15 +11,15 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
-
+/*
+Clase encargada del inicio del programa y entre partidas (el menú)
+ */
 public class Cliente {
 
 	private Socket s;
-	
 	public static void main(String[] args) {
 		new Cliente().inicio();
 	}
-	
 	public void inicio() {
 		System.out.println("Inicio cleinte");
 		try {
@@ -49,7 +49,7 @@ public class Cliente {
 	public void bienvenida() {
 		// Descargar el XML desde el servidor
 		System.out.println("Esperando mensaje de bienvenida");
-		Document xml=ProcesadorMensajes.recibirXml(s);
+		Document xml= (Document) ProcesadorMensajes.recibirObjeto(s);
 		System.out.println("recibido");
 		// Procesar XML
 		Element rootElement=xml.getDocumentElement();
@@ -77,7 +77,6 @@ public class Cliente {
         // Mostrar reiteradamente el menu
         while (true) {
         	System.out.println(texto);
-            
             opcion = scanner.nextInt();
 
             if (opcion == 0) {
@@ -95,10 +94,13 @@ public class Cliente {
     }
 
     private void iniciarPartida(){
+        //Creo la partida local
         PartidaClienteChinchon partida=new PartidaClienteChinchon(this.s);
+        //Inicio interfaz
         ConsolaChinchon presentacion=new ConsolaChinchon(partida);
         presentacion.start();//Problema concurrencia?
+        //Inicio el funcionamiento de la partida local
         partida.bucleJuego();
-
+        //fin de la partida
     }
 }

@@ -1,4 +1,4 @@
-package modeloDominio;
+package modeloDominio.baraja;
 
 import java.util.*;
 
@@ -11,7 +11,6 @@ public class Baraja implements Iterable<Carta> {
     public Baraja(Collection<Carta> cartas){
         this.cartas= new ArrayDeque<>(cartas);
     }
-
     public static Baraja barajaFactoria(){//Comvendría establecer otros parámetros
         Deque<Carta> cartas=new ArrayDeque<>();
         for (Palo palo: Palo.values()
@@ -23,11 +22,9 @@ public class Baraja implements Iterable<Carta> {
         }
         return new Baraja(cartas);
     }
-
     public Carta tomarCarta() {
         return this.cartas.peekFirst();
     }
-
     public void barajar() {
         List<Carta> lista=new ArrayList<>(this.cartas);
         Collections.shuffle(lista);
@@ -36,12 +33,9 @@ public class Baraja implements Iterable<Carta> {
     public void meterCarta(Carta carta) {
         this.cartas.addFirst(carta);
     }
-
     public int numCartas(){
         return this.cartas.size();
     }
-
-    @Override
     public Iterator<Carta> iterator() {
         return this.cartas.iterator();
     }

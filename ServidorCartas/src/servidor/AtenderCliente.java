@@ -26,12 +26,11 @@ public class AtenderCliente extends Thread {
 		this.bienvenida();
 		this.dialogoInicial();
 	}
-	
 	private void dialogoInicial() {
         //Recibo respuesta
 		int operacion=-1;
 		
-		Document xml=ProcesadorMensajes.recibirXml(s);
+		Document xml= (Document) ProcesadorMensajes.recibirObjeto(s);
 		if(xml.getNodeValue().compareTo("nueva")==0)operacion=0;
 		if(xml.getNodeValue().compareTo("unirse")==0)operacion=1;
 		
@@ -51,7 +50,6 @@ public class AtenderCliente extends Thread {
 			e.printStackTrace();
 		}
 	}
-	
 	private void bienvenida() {
 		try {
             DocumentBuilderFactory dbf=DocumentBuilderFactory.newInstance();
@@ -77,24 +75,18 @@ public class AtenderCliente extends Thread {
             xml.appendChild(raiz);
             
             // Enviar mensaje
-            ProcesadorMensajes.enviarXml(xml, this.s);
+            ProcesadorMensajes.enviarObjeto(xml, this.s);
             
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-	
 	private void crearPartida() {
 
 	}
-	
 	private void unirseAPartida() {
 		
 	}
-	
-	private void nuevoJugador() {
 
-	}
 }

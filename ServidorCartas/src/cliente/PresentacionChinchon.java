@@ -1,12 +1,16 @@
 package cliente;
 
-import modeloDominio.Carta;
+import modeloDominio.baraja.Carta;
+import modeloDominio.ChinchonI;
+import servidor.usuarios.Jugador;
+
+import java.util.Map;
+
 /*
 Acciones del cliente propias del chinchón
  */
 public interface PresentacionChinchon extends PresentacionI, ChinchonI {
-    Carta consultarCartaDescubierta();
-    boolean consultarCerrado();
-
-
+    Carta verCartaDescubierta();
+    boolean verCerrado();
+    Map<Jugador,Integer> verPuntuaciones();
 }

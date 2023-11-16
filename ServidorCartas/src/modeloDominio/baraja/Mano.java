@@ -1,4 +1,6 @@
-package modeloDominio;
+package modeloDominio.baraja;
+
+import modeloDominio.baraja.Carta;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -37,21 +39,17 @@ public class Mano implements Iterable<Carta>, Serializable {
             return null;
         }
     }
-
     public void añadirCarta(Carta carta){
         this.cartas.add(carta);
     }
-
     public void ordenar(){
         this.cartas.sort(null);
     }
-
     public void permutar(int i, int j){
         Carta carta=this.cartas.get(i);
         this.cartas.add(i,this.cartas.get(j));
         this.cartas.add(j,carta);
     }
-
     @Override
     public Iterator<Carta> iterator() {
         return this.cartas.iterator();

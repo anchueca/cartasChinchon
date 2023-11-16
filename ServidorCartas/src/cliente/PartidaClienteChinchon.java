@@ -1,80 +1,95 @@
 package cliente;
 
-import modeloDominio.Carta;
-import modeloDominio.Mano;
-import modeloDominio.ProcesadorMensajes;
+import modeloDominio.*;
+import modeloDominio.baraja.Carta;
+import modeloDominio.baraja.Mano;
+import servidor.usuarios.Jugador;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /*
 Implementaciṕn de la partida propia del chinchón
  */
 public class PartidaClienteChinchon extends PartidaCliente implements PresentacionChinchon{
+    private Map<Jugador,Integer> jugadores;
+    private Carta cartaDescubierta;
     public PartidaClienteChinchon(Socket s) {
         super(s);
+        this.jugadores= HashMap.newHashMap(2);
+        this.cartaDescubierta=null;
     }
+
     /*
     Recibir y procesar mensajes del servidor
      */
-    public void atenderServidor() throws IOException {
-        if(!ProcesadorMensajes.enEsperaXML(this.s))return;
-        Document xml=ProcesadorMensajes.recibirXml(this.s);
+    protected void atenderServidor() throws IOException {
+        if(!ProcesadorMensajes.enEspera(this.s))return;
+        Document xml= (Document) ProcesadorMensajes.recibirObjeto(this.s);
     }
-
-    @Override
-    public void bienvenidaPartida() {
+    protected void bienvenidaPartida() {
 
     }
+    private Carta getCartaDescubierta() {
+        return cartaDescubierta;
+    }
+    protected List<Jugador> getJugadores() {
+        return new ArrayList<Jugador>(this.jugadores.keySet());
+    }
 
-    @Override
+   // Peticiones(mensajes) al servidores
     public Carta cogerCartaCubierta() {
         return null;
     }
 
     @Override
-    public Carta cogerCartaDescubierta() {
+    public Carta cogerCartaDecubierta() {
         return null;
     }
 
-    @Override
+    public Carta cogerCartaDescubierta() {
+        return null;
+    }
     public boolean echarCarta(Carta carta) {
         return false;
     }
-
-    @Override
     public boolean cerrar(Carta carta) {
         return false;
     }
 
     @Override
-    public Carta consultarCartaDescubierta() {
-        return null;
-    }
-
-    @Override
-    public boolean consultarCerrado() {
+    public boolean meterCarta(Carta carta) {
         return false;
     }
 
-    @Override
-    public boolean consultarPartidaActualizada() {
+    //Servicios a interfaz
+    public Carta verCartaDescubierta() {
+        return this.getCartaDescubierta();
+    }
+    public boolean verCerrado() {
         return false;
     }
-
-    @Override
-    public boolean consultarTurno() {
+    public boolean verPartidaActualizada() {
         return false;
     }
-
-    @Override
-    public Mano consultarMano() {
-        return null;
+    public boolean verTurno() {
+        return this.isTurno();
     }
-
-    @Override
-    public boolean partidaEnCurso() {
-        return false;
+    public Mano verMano() {
+        return this.getMano();
+    }
+    public EstadoPartida verEstadoPartida() {
+        return this.estadoPartida();
+    }
+    public List<Jugador> verJugadores(){
+        return new ArrayList<Jugador>(this.jugadores.keySet());
+    }
+    public Map<Jugador,Integer> verPuntuaciones(){
+        return this.jugadores;
     }
 }
