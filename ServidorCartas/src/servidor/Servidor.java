@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 
 public class Servidor {
 	public static void main(String[] args) {
-		ExecutorService pool=Executors.newCachedThreadPool();
+		/*ExecutorService pool=Executors.newCachedThreadPool();
 		try {
 			ServerSocket s=new ServerSocket(55555);
 			Socket cliente;
@@ -29,6 +29,6 @@ public class Servidor {
 		}
 		finally {
 			pool.shutdown();
-		}
+		}*/
 	}
 }

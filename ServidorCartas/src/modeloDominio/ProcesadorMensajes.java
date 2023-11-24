@@ -45,7 +45,4 @@ public class ProcesadorMensajes {
         }
     }
 
-	public static void xmlError(codigoXML codigo,int valor,Socket s) {
-		
-	}
 }

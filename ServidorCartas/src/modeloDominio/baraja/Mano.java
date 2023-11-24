@@ -17,6 +17,7 @@ public class Mano implements Iterable<Carta>, Serializable {
     public Mano(Collection<Carta> cartas){
         this.cartas=new ArrayList<>(cartas);
     }
+    public Mano(Carta carta){this.cartas=new ArrayList<>();this.cartas.add(carta);}
 
     public Carta tomarCarta(Carta carta){
         int i=this.cartas.indexOf(carta);

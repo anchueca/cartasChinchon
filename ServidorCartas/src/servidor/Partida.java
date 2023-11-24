@@ -1,19 +1,25 @@
 package servidor;
 
 
-import servidor.usuarios.Asistente;
+import cliente.NumeroParametrosExcepcion;
 import modeloDominio.EstadoPartida;
-import modeloDominio.Juego;
+import modeloDominio.baraja.Baraja;
+import modeloDominio.baraja.Carta;
+import modeloDominio.baraja.Mano;
+import modeloDominio.baraja.Tamano;
+import servidor.usuarios.Asistente;
 import servidor.usuarios.AsistenteI;
 import servidor.usuarios.Jugador;
 import org.w3c.dom.Document;
-import servidor.usuarios.JugadorI;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class Partida{
+import static java.lang.Integer.parseInt;
+
+public class Partida{
 	/*
 	Propiedades estáticas
 	 */
@@ -22,6 +28,7 @@ public abstract class Partida{
 	private static final Map<String,Partida> partidas=new HashMap<>();
 	private static int PartidasActivas=0;
 
+
 	public static Partida buscarPartida(String nombre) {
 		return Partida.partidas.get(nombre);
 	}
@@ -29,12 +36,10 @@ public abstract class Partida{
 	/*
         Partida particular
          */
-	private final String nombre;//identificador partida
+	private String nombre;//identificador partida
 	public String getNombre() {
 		return nombre;
 	}
-	public abstract List<JugadorI> getJugadores();
-	public abstract List<AsistenteI> getEspectadores();
 	public EstadoPartida getEstado() {
 		return estado;
 	}
@@ -42,28 +47,33 @@ public abstract class Partida{
 		this.estado = estado;
 	}
 	private EstadoPartida estado;
-	protected Partida() {
-		this.nombre = "";
-	}
+
+	private final Map<Jugador,Integer> puntuaciones;
+	private Baraja baraja;
+	private Jugador turno;
+	private final List<Jugador> jugadores;
+	private final List<AsistenteI> asistentes;
 
 	//Factoría y constructies
-	public static Partida PartidaFactoria(Document xml, Juego juego){
-		switch (juego){
-			case CHINCHON : return new PartidaChinchon(xml);
-			default: return null;
-		}
+	private Partida() {
+		this.estado=EstadoPartida.ESPERANDO;
+		this.puntuaciones=new HashMap<>();
+		this.jugadores=new ArrayList<>();
+		this.asistentes=new ArrayList<>();
 	}
-	protected Partida(Document XML) {
-		this.nombre = "prueba";
+	public static Partida PartidaFactoria(Document xml){
+		return new Partida();
 	}
+	protected Partida(String nombrePartida,Tamano barajaTamano) {
+		this();
+		this.nombre=nombrePartida;
+		this.baraja=Baraja.barajaFactoria(barajaTamano);
+	}
+
 	//Funcionamiento partida
-	public abstract void iniciarPartida();//Realiza los preparativos y pasa al  estado encurso
-	protected abstract JugadorI siguienteTurno();//Devuelve el siguiente jugador
-	protected abstract void repartirMano();//Reparte las cartas y demás preparativos justo antes de empezar
-	protected abstract void atenderClientes();//Consulta si hay peticiones de los clientes y las procesa
 	private void bucleJuego(){
 		//Comienzo juego
-		while (this.estado==EstadoPartida.FINALIZADO){
+		while (this.estado!=EstadoPartida.FINALIZADO){
 			//Compruebo si hay mensajes pendientes
 			this.atenderClientes();
 			//Acciones partida
@@ -88,11 +98,49 @@ public abstract class Partida{
 		return true;
 	}
 
-	public boolean nuevoJugador(JugadorI jugador) {
+	public boolean nuevoJugador(Jugador jugador) {
 		if(this.estado==EstadoPartida.ESPERANDO){
 			this.getJugadores().add(jugador);
 			return true;
 		}
 		return false;
 	}
+	public List<Jugador> getJugadores() {
+		return new ArrayList<>(this.jugadores);
+	}
+
+	public List<AsistenteI> getEspectadores() {
+		return new ArrayList<>(this.asistentes);
+	}
+
+	public void iniciarPartida() {
+
+	}
+
+	public Jugador siguienteTurno() {
+		int turno=this.jugadores.indexOf(this.turno);
+		turno%=this.jugadores.size();
+		this.turno= this.jugadores.get(turno);
+		return this.turno;
+	}
+	public void repartirMano() {
+		for(int i=0;i<7;i++)
+			for (Jugador jugador: jugadores
+			) {
+				//jugador.darCarta(this.baraja.tomarCarta());
+			}
+	}
+
+	protected void atenderClientes() {
+		for (AsistenteI asistente: this.asistentes
+		) {
+			//if(asistente.mensajePendiente())asistente.pr
+		}
+		for (Jugador jugador: this.jugadores
+		) {
+
+		}
+	}
+
+
 }

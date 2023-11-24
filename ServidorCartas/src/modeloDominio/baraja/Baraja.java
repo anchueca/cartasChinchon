@@ -11,12 +11,13 @@ public class Baraja implements Iterable<Carta> {
     public Baraja(Collection<Carta> cartas){
         this.cartas= new ArrayDeque<>(cartas);
     }
-    public static Baraja barajaFactoria(){//Comvendría establecer otros parámetros
+    public static Baraja barajaFactoria(Tamano tamano){//Comvendría establecer otros parámetros
         Deque<Carta> cartas=new ArrayDeque<>();
+
         for (Palo palo: Palo.values()
              ) {
             for(int i=1;i<13;i++){
-                if(i==8)i=10;
+                if(tamano==Tamano.NORMAL && i==8)i=10;//Caso normal
                 cartas.add(new Carta(i,palo));
             }
         }
