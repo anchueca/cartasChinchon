@@ -13,30 +13,6 @@ public class IA extends Jugador {
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override
-	public boolean notificarPartidaActualizada() {
-		return false;
-	}
-
-	@Override
-	public EstadoPartida notificarEstadoPartida() {
-		return null;
-	}
-
-	@Override
-	public List<Jugador> notificarJugadores() {
-		return null;
-	}
-
-	@Override
-	public boolean mensajePendiente() {
-		return false;
-	}
-
-	@Override
-	public String recibirMensaje() {
-		return null;
-	}
 
 	@Override
 	public boolean cogerCartaCubierta() {

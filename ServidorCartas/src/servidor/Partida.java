@@ -1,14 +1,13 @@
 package servidor;
 
 
-import cliente.NumeroParametrosExcepcion;
+import modeloDominio.AccionesChinchonI;
 import modeloDominio.EstadoPartida;
+import modeloDominio.VerChinchonI;
 import modeloDominio.baraja.Baraja;
 import modeloDominio.baraja.Carta;
 import modeloDominio.baraja.Mano;
 import modeloDominio.baraja.Tamano;
-import servidor.usuarios.Asistente;
-import servidor.usuarios.AsistenteI;
 import servidor.usuarios.Jugador;
 import org.w3c.dom.Document;
 
@@ -19,11 +18,10 @@ import java.util.Map;
 
 import static java.lang.Integer.parseInt;
 
-public class Partida{
+public class Partida {
 	/*
 	Propiedades estáticas
 	 */
-	private static final int MAXEspectadores=128;
 	private static final int MAXPartidas=32;
 	private static final Map<String,Partida> partidas=new HashMap<>();
 	private static int PartidasActivas=0;
@@ -52,14 +50,12 @@ public class Partida{
 	private Baraja baraja;
 	private Jugador turno;
 	private final List<Jugador> jugadores;
-	private final List<AsistenteI> asistentes;
 
 	//Factoría y constructies
 	private Partida() {
 		this.estado=EstadoPartida.ESPERANDO;
 		this.puntuaciones=new HashMap<>();
 		this.jugadores=new ArrayList<>();
-		this.asistentes=new ArrayList<>();
 	}
 	public static Partida PartidaFactoria(Document xml){
 		return new Partida();
@@ -75,7 +71,6 @@ public class Partida{
 		//Comienzo juego
 		while (this.estado!=EstadoPartida.FINALIZADO){
 			//Compruebo si hay mensajes pendientes
-			this.atenderClientes();
 			//Acciones partida
 
 		}
@@ -83,20 +78,12 @@ public class Partida{
 	}
 
 	//Gestión partida
-	public boolean degradarJugador(Jugador jugador){
-		return this.getJugadores().remove(jugador);
-	}//por implementr
 	public boolean expulsarJugador(Jugador jugador){
 		return this.getJugadores().remove(jugador);
 	}//por implementr
 	public boolean robotizar(Jugador jugador){
 		return this.getJugadores().remove(jugador);
 	}//por implementr
-
-	public boolean nuevoEspectador(AsistenteI asistente) {
-		this.getEspectadores().add(asistente);
-		return true;
-	}
 
 	public boolean nuevoJugador(Jugador jugador) {
 		if(this.estado==EstadoPartida.ESPERANDO){
@@ -107,10 +94,6 @@ public class Partida{
 	}
 	public List<Jugador> getJugadores() {
 		return new ArrayList<>(this.jugadores);
-	}
-
-	public List<AsistenteI> getEspectadores() {
-		return new ArrayList<>(this.asistentes);
 	}
 
 	public void iniciarPartida() {
@@ -130,17 +113,5 @@ public class Partida{
 				//jugador.darCarta(this.baraja.tomarCarta());
 			}
 	}
-
-	protected void atenderClientes() {
-		for (AsistenteI asistente: this.asistentes
-		) {
-			//if(asistente.mensajePendiente())asistente.pr
-		}
-		for (Jugador jugador: this.jugadores
-		) {
-
-		}
-	}
-
 
 }

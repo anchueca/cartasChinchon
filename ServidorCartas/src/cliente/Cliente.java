@@ -1,23 +1,9 @@
 package cliente;
 
 
-import modeloDominio.EstadoPartida;
-import modeloDominio.ProcesadorMensajes;
-import modeloDominio.baraja.Carta;
-import modeloDominio.baraja.Mano;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import servidor.Partida;
-import servidor.usuarios.AsistenteI;
-
 import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Scanner;
-
-import static java.lang.Integer.parseInt;
+import java.util.List;
 
 /*
 Clase encargada del inicio del programa y entre partidas (el menú)
@@ -89,4 +75,5 @@ Inicio conexión
         this.partida=new PartidaCliente();
     }
 
+    public List<String> listaPartidas(){return null;}
 }

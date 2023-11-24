@@ -2,7 +2,6 @@ package cliente;
 
 import modeloDominio.baraja.Carta;
 import modeloDominio.baraja.Mano;
-import servidor.Partida;
 
 import java.util.Scanner;
 
@@ -73,6 +72,13 @@ Se encarga de dibujar en consola la partida
                     return this.cliente.salir();
                 }else if (palabras[0].equals("ayuda")) {
                     return "Mostrando ayuda inicio";
+                }else if (palabras[0].equals("partidas")) {
+                    String n="";
+                    for (String partida: this.cliente.listaPartidas()
+                         ) {
+                        n+=partida+" ";
+                    }
+                    return n;
                 }else {
                     return ("Comando no reconocido.");
                 }
