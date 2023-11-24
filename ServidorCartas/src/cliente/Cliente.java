@@ -3,12 +3,17 @@ package cliente;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
+
+import servidor.Servidor;
 
 /*
 Clase encargada del inicio del programa y entre partidas (el menú)
  */
 public class Cliente{
+
+    static Servidor server=new Servidor();//Para pruebas
 
 	private Socket s;
     private Consola interfaz;
@@ -75,5 +80,7 @@ Inicio conexión
         this.partida=new PartidaCliente();
     }
 
-    public List<String> listaPartidas(){return null;}
+    public List<String> listaPartidas(){
+        return this.server.getPartidas();
+    }
 }

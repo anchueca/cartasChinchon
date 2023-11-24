@@ -3,6 +3,7 @@ package cliente;
 import modeloDominio.baraja.Carta;
 import modeloDominio.baraja.Mano;
 
+import java.util.List;
 import java.util.Scanner;
 
 import static java.lang.Integer.parseInt;
@@ -73,10 +74,10 @@ Se encarga de dibujar en consola la partida
                 }else if (palabras[0].equals("ayuda")) {
                     return "Mostrando ayuda inicio";
                 }else if (palabras[0].equals("partidas")) {
-                    String n="";
-                    for (String partida: this.cliente.listaPartidas()
-                         ) {
-                        n+=partida+" ";
+                    String n="Lista partidas:\n";
+                    List<String> lista=this.cliente.listaPartidas();
+                    for(int i=0,j=lista.size();i<j;i++){
+                        n+=i+".- "+lista.get(i)+"\n";
                     }
                     return n;
                 }else {

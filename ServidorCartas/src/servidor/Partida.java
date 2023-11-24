@@ -3,6 +3,7 @@ package servidor;
 
 import modeloDominio.AccionesChinchonI;
 import modeloDominio.EstadoPartida;
+import modeloDominio.FaseChinchon;
 import modeloDominio.VerChinchonI;
 import modeloDominio.baraja.Baraja;
 import modeloDominio.baraja.Carta;
@@ -19,43 +20,29 @@ import java.util.Map;
 import static java.lang.Integer.parseInt;
 
 public class Partida {
-	/*
-	Propiedades estáticas
-	 */
-	private static final int MAXPartidas=32;
-	private static final Map<String,Partida> partidas=new HashMap<>();
-	private static int PartidasActivas=0;
 
+	//Atributos
 
-	public static Partida buscarPartida(String nombre) {
-		return Partida.partidas.get(nombre);
-	}
-
-	/*
-        Partida particular
-         */
 	private String nombre;//identificador partida
-	public String getNombre() {
-		return nombre;
-	}
-	public EstadoPartida getEstado() {
-		return estado;
-	}
-	public void setEstado(EstadoPartida estado) {
-		this.estado = estado;
-	}
 	private EstadoPartida estado;
+	private FaseChinchon fase;
+	private Jugador anfitrion;
 
 	private final Map<Jugador,Integer> puntuaciones;
 	private Baraja baraja;
 	private Jugador turno;
 	private final List<Jugador> jugadores;
 
-	//Factoría y constructies
+
+	
+
+
+	//Factoría y constructores
 	private Partida() {
 		this.estado=EstadoPartida.ESPERANDO;
 		this.puntuaciones=new HashMap<>();
 		this.jugadores=new ArrayList<>();
+		this.fase=null;
 	}
 	public static Partida PartidaFactoria(Document xml){
 		return new Partida();
@@ -66,18 +53,35 @@ public class Partida {
 		this.baraja=Baraja.barajaFactoria(barajaTamano);
 	}
 
-	//Funcionamiento partida
-	private void bucleJuego(){
-		//Comienzo juego
-		while (this.estado!=EstadoPartida.FINALIZADO){
-			//Compruebo si hay mensajes pendientes
-			//Acciones partida
+/*
+ * Getters y setters
+ */
 
-		}
-		//Fin partida
+ 	public String getNombre() {
+		return nombre;
+	}
+	public EstadoPartida getEstado() {
+		return estado;
+	}
+	public void setEstado(EstadoPartida estado) {
+		this.estado = estado;
+	}
+	public Jugador getTurno(){
+		return this.turno;
 	}
 
 	//Gestión partida
+
+
+	public boolean juega(Jugador jugador){
+		return this.turno==jugador;
+	}
+
+
+
+
+
+
 	public boolean expulsarJugador(Jugador jugador){
 		return this.getJugadores().remove(jugador);
 	}//por implementr
@@ -97,7 +101,15 @@ public class Partida {
 	}
 
 	public void iniciarPartida() {
+		this.estado=EstadoPartida.ENCURSO;
+		for (Jugador jugador : this.jugadores) {
+			this.puntuaciones.put(jugador,0);
+		}
+	}
 
+	public void inicioRonda(){
+		this.repartirMano();
+		this.fase=FaseChinchon.ABIERTO;
 	}
 
 	public Jugador siguienteTurno() {
@@ -106,12 +118,17 @@ public class Partida {
 		this.turno= this.jugadores.get(turno);
 		return this.turno;
 	}
+
 	public void repartirMano() {
 		for(int i=0;i<7;i++)
 			for (Jugador jugador: jugadores
 			) {
 				//jugador.darCarta(this.baraja.tomarCarta());
 			}
+	}
+
+	public String toString(){
+		return this.nombre;
 	}
 
 }

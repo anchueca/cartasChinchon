@@ -18,25 +18,13 @@ import java.util.Map;
 Clase de la partida general del cliente
  */
 public class PartidaCliente implements AccionesChinchonI, VerChinchonI {
-    private Mano mano;
-    private EstadoPartida estado;
+    
     private boolean partidaActualizada;
-    private boolean turno;
 
-    public boolean isTurno() {
-        return turno;
-    }
-    private void setTurno(boolean turno) {
-        this.turno = turno;
-    }
     public PartidaCliente() {
-        this.turno=false;
         this.partidaActualizada=false;
-        this.estado=EstadoPartida.ESPERANDO;
     }
-    public EstadoPartida getEstado(){
-        return this.estado;
-    }
+
     /*
     Bucle de recepción de mensajes del servidor.
      */
