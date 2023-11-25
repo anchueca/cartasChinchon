@@ -30,15 +30,21 @@ public class Consola extends Thread{
         System.out.println("Juego chinchon");
         System.out.println("escribe ayuda para ver los comandos");
         //Bucle de juego
-        while (!this.isInterrupted()){
+        while (true){
+            if(this.isInterrupted())break;
             //Si ha habido cambios actualizo si estoy en partida
             if(this.partida!=null && this.partida.verPartidaActualizada()){
                 this.pintarPartida();
             }
             //Compruebo entrada del usuario
-            if(in.hasNext()){
+            if(in.hasNext()){//NO QUIERO QUE SE BLOQUEE
                 System.out.println(this.procesarInstrccion(in.nextLine()));
                 //this.pintarPartida();
+            }
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
         System.out.println("Ceeradno programa....");
@@ -61,11 +67,11 @@ Se encarga de dibujar en consola la partida
         String[] palabras = instruccion.split("\\s+");
         try {
             if(this.partida==null){
-                if (palabras[0].equals("crear")) {
-                    if (palabras.length == 2) {
-                        this.cliente.unirsePartida(palabras[1]);
+                if (palabras[0].equals("entrar")) {
+                    if (palabras.length == 3) {
+                        this.cliente.unirsePartida(palabras[1],palabras[2]);
                     } else throw new NumeroParametrosExcepcion();
-                } else if (palabras[0].equals("entrar")) {
+                } else if (palabras[0].equals("crear")) {
                     if (palabras.length == 2) {
                         this.cliente.crearPartida(palabras[1]);
                     } else throw new NumeroParametrosExcepcion();
@@ -118,9 +124,11 @@ Se encarga de dibujar en consola la partida
                 } else if (palabras[0].equals("ordenar")) {
                     this.partida.verMano().ordenar();
                 } else if (palabras[0].equals("salir")) {//abandonar partida
-                    return "Abandonando partida...";
+                    this.setPartida(null);
                 } else if (palabras[0].equals("empezar")) {
                     this.partida.empezarPartida();
+                }else if (palabras[0].equals("jugadores")) {
+                    return this.listaJugadores();
                 }else if (palabras[0].equals("ayuda")) {
                     return "Mostrando ayuda juego";
                 } else {
@@ -136,8 +144,18 @@ Se encarga de dibujar en consola la partida
     }
 
     public void setPartida(PartidaCliente partida){
-        System.out.println("Cargando partida");
+        if(partida!=null)System.out.println("Cargando partida");
+        else System.out.println("Abandonando partida...");
         this.partida=partida;
+    }
+
+    private String listaJugadores(){
+        String cadena="Juagdores: ";
+        for (String ca: this.partida.listaJugadores()
+             ) {
+            cadena+=ca+" ";
+        }
+        return cadena;
     }
 
 }

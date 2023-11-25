@@ -2,15 +2,12 @@ package cliente;
 
 import modeloDominio.AccionesChinchonI;
 import modeloDominio.EstadoPartida;
-import modeloDominio.ProcesadorMensajes;
 import modeloDominio.VerChinchonI;
 import modeloDominio.baraja.Carta;
-import org.w3c.dom.Document;
 import modeloDominio.baraja.Mano;
+import servidor.Servidor;
 import servidor.usuarios.Jugador;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.util.List;
 import java.util.Map;
 
@@ -20,9 +17,15 @@ Clase de la partida general del cliente
 public class PartidaCliente implements AccionesChinchonI, VerChinchonI {
     
     private boolean partidaActualizada;
+    private final String nombreJugador;
+    private final String nombrePartida;
 
-    public PartidaCliente() {
+    static Servidor server=new Servidor();//Para pruebas
+
+    public PartidaCliente(String nombrePartida,String nombreJugador) {
         this.partidaActualizada=false;
+        this.nombreJugador=nombreJugador;
+        this.nombrePartida=nombrePartida;
     }
 
     /*
@@ -89,6 +92,10 @@ public class PartidaCliente implements AccionesChinchonI, VerChinchonI {
         return this.partidaActualizada;
     }
 
+    public void actualizarPartida(){
+        //this.server
+    }
+
 
     public boolean cogerCartaCubierta() {
         return false;
@@ -118,5 +125,8 @@ public class PartidaCliente implements AccionesChinchonI, VerChinchonI {
     }
 
 
+    public List<String> listaJugadores(){
+        return PartidaCliente.server.listaJugadores(this.nombrePartida);
+    }
 
 }

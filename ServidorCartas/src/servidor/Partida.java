@@ -1,23 +1,19 @@
 package servidor;
 
 
-import modeloDominio.AccionesChinchonI;
 import modeloDominio.EstadoPartida;
 import modeloDominio.FaseChinchon;
-import modeloDominio.VerChinchonI;
 import modeloDominio.baraja.Baraja;
-import modeloDominio.baraja.Carta;
-import modeloDominio.baraja.Mano;
 import modeloDominio.baraja.Tamano;
-import servidor.usuarios.Jugador;
 import org.w3c.dom.Document;
+import servidor.usuarios.Humano;
+import servidor.usuarios.IA;
+import servidor.usuarios.Jugador;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.Integer.parseInt;
 
 public class Partida {
 
@@ -43,6 +39,7 @@ public class Partida {
 		this.puntuaciones=new HashMap<>();
 		this.jugadores=new ArrayList<>();
 		this.fase=null;
+		this.anfitrion=null;
 	}
 	public static Partida PartidaFactoria(Document xml){
 		return new Partida();
@@ -82,24 +79,41 @@ public class Partida {
 
 
 
-	public boolean expulsarJugador(Jugador jugador){
-		return this.getJugadores().remove(jugador);
+	public boolean expulsarJugador(String jugador){
+		return this.getJugadores().remove(jugador);//No implemntado con strig
 	}//por implementr
-	public boolean robotizar(Jugador jugador){
+	public boolean robotizar(String jugador){
 		return this.getJugadores().remove(jugador);
-	}//por implementr
+	}//por implementr//No implemntado con strig
 
-	public boolean nuevoJugador(Jugador jugador) {
+	public boolean nuevoHumano(String jugador) {
 		if(this.estado==EstadoPartida.ESPERANDO){
-			this.getJugadores().add(jugador);
+			Humano humano=new Humano(jugador);
+			if(this.getJugadores().isEmpty())this.anfitrion=humano;
+			this.getJugadores().add(humano);
 			return true;
 		}
 		return false;
 	}
-	public List<Jugador> getJugadores() {
+	public boolean nuevoIA(String jugador) {
+		if(this.estado==EstadoPartida.ESPERANDO){
+			this.getJugadores().add(new IA(jugador));
+			return true;
+		}
+		return false;
+	}
+	private List<Jugador> getJugadores() {
 		return new ArrayList<>(this.jugadores);
 	}
 
+	public List<String> getJugadoresS() {
+		List<String> lista= new ArrayList<>();
+		for (Jugador j:this.jugadores
+			 ) {
+			lista.add(j.getNombre());
+		}
+		return lista;
+	}
 	public void iniciarPartida() {
 		this.estado=EstadoPartida.ENCURSO;
 		for (Jugador jugador : this.jugadores) {

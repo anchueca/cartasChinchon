@@ -1,5 +1,7 @@
 package servidor;
 
+import modeloDominio.baraja.Tamano;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,11 +37,7 @@ public class Servidor {
     //@GET
     //@Path("partidas")
     public List<String> getPartidas(){
-        List<String> lista=new ArrayList<>();
-        lista.add("pepe");
-        lista.add("pepea");
-        lista.add("perez");
-        return lista;
+        return new ArrayList<>(Servidor.partidas.keySet());
     }
     /*
     Crea una nueva partida vacía
@@ -47,15 +45,30 @@ public class Servidor {
     //@PUT
     //@Path("partida/{nombre}")
     public void crearPartida(String nombre){
-        
+        if(Servidor.PartidasActivas<Servidor.MAXPartidas){
+            Servidor.partidas.put(nombre,new Partida(nombre, Tamano.NORMAL));
+            Servidor.PartidasActivas++;
+        }
     }
     /*
     Se une a aprtida
      */
     //@POST
     //@Path("partida/{nombre}/{jugador}")
-    public void entrarPartida(String nombre){
+    public void entrarPartida(String nombre,String jugador){
+        Partida partida=this.buscarPartida(nombre);
+        if(partida==null);
+        else{
+            partida.nuevoHumano(jugador);
+        }
+    }
 
+    public void abandonarPartida(String nombre,String nombreJugador){
+        Partida partida=this.buscarPartida(nombre);
+        if(partida==null);
+        else{
+            partida.expulsarJugador(nombreJugador);
+        }
     }
     /*
     Juagada
@@ -64,6 +77,15 @@ public class Servidor {
     //@Path("Partida/{partida]/{jugador}{jugada}")
     public boolean jugada(String partida,String jugador,String jugada){
         return false;
+    }
+
+    public List<String> listaJugadores(String nombre){
+        Partida partida=this.buscarPartida(nombre);
+        if(partida==null);
+        else{
+            return partida.getJugadoresS();
+        }
+        return null;
     }
 
 //    @GET

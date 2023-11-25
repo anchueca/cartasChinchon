@@ -1,12 +1,10 @@
 package cliente;
 
 
-import java.io.IOException;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-
 import servidor.Servidor;
+
+import java.net.Socket;
+import java.util.List;
 
 /*
 Clase encargada del inicio del programa y entre partidas (el menú)
@@ -18,7 +16,6 @@ public class Cliente{
 	private Socket s;
     private Consola interfaz;
     private PartidaCliente partida;
-
     private boolean salida;
     //Inicio programa
 	public static void main(String[] args) {
@@ -36,12 +33,8 @@ Inicio conexión
             //this.s=new Socket("localhost",55555);
             System.out.println("conexion establecida");
             this.interfaz=new Consola(this);
-            interfaz.start();
-        try {
+            this.interfaz.start();
             this.inicio();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
 
         /*} catch (IOException e) {
             // TODO Auto-generated catch block
@@ -51,36 +44,48 @@ Inicio conexión
     /*
     Gestión del progrma
      */
-	public void inicio() throws InterruptedException {
-
+	public void inicio() {
         //Inicio juego
-        while (!this.salida);
+        try {
+            while (!this.salida) {
+                Thread.sleep(1000);
+                if(this.partida!=null)this.partida.actualizarPartida();//Compruebo si se han producido cambios
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
 
         //Cierre cliente
         this.interfaz.interrupt();
         System.out.println("Cerrando conexión");
-        try{
+        /*try{
             this.s.close();
             System.out.println("Conexión cerrada");
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
+        }*/
     }
 
+    public void actualizarPartida(){
+
+    }
     public String salir(){
         this.salida=true;
         return "Saliendo....";
     }
 
     public void crearPartida(String nombre){
-        this.partida=new PartidaCliente();
+        Cliente.server.crearPartida(nombre);
     }
 
-    public void unirsePartida(String nombre){
-        this.partida=new PartidaCliente();
+    public void unirsePartida(String nombre,String nombreJugador){
+        Cliente.server.entrarPartida(nombre,nombreJugador);
+        this.partida=new PartidaCliente(nombre,nombreJugador);
+        this.interfaz.setPartida(this.partida);
     }
-
     public List<String> listaPartidas(){
         return this.server.getPartidas();
     }
+
 }

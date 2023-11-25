@@ -9,7 +9,8 @@ import java.util.Map;
 
 public class IA extends Jugador {
 
-	protected IA(String nombre) {
+	public IA(String nombre) {
+		super(nombre);
 		// TODO Auto-generated constructor stub
 	}
 

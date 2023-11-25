@@ -1,7 +1,5 @@
 package modeloDominio.baraja;
 
-import modeloDominio.baraja.Carta;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,7 +15,10 @@ public class Mano implements Iterable<Carta>, Serializable {
     public Mano(Collection<Carta> cartas){
         this.cartas=new ArrayList<>(cartas);
     }
-    public Mano(Carta carta){this.cartas=new ArrayList<>();this.cartas.add(carta);}
+    public Mano(Carta carta){this();this.cartas.add(carta);}
+    public Mano(){
+        this.cartas=new ArrayList<>();
+    }
 
     public Carta tomarCarta(Carta carta){
         int i=this.cartas.indexOf(carta);

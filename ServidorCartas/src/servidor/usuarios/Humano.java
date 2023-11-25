@@ -4,15 +4,13 @@ import modeloDominio.EstadoPartida;
 import modeloDominio.baraja.Carta;
 import modeloDominio.baraja.Mano;
 
-import java.net.Socket;
 import java.util.List;
 import java.util.Map;
 
 public class Humano extends Jugador {
-	private Socket s;
-	
-	protected Humano(Socket s,String nombre){
-		this.s=s;
+
+	public Humano(String nombre){
+		super(nombre);
 	}
 
 	@Override
