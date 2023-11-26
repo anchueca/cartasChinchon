@@ -30,8 +30,6 @@ public class Partida {
 	private final List<Jugador> jugadores;
 
 
-	
-
 
 	//Factoría y constructores
 	private Partida() {
@@ -103,7 +101,7 @@ public class Partida {
 		return false;
 	}
 	private List<Jugador> getJugadores() {
-		return new ArrayList<>(this.jugadores);
+		return this.jugadores;
 	}
 
 	public List<String> getJugadoresS() {
@@ -111,8 +109,14 @@ public class Partida {
 		for (Jugador j:this.jugadores
 			 ) {
 			lista.add(j.getNombre());
+			System.out.println(j.getNombre());
 		}
+		System.out.println("prueba");
 		return lista;
+	}
+
+	public String nombreAnfitrion(){
+		 return this.anfitrion.getNombre();
 	}
 	public void iniciarPartida() {
 		this.estado=EstadoPartida.ENCURSO;

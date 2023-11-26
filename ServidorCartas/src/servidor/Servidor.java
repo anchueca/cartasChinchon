@@ -1,5 +1,6 @@
 package servidor;
 
+import modeloDominio.EstadoPartida;
 import modeloDominio.baraja.Tamano;
 
 import java.util.ArrayList;
@@ -44,23 +45,24 @@ public class Servidor {
      */
     //@PUT
     //@Path("partida/{nombre}")
-    public void crearPartida(String nombre){
-        if(Servidor.PartidasActivas<Servidor.MAXPartidas){
+    public boolean crearPartida(String nombre){
+        if(Servidor.PartidasActivas<Servidor.MAXPartidas && this.buscarPartida(nombre)==null){
             Servidor.partidas.put(nombre,new Partida(nombre, Tamano.NORMAL));
             Servidor.PartidasActivas++;
+            return true;
         }
+        return false;
     }
     /*
     Se une a aprtida
      */
     //@POST
     //@Path("partida/{nombre}/{jugador}")
-    public void entrarPartida(String nombre,String jugador){
+    public boolean entrarPartida(String nombre,String jugador){
         Partida partida=this.buscarPartida(nombre);
-        if(partida==null);
-        else{
-            partida.nuevoHumano(jugador);
-        }
+        if(partida==null)return false;
+        partida.nuevoHumano(jugador);
+        return true;
     }
 
     public void abandonarPartida(String nombre,String nombreJugador){
@@ -68,6 +70,8 @@ public class Servidor {
         if(partida==null);
         else{
             partida.expulsarJugador(nombreJugador);
+            if(partida.getJugadoresS().isEmpty())Servidor.partidas.remove(nombre);
+            Servidor.PartidasActivas--;
         }
     }
     /*
@@ -86,6 +90,31 @@ public class Servidor {
             return partida.getJugadoresS();
         }
         return null;
+    }
+
+    public EstadoPartida estadoPartida(String nombre){
+        Partida partida=this.buscarPartida(nombre);
+        if(partida==null);
+        else{
+            return partida.getEstado();
+        }
+        return null;
+    }
+
+    public void iniciarPartida(String nombre,String nombreJugador){
+        Partida partida=this.buscarPartida(nombre);
+        if(partida==null);
+        else{
+            partida.iniciarPartida();
+        }
+    }
+
+    public boolean partidaActualizada(String nombre,String jugador){
+        Partida partida=this.buscarPartida(nombre);
+        if(partida==null)return false;
+        else{
+            return false;//partida.;
+        }
     }
 
 //    @GET

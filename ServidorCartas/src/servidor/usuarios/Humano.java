@@ -84,7 +84,7 @@ public class Humano extends Jugador {
 	}
 
 	@Override
-	public Map<Jugador, Integer> verPuntuaciones() {
+	public Map<String, Integer> verPuntuaciones() {
 		return null;
 	}
 }

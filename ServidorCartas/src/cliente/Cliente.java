@@ -66,23 +66,23 @@ Inicio conexión
             throw new RuntimeException(e);
         }*/
     }
-
-    public void actualizarPartida(){
-
-    }
     public String salir(){
         this.salida=true;
         return "Saliendo....";
     }
 
-    public void crearPartida(String nombre){
-        Cliente.server.crearPartida(nombre);
+    public boolean crearPartida(String nombre){
+        return Cliente.server.crearPartida(nombre);
     }
 
-    public void unirsePartida(String nombre,String nombreJugador){
-        Cliente.server.entrarPartida(nombre,nombreJugador);
-        this.partida=new PartidaCliente(nombre,nombreJugador);
-        this.interfaz.setPartida(this.partida);
+    public boolean unirsePartida(String nombre,String nombreJugador){
+        if(Cliente.server.entrarPartida(nombre,nombreJugador)){
+            this.partida=new PartidaCliente(nombre,nombreJugador);
+            this.interfaz.setPartida(this.partida);
+            return true;
+        }
+        return false;
+
     }
     public List<String> listaPartidas(){
         return this.server.getPartidas();

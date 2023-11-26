@@ -85,8 +85,7 @@ public class IA extends Jugador {
 		return false;
 	}
 
-	@Override
-	public Map<Jugador, Integer> verPuntuaciones() {
-		return null;
+	public String toString(){
+		return "IA: "+super.toString();
 	}
 }

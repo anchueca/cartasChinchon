@@ -4,6 +4,7 @@ import modeloDominio.baraja.Carta;
 import modeloDominio.baraja.Mano;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import static java.lang.Integer.parseInt;
@@ -69,11 +70,11 @@ Se encarga de dibujar en consola la partida
             if(this.partida==null){
                 if (palabras[0].equals("entrar")) {
                     if (palabras.length == 3) {
-                        this.cliente.unirsePartida(palabras[1],palabras[2]);
+                        return this.unirsePartida(palabras[1],palabras[2]);
                     } else throw new NumeroParametrosExcepcion();
                 } else if (palabras[0].equals("crear")) {
                     if (palabras.length == 2) {
-                        this.cliente.crearPartida(palabras[1]);
+                        return this.crearPartida(palabras[1]);
                     } else throw new NumeroParametrosExcepcion();
                 } else if (palabras[0].equals("salir")) {//abandonar programa
                     return this.cliente.salir();
@@ -129,6 +130,10 @@ Se encarga de dibujar en consola la partida
                     this.partida.empezarPartida();
                 }else if (palabras[0].equals("jugadores")) {
                     return this.listaJugadores();
+                }else if (palabras[0].equals("estado")) {
+                    return this.estado();
+                }else if (palabras[0].equals("puntuaciones")) {
+                    return this.puntuaciones();
                 }else if (palabras[0].equals("ayuda")) {
                     return "Mostrando ayuda juego";
                 } else {
@@ -156,6 +161,31 @@ Se encarga de dibujar en consola la partida
             cadena+=ca+" ";
         }
         return cadena;
+    }
+
+    private String estado(){
+        String ca="Partida: "+this.partida.getNombrePartida()+"\nJugador: "+this.partida.getNombreJuagador()+
+                "\n"+this.listaJugadores()+"\nEstado de la partida: "+this.partida.verEstadoPartida().toString();
+        return ca;
+    }
+
+    private String puntuaciones(){
+        Map<String,Integer> mapa=this.partida.verPuntuaciones();
+        String ca="Puntuaciones:";
+        for (String nombre:mapa.keySet()
+             ) {
+            ca+="\n"+nombre+": "+mapa.get(nombre);
+        }
+        return ca;
+    }
+
+    private String unirsePartida(String partida,String jugador){
+        if(this.cliente.unirsePartida(partida,jugador))return "Entando,,,\n"+this.estado();
+        return "No se ha podido entrar";
+    }
+    private String crearPartida(String partida){
+        if(this.cliente.crearPartida(partida))return "Partida creada\n"+this.estado();
+        return "No se ha podido crear";
     }
 
 }

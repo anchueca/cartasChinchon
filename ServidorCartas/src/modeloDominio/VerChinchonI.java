@@ -1,9 +1,8 @@
 package modeloDominio;
 
-import modeloDominio.EstadoPartida;
 import modeloDominio.baraja.Carta;
-import servidor.usuarios.Jugador;
 import modeloDominio.baraja.Mano;
+import servidor.usuarios.Jugador;
 
 import java.util.List;
 import java.util.Map;
@@ -20,5 +19,5 @@ public interface VerChinchonI {
     boolean empezarPartida();
     Carta verCartaDescubierta();
     boolean verCerrado();
-    Map<Jugador,Integer> verPuntuaciones();
+    Map<String,Integer> verPuntuaciones();
 }
