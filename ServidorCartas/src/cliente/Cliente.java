@@ -32,9 +32,12 @@ Inicio conexión
             System.out.println("Iniciando conexión");
             //this.s=new Socket("localhost",55555);
             System.out.println("conexion establecida");
+        ConsolaBonita consolaBonita = new ConsolaBonita();
+        consolaBonita.setVisible(true);
             this.interfaz=new Consola(this);
             this.interfaz.start();
             this.inicio();
+
 
         /*} catch (IOException e) {
             // TODO Auto-generated catch block
@@ -52,7 +55,7 @@ Inicio conexión
                 if(this.partida!=null)this.partida.actualizarPartida();//Compruebo si se han producido cambios
             }
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            if(!this.salida)throw new RuntimeException(e);
         }
 
 
@@ -66,9 +69,9 @@ Inicio conexión
             throw new RuntimeException(e);
         }*/
     }
-    public String salir(){
+    public boolean salir(){
         this.salida=true;
-        return "Saliendo....";
+        return true;
     }
 
     public boolean crearPartida(String nombre){

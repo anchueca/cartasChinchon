@@ -3,8 +3,8 @@ package modeloDominio.baraja;
 import java.io.Serializable;
 
 public class Carta implements Comparable<Carta>, Serializable {
-	private Palo palo;
-	private int numero;
+	private final Palo palo;
+	private final int numero;
 	public Carta(int numero, Palo palo) {
 		this.palo = palo;
 		this.numero=numero;
@@ -12,28 +12,57 @@ public class Carta implements Comparable<Carta>, Serializable {
 	public Palo getPalo() {
 		return palo;
 	}
-	public void setPalo(Palo palo) {
-		this.palo = palo;
-	}
 	public int getNumero() {
 		return numero;
 	}
-	public void setNumero(int numero) {
-		this.numero = numero;
-	}
+
 	public int compareTo(Carta o) {
-		if(this.getPalo()==o.getPalo()){
-			if(this.getNumero()<o.getNumero())return -1;
-			if(this.getNumero()>o.getNumero())return 1;
-			return 0;
-		}
+		if(this.getPalo()==o.getPalo())return Integer.compare(this.numero, o.numero);
 		return this.getPalo().compareTo(o.getPalo());
 	}
 	public String toString(){
-		if(this.getNumero()==1)return "As de "+this.getPalo();
-		if(this.getNumero()==10)return "Sota de "+this.getPalo();
-		if(this.getNumero()==11)return "Caballo de "+this.getPalo();
-		if(this.getNumero()==12)return "Rey de "+this.getPalo();
-		return this.getNumero()+"de "+this.getPalo();
+		String tipoCarta;
+		switch (numero){
+			case 1:
+				tipoCarta = "As";
+				break;
+			case 10:
+				tipoCarta = "Sota";
+				break;
+			case 11:
+				tipoCarta = "Caballo";
+				break;
+			case 12:
+				tipoCarta = "Rey";
+				break;
+			default:
+				tipoCarta = String.valueOf(numero);
+		}
+
+		return tipoCarta + " de " + this.palo;
 	}
+		/*String formaCarta = "+-----+\n|     |\n|  %s |\n|     |\n+-----+";
+
+		// Esto representaría un valor básico de la carta en ASCII
+		String contenido;
+		switch (numero) {
+			case 1:
+				contenido = "A"; // As
+				break;
+			case 10:
+				contenido = "S"; // Sota
+				break;
+			case 11:
+				contenido = "C"; // Caballo
+				break;
+			case 12:
+				contenido = "R"; // Rey
+				break;
+			default:
+				contenido = String.valueOf(numero); // Número de la carta
+		}
+
+		// Coloca el contenido en la forma de la carta
+		return String.format(formaCarta, contenido);
+	}*/
 }

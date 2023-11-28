@@ -24,10 +24,10 @@ public class Baraja implements Iterable<Carta> {
         return new Baraja(cartas);
     }
     public Carta tomarCarta() {
-        return this.cartas.peekFirst();
+        return this.cartas.pop();
     }
     public void barajar() {
-        List<Carta> lista=new ArrayList<>(this.cartas);
+        ArrayList<Carta> lista=new ArrayList<>(this.cartas);
         Collections.shuffle(lista);
         this.cartas=new ArrayDeque<>(lista);
     }

@@ -55,7 +55,7 @@ public class PartidaCliente{
     }
 
     public Mano verMano() {
-        return null;
+        return PartidaCliente.server.verMano(this.nombrePartida,this.nombreJugador);
     }
 
     public EstadoPartida verEstadoPartida() {
@@ -112,6 +112,10 @@ public class PartidaCliente{
     }
     public List<String> listaJugadores(){
         return PartidaCliente.server.listaJugadores(this.nombrePartida);
+    }
+    public boolean salir(){
+        return PartidaCliente.server.abandonarPartida(this.nombrePartida,this.nombreJugador);
+
     }
 
 }

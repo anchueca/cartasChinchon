@@ -4,82 +4,49 @@ import modeloDominio.EstadoPartida;
 import modeloDominio.baraja.Carta;
 import modeloDominio.baraja.Mano;
 
+import javax.swing.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
-/*
-Interfaz de usuario del chinchón por consola
- */
-public class Consola extends Thread{
+public class ConsolaBonita extends JFrame {
+    private JTextField Entrada;
+    private JTextArea Salida;
+    private JLabel Partida;
+    private JLabel jugador;
+    private JPanel panel;
+    private JLabel PartidaActual;
     private Cliente cliente;
     private PartidaCliente partida;
-    public Consola(Cliente cliente,PartidaCliente partida) {
-        this(cliente);
+    public ConsolaBonita(Cliente cliente,PartidaCliente partida) {
+        this.cliente=cliente;
         this.partida=partida;
     }
-    public Consola(Cliente cliente) {
-        this.cliente = cliente;
-        this.partida=null;
-    }
-    /*
-    Inicio de la partida que contiene el bucle de juego
-     */
-    public void run(){
-        Scanner in=new Scanner(System.in);
-        //this.interfaz
-        System.out.println("Juego chinchon");
-        System.out.println("escribe ayuda para ver los comandos");
-        //Bucle de juego
-        ExecutorService executor= Executors.newSingleThreadExecutor();
-        Future<String> entrada= executor.submit(() -> {return in.nextLine();});
-        while (!Thread.currentThread().isInterrupted()){
-            //Si ha habido cambios actualizo si estoy en partida
-            if(this.partida!=null && this.partida.verPartidaActualizada()){
-                if(this.partida.verEstadoPartida()== EstadoPartida.ENCURSO)System.out.println(this.pintarPartida());
-            }
-            //Compruebo entrada del usuario
-            if(entrada.isDone()){
-                try {
-                    System.out.println(this.procesarInstrccion(entrada.get()));
-                    if(this.partida!=null)System.out.println(this.pintarPartida());
-                    entrada= executor.submit(() -> {return in.nextLine();});
-                } catch (InterruptedException | ExecutionException e) {
-                    System.out.println("Error en captura");
-                }
-            }
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        in.close();
-        System.out.println("Ceeradno programa....");
-    }
-/*
-Se encarga de dibujar en consola la partida
- */
-private String pintarPartida(){
-    String salida="";
-    if(this.partida.verEstadoPartida()==EstadoPartida.ENCURSO){
 
-        //System.out.print("\n\n\nEstado de la partida: "+this.partida.es);
-        Mano mano=this.partida.verMano();
-        if(mano!=null)for (Carta carta: mano
-        ) {
-            salida+=" "+carta;
-        }
-        Carta descubierta=this.partida.verCartaDescubierta();
-
-        salida+="Descubierta: "+(descubierta==null?"Nada":descubierta);
+    public ConsolaBonita() {
+        setSize(600, 400);
+        Entrada.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                Salida.setText(procesarInstrccion(Entrada.getText()));
+                Entrada.setText("");
+            }
+        });
     }
-    return salida;
-}
+
+    void interpretarComando(){
+        this.Salida.setText("Comando introducido");
+    }
+    public void setPartida(String nombrePartida) {
+        PartidaActual.setText(nombrePartida);
+    }
+
+    public void setJugador(String nombrePartida) {
+        jugador.setText(nombrePartida);
+    }
+
     /*
     Proesa los comandos
      */
@@ -190,7 +157,7 @@ private String pintarPartida(){
     private String listaJugadores(){
         String cadena="Juagdores: ";
         for (String ca: this.partida.listaJugadores()
-             ) {
+        ) {
             cadena+=ca+" ";
         }
         return cadena;
@@ -206,7 +173,7 @@ private String pintarPartida(){
         Map<String,Integer> mapa=this.partida.verPuntuaciones();
         String ca="Puntuaciones:";
         for (String nombre:mapa.keySet()
-             ) {
+        ) {
             ca+="\n"+nombre+": "+mapa.get(nombre);
         }
         return ca;
@@ -229,10 +196,25 @@ private String pintarPartida(){
     private String salirPartida(){
 
         if(this.partida.salir()){
-            this.setPartida(null);
+            this.partida=null;
             return "saliendo de la partida";
         }
         return "No es posible abandonar la partida";
     }
+    private String pintarPartida(){
+        String salida="";
+        if(this.partida.verEstadoPartida()==EstadoPartida.ENCURSO){
 
+            //System.out.print("\n\n\nEstado de la partida: "+this.partida.es);
+            Mano mano=this.partida.verMano();
+            if(mano!=null)for (Carta carta: mano
+            ) {
+                salida+=" "+carta;
+            }
+            Carta descubierta=this.partida.verCartaDescubierta();
+
+            salida+="Descubierta: "+(descubierta==null?"Nada":descubierta);
+        }
+        return salida;
+    }
 }

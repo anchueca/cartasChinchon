@@ -1,11 +1,7 @@
 package servidor.usuarios;
 
-import modeloDominio.EstadoPartida;
 import modeloDominio.baraja.Carta;
 import modeloDominio.baraja.Mano;
-
-import java.util.List;
-import java.util.Map;
 
 public class IA extends Jugador {
 
@@ -49,41 +45,13 @@ public class IA extends Jugador {
 	public boolean verPartidaActualizada() {
 		return false;
 	}
-
-	@Override
-	public boolean verTurno() {
-		return false;
-	}
-
+	
 	@Override
 	public Mano verMano() {
 		return null;
 	}
 
-	@Override
-	public EstadoPartida verEstadoPartida() {
-		return null;
-	}
 
-	@Override
-	public List<Jugador> verJugadores() {
-		return null;
-	}
-
-	@Override
-	public boolean empezarPartida() {
-		return false;
-	}
-
-	@Override
-	public Carta verCartaDescubierta() {
-		return null;
-	}
-
-	@Override
-	public boolean verCerrado() {
-		return false;
-	}
 
 	public String toString(){
 		return "IA: "+super.toString();

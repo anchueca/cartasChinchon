@@ -48,9 +48,11 @@ public class Mano implements Iterable<Carta>, Serializable {
         this.cartas.sort(null);
     }
     public void permutar(int i, int j){
-        Carta carta=this.cartas.get(i);
-        this.cartas.add(i,this.cartas.get(j));
-        this.cartas.add(j,carta);
+        if(i >= 0 && i < this.cartas.size() && j >= 0 && j < this.cartas.size()) {
+            Carta carta = this.cartas.get(i);
+            this.cartas.set(i, this.cartas.get(j));
+            this.cartas.set(j, carta);
+        }
     }
     @Override
     public Iterator<Carta> iterator() {
