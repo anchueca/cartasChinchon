@@ -3,6 +3,7 @@ package cliente;
 
 import servidor.Servidor;
 
+import javax.swing.*;
 import java.net.Socket;
 import java.util.List;
 
@@ -14,7 +15,7 @@ public class Cliente{
     static Servidor server=new Servidor();//Para pruebas
 
 	private Socket s;
-    private Consola interfaz;
+    private procesadorComandos interfaz;
     private PartidaCliente partida;
     private boolean salida;
     //Inicio programa
@@ -32,9 +33,8 @@ Inicio conexión
             System.out.println("Iniciando conexión");
             //this.s=new Socket("localhost",55555);
             System.out.println("conexion establecida");
-        ConsolaBonita consolaBonita = new ConsolaBonita();
-        consolaBonita.setVisible(true);
-            this.interfaz=new Consola(this);
+
+            this.interfaz=new procesadorComandos(this);
             this.interfaz.start();
             this.inicio();
 
@@ -49,6 +49,7 @@ Inicio conexión
      */
 	public void inicio() {
         //Inicio juego
+        JFrame con =ConsolaBonita.iniciar(interfaz);
         try {
             while (!this.salida) {
                 Thread.sleep(1000);
@@ -60,6 +61,7 @@ Inicio conexión
 
 
         //Cierre cliente
+        con.dispose();
         this.interfaz.interrupt();
         System.out.println("Cerrando conexión");
         /*try{
