@@ -17,12 +17,17 @@ public class PartidaCliente{
     private final String nombreJugador;
     private final String nombrePartida;
 
+    private boolean salida;
+
     static Servidor server=new Servidor();//Para pruebas
 
     public PartidaCliente(String nombrePartida,String nombreJugador) {
         this.nombreJugador=nombreJugador;
         this.nombrePartida=nombrePartida;
+        this.salida=false;
     }
+
+    public boolean enFuncionamiento(){return this.salida;}
 
     public String getNombrePartida(){
         return this.nombrePartida;
@@ -30,21 +35,6 @@ public class PartidaCliente{
     public String getNombreJuagador(){
         return this.nombreJugador;
     }
-    /*
-    Bucle de recepción de mensajes del servidor.
-     */
-    /*protected void bucleJuego(){
-        try{
-            while(true){
-                this.atenderServidor();
-                wait(1);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }*/
 
     public boolean verPartidaActualizada() {
         return PartidaCliente.server.partidaActualizada(this.nombrePartida,this.nombreJugador);
@@ -114,8 +104,8 @@ public class PartidaCliente{
         return PartidaCliente.server.listaJugadores(this.nombrePartida);
     }
     public boolean salir(){
-        return PartidaCliente.server.abandonarPartida(this.nombrePartida,this.nombreJugador);
-
+        this.salida= PartidaCliente.server.abandonarPartida(this.nombrePartida,this.nombreJugador);
+        return salida;
     }
 
 }

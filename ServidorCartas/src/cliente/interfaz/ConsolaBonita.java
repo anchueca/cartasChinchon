@@ -1,4 +1,8 @@
-package cliente;
+package cliente.interfaz;
+
+import cliente.AccionesConsola;
+import cliente.EjecutorConsolaBonita;
+import cliente.ProcesadorComandos;
 
 import javax.swing.*;
 import java.awt.event.KeyAdapter;
@@ -11,8 +15,8 @@ public class ConsolaBonita extends JFrame{
     private JLabel jugador;
     private JPanel prinicpal;
     private JLabel PartidaActual;
-    private procesadorComandos procesadorComandos;
-    public ConsolaBonita(procesadorComandos procesadorComandos) {
+    private ProcesadorComandos procesadorComandos;
+    public ConsolaBonita(ProcesadorComandos procesadorComandos) {
         this();
         this.procesadorComandos = procesadorComandos;
     }
@@ -23,16 +27,14 @@ public class ConsolaBonita extends JFrame{
         Entrada.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() != KeyEvent.VK_ENTER)return;
-                meterSalida(procesadorComandos.procesarInstrccion(Entrada.getText()));
-                Entrada.setText("");
+                if (e.getKeyCode() == KeyEvent.VK_ENTER){
+                    meterSalida(procesadorComandos.procesarInstrccion(Entrada.getText()));
+                    Entrada.setText("");
+                }
             }
         });
     }
 
-    void interpretarComando(){
-        this.Salida.setText("Comando introducido");
-    }
     public void setPartida(String nombrePartida) {
         PartidaActual.setText(nombrePartida);
     }
@@ -41,9 +43,15 @@ public class ConsolaBonita extends JFrame{
         jugador.setText(nombrePartida);
     }
 
-    public static JFrame iniciar(procesadorComandos procesadorComandos) {
-
+    public static void main(String[] args){
+        new ConsolaBonita().iniciar();
+    }
+    public JFrame iniciar() {
+        ProcesadorComandos procesadorComandos=new ProcesadorComandos(new EjecutorConsolaBonita());
         ConsolaBonita consolaBonita=new ConsolaBonita(procesadorComandos);
+        AccionesConsola acciones=procesadorComandos.getAccionesConsola();
+        if(acciones instanceof EjecutorConsolaBonita)((EjecutorConsolaBonita) acciones).setConsolaBonita(consolaBonita);
+        else consolaBonita.Salida.setText("Error en el procesador de instrucciones. La funcionalidad puede verse limitada");
 
         JFrame frame = new JFrame("ConsolaBonita");
         frame.setContentPane(consolaBonita.prinicpal);

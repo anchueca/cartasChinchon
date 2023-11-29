@@ -4,38 +4,33 @@ import modeloDominio.EstadoPartida;
 import modeloDominio.baraja.Carta;
 import modeloDominio.baraja.Mano;
 
+import java.util.List;
 import java.util.Map;
 
-public class EjecutosConsolaTonta implements AccionesConsola{
+public class EjecutorConsola implements AccionesConsola{
 
-    private Cliente cliente;
     private PartidaCliente partida;
-
+    private  Actualizador actualizador;
     public boolean enPartida(){
         return this.partida!=null;
     }
 
-    public boolean partidaActualizada(){
-        return this.partida.verPartidaActualizada();
-    }
-
     public PartidaCliente getPartida(){return this.partida;}
-    public Cliente getCliente(){return this.cliente;}
     public EstadoPartida estadoPartida(){return this.partida.verEstadoPartida();}
 
-    public EjecutosConsolaTonta(Cliente cliente, PartidaCliente partida) {
-        this.cliente=cliente;
+    public EjecutorConsola(PartidaCliente partida) {
+        this();
         this.partida=partida;
+
     }
-    public EjecutosConsolaTonta(Cliente cliente) {
-        this.cliente = cliente;
-        this.partida=null;
+    public EjecutorConsola(){
+        this.actualizador=new Actualizador(this);
     }
     public String pintarPartida(){
         String salida="";
         if(this.partida.verEstadoPartida()== EstadoPartida.ENCURSO){
 
-            //System.out.print("\n\n\nEstado de la partida: "+this.partida.es);
+            salida+="\n\n\nEstado de la partida: "+this.partida.verEstadoPartida();
             Mano mano=this.partida.verMano();
             if(mano!=null)for (Carta carta: mano
             ) {
@@ -47,11 +42,20 @@ public class EjecutosConsolaTonta implements AccionesConsola{
         }
         return salida;
     }
-
-    public void setPartida(PartidaCliente partida){
-        if(partida!=null)System.out.println("Cargando partida");
-        else System.out.println("Abandonando partida...");
+    public String setPartida(PartidaCliente partida){
         this.partida=partida;
+        if(partida!=null){
+            if(!this.actualizador.isAlive())this.actualizador.start();
+            else this.actualizador.notify();
+            return "Cargando partida";
+        }
+        try {
+            this.actualizador.wait();
+            return "Abandonando partida...";
+        } catch (InterruptedException e) {
+            return "Actualizador no funciona";
+        }
+
     }
 
     public String listaJugadores(){
@@ -80,16 +84,20 @@ public class EjecutosConsolaTonta implements AccionesConsola{
     }
 
     public String unirsePartida(String partida,String jugador){
-        if(this.cliente.unirsePartida(partida,jugador))return "Entando,,,\n"+this.estado();
+        if(Cliente.server.entrarPartida(partida,jugador)){
+            this.partida=new PartidaCliente(partida,jugador);
+            this.setPartida(this.partida);
+            return "Entando,,,\n"+this.estado();
+        }
         return "No se ha podido entrar";
     }
     public String crearPartida(String partida){
-        if(this.cliente.crearPartida(partida))return "Partida creada";
+        if(Cliente.server.crearPartida(partida))return "Partida creada";
         return "No se ha podido crear";
     }
 
     public String salir(){
-        if(this.cliente.salir())return "Saliendo...";
+        //return "Saliendo...";
         return "Error al salir";
     }
 
@@ -101,5 +109,30 @@ public class EjecutosConsolaTonta implements AccionesConsola{
         }
         return "No es posible abandonar la partida";
     }
+
+    public String salirForzado(){
+        String s=this.salirPartida();
+        if(this.partida!=null){
+            this.setPartida(null);
+            return "Salida forzada";
+        }
+        return s;
+    }
+
+    public String listaPartidas(){
+        String n = "Lista partidas:\n";
+        List<String> lista = Cliente.server.getPartidas();
+        for (int i = 0, j = lista.size(); i < j; i++) {
+            n += i + ".- " + lista.get(i) + "\n";
+        }
+        return n;
+    }
+
+    public String actualizarPartida(){
+
+        if(this.partida.verPartidaActualizada())return this.pintarPartida();
+        return null;
+    }
+
 
 }

@@ -4,25 +4,18 @@ import modeloDominio.EstadoPartida;
 
 public interface AccionesConsola {
      String pintarPartida();
-     void setPartida(PartidaCliente partida);
+     String setPartida(PartidaCliente partida);
      boolean enPartida();
-     boolean partidaActualizada();
-
+     String actualizarPartida();
+     String salirForzado();
      PartidaCliente getPartida();
-     Cliente getCliente();
-
      EstadoPartida estadoPartida();
-
      String listaJugadores();
-
      String estado();
-
      String puntuaciones();
-
+     String listaPartidas();
      String unirsePartida(String partida,String jugador);
      String crearPartida(String partida);
-
      String salir();
-
      String salirPartida();
 }
