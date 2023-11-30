@@ -151,4 +151,17 @@ public class Partida {
 		return this.nombre;
 	}
 
+	public void ordenarMano(String nombre){
+		 Jugador jugador=this.buscarJugador(nombre);
+		 if(jugador!=null)jugador.verMano().ordenar();
+	}
+
+	private Jugador buscarJugador(String nombre){
+		for (Jugador jugador:this.jugadores
+			 ) {
+			if(jugador.getNombre().compareTo(nombre)==0)return jugador;
+		}
+		return null;
+	}
+
 }

@@ -18,4 +18,12 @@ public interface AccionesConsola {
      String crearPartida(String partida);
      String salir();
      String salirPartida();
+     String empezar();
+     String ordenar();
+     String coger();
+     String coger(String opcion);
+     String cerrar(int i);
+     String echar(int i);
+     String mover(int i,int j);
+     String verMano();
 }

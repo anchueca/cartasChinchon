@@ -1,5 +1,6 @@
 package cliente;
 
+import cliente.excepciones.NumeroParametrosExcepcion;
 import modeloDominio.baraja.Mano;
 
 /*
@@ -80,24 +81,15 @@ public class ProcesadorComandos{
                     }
                     case "coger": {
                         if (palabras.length > 2) throw new NumeroParametrosExcepcion();
-                        boolean jugadaValida;
-                        if (palabras.length == 1) {
-                            jugadaValida = this.acciones.getPartida().cogerCartaCubierta();
-                        } else {
-                            jugadaValida = palabras[1].compareTo("descubierta") == 0
-                                    ? this.acciones.getPartida().cogerCartaDecubierta()
-                                    : this.acciones.getPartida().cogerCartaCubierta();
-                        }
-                        if (!jugadaValida) return ("Jugada no válida");
-                        break;
+                        if(palabras.length==2)return this.acciones.coger(palabras[1]);
+                        return this.acciones.coger();
                     }
                     case "ordenar": {
-                        this.acciones.getPartida().verMano().ordenar();
+                        this.acciones.ordenar();
                         break;
                     }
                     case "empezar": {
-                        this.acciones.getPartida().empezarPartida();
-                        return "";
+                        return  this.acciones.empezar();
                     }
                     case "jugadores": {
                         return this.acciones.listaJugadores();

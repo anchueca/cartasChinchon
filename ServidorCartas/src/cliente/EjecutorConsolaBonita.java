@@ -29,16 +29,21 @@ public class EjecutorConsolaBonita extends EjecutorConsola{
     }
 
     public String setPartida(PartidaCliente partida){
-        super.setPartida(partida);
-        if(partida!=null)return "Cargando partida";
-        return "Abandonando partida...";
-
+        String cadena=super.setPartida(partida);
+        if(partida==null){
+            this.consolaBonita.setPartida("");
+            this.consolaBonita.setJugador("");
+        }else{
+            this.consolaBonita.setPartida(partida.getNombrePartida());
+            this.consolaBonita.setJugador(partida.getNombreJuagador());
+        }
+        this.consolaBonita.limpiarPantalla();
+        return cadena;
     }
 
-    public String actualizarPartida(){
-        if(super.actualizarPartida()!=null)this.pintarPartida();
-        return null;
+    @Override
+    public String pintarPartida() {
+        this.consolaBonita.limpiarPantalla();
+        return super.pintarPartida();
     }
-
-
 }

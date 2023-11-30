@@ -148,6 +148,14 @@ public class Servidor extends Application {
         }
     }
 
+    public void ordenarMano(String nombre,String jugador){
+        Partida partida=this.buscarPartida(nombre);
+        if(partida==null)return;
+        else{
+            partida.ordenarMano(jugador);
+        }
+    }
+
 //    @GET
 //    @PATH("partida/{partida}/{jugador}/{mano}")
 }

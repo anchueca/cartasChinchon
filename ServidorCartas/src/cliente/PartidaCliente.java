@@ -16,11 +16,8 @@ public class PartidaCliente{
     
     private final String nombreJugador;
     private final String nombrePartida;
-
     private boolean salida;
-
     static Servidor server=new Servidor();//Para pruebas
-
     public PartidaCliente(String nombrePartida,String nombreJugador) {
         this.nombreJugador=nombreJugador;
         this.nombrePartida=nombrePartida;
@@ -28,7 +25,6 @@ public class PartidaCliente{
     }
 
     public boolean enFuncionamiento(){return this.salida;}
-
     public String getNombrePartida(){
         return this.nombrePartida;
     }
@@ -51,11 +47,6 @@ public class PartidaCliente{
     public EstadoPartida verEstadoPartida() {
         return PartidaCliente.server.estadoPartida(this.nombrePartida);
     }
-
-    public List<Jugador> verJugadores() {
-        return null;
-    }
-
     public boolean empezarPartida(){
         PartidaCliente.server.iniciarPartida(this.nombrePartida,this.nombreJugador);
         return true;
@@ -106,6 +97,10 @@ public class PartidaCliente{
     public boolean salir(){
         this.salida= PartidaCliente.server.abandonarPartida(this.nombrePartida,this.nombreJugador);
         return salida;
+    }
+
+    public void ordenar(){
+        Cliente.server.ordenarMano(this.nombrePartida,this.nombreJugador);
     }
 
 }

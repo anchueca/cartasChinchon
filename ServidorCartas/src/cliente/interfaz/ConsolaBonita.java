@@ -54,6 +54,7 @@ public class ConsolaBonita extends JFrame{
         else consolaBonita.Salida.setText("Error en el procesador de instrucciones. La funcionalidad puede verse limitada");
 
         JFrame frame = new JFrame("ConsolaBonita");
+        frame.setTitle("SuperChinchon");
         frame.setContentPane(consolaBonita.prinicpal);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();

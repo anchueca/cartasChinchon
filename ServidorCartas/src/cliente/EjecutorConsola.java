@@ -10,7 +10,7 @@ import java.util.Map;
 public class EjecutorConsola implements AccionesConsola{
 
     private PartidaCliente partida;
-    private  Actualizador actualizador;
+    private Actualizador actualizador;
     public boolean enPartida(){
         return this.partida!=null;
     }
@@ -18,7 +18,7 @@ public class EjecutorConsola implements AccionesConsola{
     public PartidaCliente getPartida(){return this.partida;}
     public EstadoPartida estadoPartida(){return this.partida.verEstadoPartida();}
 
-    public EjecutorConsola(PartidaCliente partida) {
+    public  EjecutorConsola(PartidaCliente partida) {
         this();
         this.partida=partida;
 
@@ -26,36 +26,37 @@ public class EjecutorConsola implements AccionesConsola{
     public EjecutorConsola(){
         this.actualizador=new Actualizador(this);
     }
-    public String pintarPartida(){
+    public  String pintarPartida(){
         String salida="";
         if(this.partida.verEstadoPartida()== EstadoPartida.ENCURSO){
-
-            salida+="\n\n\nEstado de la partida: "+this.partida.verEstadoPartida();
             Mano mano=this.partida.verMano();
             if(mano!=null)for (Carta carta: mano
             ) {
-                salida+=" "+carta;
+                salida+=" ("+carta+")";
             }
             Carta descubierta=this.partida.verCartaDescubierta();
 
-            salida+="Descubierta: "+(descubierta==null?"Nada":descubierta);
+            salida+="\nDescubierta: "+(descubierta==null?"Nada":descubierta);
         }
+        else salida="La partida no está en curso";
         return salida;
     }
     public String setPartida(PartidaCliente partida){
-        this.partida=partida;
-        if(partida!=null){
+        synchronized (this.actualizador){
+            if(partida==null){
+                try {
+                    this.actualizador.wait();
+                    this.partida=null;
+                    return "Abandonando partida...";
+                } catch (InterruptedException e) {
+                    return "Actualizador no funciona";
+                }
+            }
+            this.partida=partida;
             if(!this.actualizador.isAlive())this.actualizador.start();
             else this.actualizador.notify();
             return "Cargando partida";
         }
-        try {
-            this.actualizador.wait();
-            return "Abandonando partida...";
-        } catch (InterruptedException e) {
-            return "Actualizador no funciona";
-        }
-
     }
 
     public String listaJugadores(){
@@ -66,11 +67,9 @@ public class EjecutorConsola implements AccionesConsola{
         }
         return cadena;
     }
-
     public String estado(){
-        String ca="Partida: "+this.partida.getNombrePartida()+"\nJugador: "+this.partida.getNombreJuagador()+
+        return "Partida: "+this.partida.getNombrePartida()+"\nJugador: "+this.partida.getNombreJuagador()+
                 "\n"+this.listaJugadores()+"\nEstado de la partida: "+this.partida.verEstadoPartida().toString();
-        return ca;
     }
 
     public String puntuaciones(){
@@ -110,6 +109,37 @@ public class EjecutorConsola implements AccionesConsola{
         return "No es posible abandonar la partida";
     }
 
+    public String empezar() {
+        if(this.partida.empezarPartida())return "Partida iniciada correctamente";
+        return "No se ha podido iniciar";
+    }
+
+    public String ordenar() {
+        this.partida.ordenar();
+        return this.pintarPartida();
+    }
+
+    public String coger(boolean cubierta) {
+        return null;
+    }
+
+    public String cerrar(int i) {
+
+        return null;
+    }
+
+    public String echar(int i) {
+        return null;
+    }
+
+    public String mover(int i, int j) {
+        return null;
+    }
+
+    public String verMano() {
+        return null;
+    }
+
     public String salirForzado(){
         String s=this.salirPartida();
         if(this.partida!=null){
@@ -129,10 +159,25 @@ public class EjecutorConsola implements AccionesConsola{
     }
 
     public String actualizarPartida(){
-
-        if(this.partida.verPartidaActualizada())return this.pintarPartida();
+        if(!this.partida.verPartidaActualizada())return this.pintarPartida();
         return null;
     }
+    public String coger(){
+        return this.coger("0");
+    }
+    public String coger(String opcion){
+        boolean jugadaValida = opcion.compareTo("descubierta") == 0
+                ? this.cogerCartaDecubierta()
+                : this.cogerCartaCubierta();
 
+        if (!jugadaValida) return ("Jugada no válida");
+        return "Jugada efectuada";
+    }
+    public boolean cogerCartaDecubierta(){
+        return true;
+    }
+    public boolean cogerCartaCubierta(){
+        return true;
+    }
 
 }
