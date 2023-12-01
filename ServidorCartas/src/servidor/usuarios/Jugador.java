@@ -15,25 +15,8 @@ public abstract class Jugador implements AccionesChinchonI {
 		this.puntuacion=0;
 		this.actualizado=false;
 	}
-	public String getNombre(){
-		return this.nombre;
-	}
-	public String toString(){
-		return this.nombre;
-	}
-	public void darCarta(Carta carta){
-		this.mano.añadirCarta(carta);
-	}
-	public Carta tomarCarta(int carta){
-		return this.tomarCarta(carta);
-	}
-	public int verPuntuacion(){
-		return this.puntuacion;
-	}
-	public Mano verMano(){
-		return this.mano;
-	}
-	/*
+	/////GETTERS Y SETTERS
+		/*
 	Devuelve falso si ha habido cambios (llamada a actualizado()) desde la última vez que se llamó la método.
 	 */
 	public boolean estaActualizado(){
@@ -43,8 +26,35 @@ public abstract class Jugador implements AccionesChinchonI {
 		}
 		return true;
 	}
+	public abstract void darTurno();
+	public String getNombre(){
+		return this.nombre;
+	}
+	public int verPuntuacion(){
+		return this.puntuacion;
+	}
+	public void setPuntuacion(int i){this.puntuacion=i;}
+	public Mano verMano(){
+		return this.mano;
+	}
+
+
+	public String toString(){
+		return this.nombre;
+	}
+	public void actualizado(){this.actualizado=false;}
+
+	///////ACCIOENS//////
+	public void darCarta(Carta carta){
+		this.mano.añadirCarta(carta);
+	}
+	public Carta tomarCarta(int carta){
+		return this.mano.tomarCarta(carta);
+	}
+
+
 	/*
 	Cada vez que se modifique un valor por parte del servior se llamará a este método
 	 */
-	public void actualizado(){this.actualizado=false;}
+
 }

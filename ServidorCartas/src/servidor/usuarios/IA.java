@@ -10,6 +10,11 @@ public class IA extends Jugador {
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
+	public void darTurno() {
+
+	}
+
 
 	@Override
 	public boolean cogerCartaCubierta() {

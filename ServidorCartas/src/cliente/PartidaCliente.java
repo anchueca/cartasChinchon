@@ -4,7 +4,6 @@ import modeloDominio.EstadoPartida;
 import modeloDominio.baraja.Carta;
 import modeloDominio.baraja.Mano;
 import servidor.Servidor;
-import servidor.usuarios.Jugador;
 
 import java.util.List;
 import java.util.Map;
@@ -53,7 +52,7 @@ public class PartidaCliente{
     }
 
     public Carta verCartaDescubierta() {
-        return null;
+        return Cliente.server.verCartaDescubierta(this.nombrePartida);
     }
 
     public boolean verCerrado() {
@@ -67,7 +66,6 @@ public class PartidaCliente{
     public void actualizarPartida(){
         //this.server
     }
-
     public boolean cogerCartaCubierta() {
         return false;
     }
@@ -98,7 +96,6 @@ public class PartidaCliente{
         this.salida= PartidaCliente.server.abandonarPartida(this.nombrePartida,this.nombreJugador);
         return salida;
     }
-
     public void ordenar(){
         Cliente.server.ordenarMano(this.nombrePartida,this.nombreJugador);
     }

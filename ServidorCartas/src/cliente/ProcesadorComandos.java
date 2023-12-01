@@ -1,16 +1,12 @@
 package cliente;
 
 import cliente.excepciones.NumeroParametrosExcepcion;
-import modeloDominio.baraja.Mano;
 
 /*
 Interfaz de usuario del chinchón por consola
  */
 public class ProcesadorComandos{
     private AccionesConsola acciones;
-    public ProcesadorComandos(PartidaCliente partida) {
-        this.acciones=new EjecutorConsola(partida);
-    }
     public ProcesadorComandos(AccionesConsola acciones) {
         this.acciones=acciones;
     }
@@ -22,97 +18,100 @@ public class ProcesadorComandos{
     /*
     Proesa los comandos
      */
-    public String procesarInstrccion(String instruccion) {
+    public boolean procesarInstrccion(String instruccion) throws NumeroParametrosExcepcion {
         String[] palabras = instruccion.split("\\s+");
-        try {
             if(!this.acciones.enPartida()){
                 switch (palabras[0]) {
                     case "entrar": {
                         if (palabras.length != 3) throw new NumeroParametrosExcepcion();
-                        return this.acciones.unirsePartida(palabras[1], palabras[2]);
+                        this.acciones.unirsePartida(palabras[1], palabras[2]);
+                        break;
                     }
                     case "crear": {
                         if (palabras.length != 2) throw new NumeroParametrosExcepcion();
-                        return this.acciones.crearPartida(palabras[1]);
+                        this.acciones.crearPartida(palabras[1]);
+                        break;
                     }
                     case "salir": {
-                        return this.acciones.salir();
+                        this.acciones.salir();
+                        break;
                     }
                     case "ayuda": {
-                        return "Mostrando ayuda " + (this.acciones.enPartida() ? "inicio" : "juego");
+                        //"Mostrando ayuda " + (this.acciones.enPartida() ? "inicio" : "juego");
+                        break;
                     }
                     case "partidas": {
-                        return acciones.listaPartidas();
+                        acciones.listaPartidas();
+                        break;
                     }
+                    default: return false;
                 }
             }else {
                 switch (palabras[0]) {
                     case "salir": {
-                        return this.acciones.salirPartida();
+                        this.acciones.salirPartida();
+                        break;
                     }
                     case "salir!": {
-                        return this.acciones.salirForzado();
+                        this.acciones.salirForzado();
+                        break;
                     }
                     case "ayuda": {
-                        return "Mostrando ayuda " + (this.acciones.enPartida() ? "inicio" : "juego");
+                        //"Mostrando ayuda " + (this.acciones.enPartida() ? "inicio" : "juego");
+                        break;
                     }
                     case "mover": {
                         if (palabras.length != 3) throw new NumeroParametrosExcepcion();
-                        this.acciones.getPartida().moverMano(Integer.parseInt(palabras[1]), Integer.parseInt(palabras[2]));
+                        this.acciones.mover(Integer.parseInt(palabras[1]), Integer.parseInt(palabras[2]));
                         break;
                     }
                     case "echar": {
                         if (palabras.length != 2) throw new NumeroParametrosExcepcion();
                         int i = Integer.parseInt(palabras[1]);
-                        Mano mano = this.acciones.getPartida().verMano();
-                        if (this.acciones.getPartida().echarCarta(mano.verCarta(i))) {
-                            mano.tomarCarta(i);
-                        } else return "Jugada no válida";
+                        this.acciones.echar(i);
                         break;
                     }
                     case "cerrar": {
                         if (palabras.length != 2) throw new NumeroParametrosExcepcion();
                         int i = Integer.parseInt(palabras[1]);
-                        Mano mano = this.acciones.getPartida().verMano();
-                        if (this.acciones.getPartida().cerrar(mano.verCarta(i))) {
-                            mano.tomarCarta(i);
-                        } else return ("Jugada no válida");
+                        this.acciones.cerrar(i);
                         break;
                     }
                     case "coger": {
                         if (palabras.length > 2) throw new NumeroParametrosExcepcion();
-                        if(palabras.length==2)return this.acciones.coger(palabras[1]);
-                        return this.acciones.coger();
-                    }
-                    case "ordenar": {
-                        this.acciones.ordenar();
+                        if(palabras.length==2)this.acciones.coger(palabras[1]);
+                        else this.acciones.coger();
                         break;
                     }
+                    case "ordenar": {
+                       this.acciones.ordenar();
+                       break;
+                    }
                     case "empezar": {
-                        return  this.acciones.empezar();
+                        this.acciones.empezar();
+                        break;
                     }
                     case "jugadores": {
-                        return this.acciones.listaJugadores();
+                        this.acciones.listaJugadores();
+                        break;
                     }
                     case "estado": {
-                        return this.acciones.estado();
+                        this.acciones.estado();
+                        break;
                     }
                     case "puntuaciones": {
-                        return this.acciones.puntuaciones();
+                        this.acciones.puntuaciones();
+                        break;
                     }
                     case "ver": {
-                        return this.acciones.pintarPartida();
+                        this.acciones.pintarPartida();
+                        break;
                     }
+                    default: return false;
 
                 }
-                return ("Comando no reconocido.");
             }
-        } catch (NumeroParametrosExcepcion ex) {
-            return ("Número de parámetros incorrecto.");
-        } catch (NumberFormatException e) {
-            return ("Parámetros incorrectos");
-        }
-        return "OK";
-    }
+            return true;
 
+    }
 }

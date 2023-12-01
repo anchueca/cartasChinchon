@@ -11,6 +11,7 @@ public class Baraja implements Iterable<Carta> {
     public Baraja(Collection<Carta> cartas){
         this.cartas= new ArrayDeque<>(cartas);
     }
+    public Baraja(){this.cartas=new ArrayDeque<>();}
     public static Baraja barajaFactoria(Tamano tamano){//Comvendría establecer otros parámetros
         Deque<Carta> cartas=new ArrayDeque<>();
 
@@ -24,8 +25,10 @@ public class Baraja implements Iterable<Carta> {
         return new Baraja(cartas);
     }
     public Carta tomarCarta() {
-        return this.cartas.pop();
+        return this.cartas.poll();
     }
+    public Carta verCarta(){return this.cartas.peek();}
+
     public void barajar() {
         ArrayList<Carta> lista=new ArrayList<>(this.cartas);
         Collections.shuffle(lista);
@@ -33,6 +36,11 @@ public class Baraja implements Iterable<Carta> {
     }
     public void meterCarta(Carta carta) {
         this.cartas.addFirst(carta);
+    }
+    public void meterCarta(Collection<Carta> cartas){this.cartas.addAll(cartas);}
+    public void meterCarta(Baraja baraja){
+        this.meterCarta(baraja.cartas);
+        baraja.cartas.clear();
     }
     public int numCartas(){
         return this.cartas.size();

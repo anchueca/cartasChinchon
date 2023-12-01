@@ -9,6 +9,11 @@ public class Humano extends Jugador {
 	}
 
 	@Override
+	public void darTurno() {
+
+	}
+
+	@Override
 	public boolean cogerCartaCubierta() {
 		return false;
 	}

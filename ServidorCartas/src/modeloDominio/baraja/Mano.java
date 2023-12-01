@@ -20,6 +20,8 @@ public class Mano implements Iterable<Carta>, Serializable {
         this.cartas=new ArrayList<>();
     }
 
+    public int numCartas(){return this.cartas.size();}
+
     public Carta tomarCarta(Carta carta){
         int i=this.cartas.indexOf(carta);
         if(i!=-1){
@@ -30,9 +32,14 @@ public class Mano implements Iterable<Carta>, Serializable {
         return null;
     }
     public Carta tomarCarta(int carta){
+        try{
             Carta carta1=this.cartas.get(carta);
             this.cartas.remove(carta);
             return carta1;
+        }catch (IndexOutOfBoundsException e){
+            return null;
+        }
+
     }
     public Carta verCarta(int i){
         try {
