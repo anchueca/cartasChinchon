@@ -2,9 +2,12 @@ package cliente;
 
 import cliente.interfaz.ConsolaBonita;
 import modeloDominio.EstadoPartida;
+import modeloDominio.ProcesadorMensajes;
 import modeloDominio.baraja.Carta;
 import modeloDominio.baraja.Mano;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.util.List;
 import java.util.Map;
 
@@ -14,18 +17,19 @@ public class EjecutorConsolaBonita implements AccionesConsola {
     /////Atributos//////
     private PartidaCliente partida;
     private ConsolaBonita consolaBonita;
+    private Socket s;
 
     //////COntructores/////////
-    public EjecutorConsolaBonita(PartidaCliente partida, ConsolaBonita consolaBonita) {
+    public EjecutorConsolaBonita(PartidaCliente partida, ConsolaBonita consolaBonita) throws IOException {
+        this.s=new Socket("localhost",55555);
         this.actualizador = new Actualizador(this);
         this.consolaBonita = consolaBonita;
         this.partida = partida;
     }
 
-    public EjecutorConsolaBonita(ConsolaBonita consolaBonita) {
+    public EjecutorConsolaBonita(ConsolaBonita consolaBonita) throws IOException {
         this(null, consolaBonita);
     }
-
 
     ///////GEtters y setters//////////
     public boolean enPartida() {
@@ -43,8 +47,9 @@ public class EjecutorConsolaBonita implements AccionesConsola {
 
     ////////Accioens de gestión///////////////
     public void unirsePartida(String partida, String jugador) {
-        if (Cliente.server.entrarPartida(partida, jugador)) {
-            this.partida = new PartidaCliente(partida, jugador);
+        ProcesadorMensajes.enviarObjeto("entrar "+partida+" "+jugador+"\n",this.s);
+        if (ProcesadorMensajes.recibirString(this.s).compareTo(":)")==0) {
+            this.partida = new PartidaCliente(partida, jugador,this.s);
             this.setPartida(this.partida);
             this.consolaBonita.setPartida(partida);
             this.consolaBonita.setJugador(jugador);
@@ -55,7 +60,8 @@ public class EjecutorConsolaBonita implements AccionesConsola {
     }
 
     public void crearPartida(String partida) {
-        if (Cliente.server.crearPartida(partida)) this.consolaBonita.meterSalida("Partida creada");
+        ProcesadorMensajes.enviarObjeto("crear "+partida+"\n",this.s);
+        if (ProcesadorMensajes.recibirString(this.s).compareTo(":)")==0) this.consolaBonita.meterSalida("Partida creada");
         else this.consolaBonita.meterSalida("No se ha podido crear");
     }
 
@@ -79,10 +85,7 @@ public class EjecutorConsolaBonita implements AccionesConsola {
         this.consolaBonita.meterSalida(cadena);
     }
 
-    public void empezar() {
-        if (this.partida.empezarPartida()) this.consolaBonita.meterSalida("Partida iniciada correctamente");
-        else this.consolaBonita.meterSalida("No se ha podido iniciar");
-    }
+
 
     ///////////CONSULTA DE DATOS////////////
     public void listaJugadores() {
@@ -102,14 +105,17 @@ public class EjecutorConsolaBonita implements AccionesConsola {
     }
 
     public void listaPartidas() {
+        ProcesadorMensajes.enviarObjeto("partidas\n",this.s);
         String n = "Lista partidas:\n";
-        List<String> lista = Cliente.server.getPartidas();
-        for (int i = 0, j = lista.size(); i < j; i++) {
-            n += i + ".- " + lista.get(i) + "\n";
+        if(ProcesadorMensajes.recibirString(this.s).compareTo(":)")==0){
+            List<String> lista = (List<String>) ProcesadorMensajes.recibirObjeto(this.s);
+            for (int i = 0, j = lista.size(); i < j; i++) {
+                n += i + ".- " + lista.get(i) + "\n";
+            }
         }
+
         this.consolaBonita.meterSalida(n);
     }
-
     public void pintarPartida() {
         this.consolaBonita.limpiarPantalla();
         String salida = "";
@@ -152,6 +158,11 @@ public class EjecutorConsolaBonita implements AccionesConsola {
     }
 
     //////ACCIOENS De JUEGO
+
+    public void empezar() {
+        if (this.partida.empezarPartida()) this.consolaBonita.meterSalida("Partida iniciada correctamente");
+        else this.consolaBonita.meterSalida("No se ha podido iniciar");
+    }
     public void ordenar() {
         this.partida.ordenar();
         this.pintarPartida();

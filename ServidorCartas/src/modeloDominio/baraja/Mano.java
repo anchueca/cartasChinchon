@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+
 public class Mano implements Iterable<Carta>, Serializable {
     private final List<Carta> cartas;
 
@@ -81,7 +82,7 @@ public class Mano implements Iterable<Carta>, Serializable {
     }
 
 
-    /*
+/*
     Por ahora asumo que las escaleras y tríos están agrupados
 Codificado primer bit 0 si es un trío o 1 si es pareja el resto de bits representan las cartas onvolucradas
 ej: 10001110 escalera de la cuarta, quinta y sexta carta.
@@ -99,7 +100,7 @@ ej: 10001110 escalera de la cuarta, quinta y sexta carta.
                 //Si buscaba tríos incorpora la carta
                 if((indicador>>6)==0)indicador|= 1<<i;
                 else{//Sino compruebo si era un trío(o más cartas) y lo tengo en cuenta si procede
-                    if(Mano.comprobacionMayorQueTres(indicador))lista.add(indicador);
+                    if(Mano.comprobacionMayorOIgualQueTres(indicador))lista.add(indicador);
                     //Reinicio
                     indicador= (byte) (1 << i);
                 }
@@ -109,21 +110,27 @@ ej: 10001110 escalera de la cuarta, quinta y sexta carta.
                 //Si buscaba la escalera añado la carta
                 if((indicador>>6)==1)indicador|= 1<<i;
                 else{//Sino compruebo si la escalera es válida (al menos tres cartas) y añado si prcede
-                    if(Mano.comprobacionMayorQueTres(indicador))lista.add(indicador);/*al menos tres*/
+                    if(Mano.comprobacionMayorOIgualQueTres(indicador))lista.add(indicador);/*al menos tres*/
                     //reinicio
                     indicador= (byte) ((1 << i) | (1<<6));
                 }
             }
         }
         //Caso final
-        if(Mano.comprobacionMayorQueTres(indicador))lista.add(indicador);/*al menos tres*/
+        if(Mano.comprobacionMayorOIgualQueTres(indicador))lista.add(indicador);/*al menos tres*/
         return lista;
     }
-    private static boolean comprobacionMayorQueTres(byte indicador){
+    /**
+     * Devuelve verdadero si el byte que recibe como parámetro contiene al menos tres unos.
+     *
+     * @param indicador el byte que se va a comprobar
+     * @return verdadero si el byte contiene al menos tres unos, falso en caso contrario
+     */
+    private static boolean comprobacionMayorOIgualQueTres(byte indicador){
         int contador = 0;
         for (int i = 0; i < 8; i++) {
             contador += (indicador >> i) & 1;
-            if (contador > 3) return true;
+            if (contador >= 3) return true;
         }
         return false;
     }

@@ -11,6 +11,7 @@ public class ProcesadorMensajes {
         boolean i = false;
         try {
             System.out.println("Mandando xml a " + s.toString());
+            System.out.println(xml.toString());
             //Lo hago con object porque sino el cliente no sabe cuando termina el envío
             //sin cerrar el socket
             ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
@@ -25,11 +26,17 @@ public class ProcesadorMensajes {
         }
     }
 
+    public static String recibirString(Socket s){
+        return (String) ProcesadorMensajes.recibirObjeto(s);
+    }
+
     public static Object recibirObjeto(Socket s) {
         try {
             System.out.println("Esperando xml de " + s.toString());
             ObjectInputStream in = new ObjectInputStream(s.getInputStream());
-            return in.readObject();
+            Object objeto=in.readObject();
+            System.out.println(objeto.toString());
+            return objeto;
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -38,6 +45,14 @@ public class ProcesadorMensajes {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static boolean enviarCodigo(Socket s,Codigos codigo){
+        switch (codigo){
+            case BIEN -> ProcesadorMensajes.enviarObjeto(":)",s);
+            case MAL -> ProcesadorMensajes.enviarObjeto(":(",s);
+        }
+        return true;
     }
 
     public static boolean enEspera(Socket s) {

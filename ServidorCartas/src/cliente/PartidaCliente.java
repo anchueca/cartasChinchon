@@ -5,6 +5,7 @@ import modeloDominio.baraja.Carta;
 import modeloDominio.baraja.Mano;
 import servidor.Servidor;
 
+import java.net.Socket;
 import java.util.List;
 import java.util.Map;
 
@@ -13,12 +14,14 @@ Clase de la partida general del cliente
  */
 public class PartidaCliente {
 
-    static Servidor server = new Servidor();//Para pruebas
+    static Servidor server = new Servidor(null);//Para pruebas
+    private final Socket s;
     private final String nombreJugador;
     private final String nombrePartida;
     private boolean salida;
 
-    public PartidaCliente(String nombrePartida, String nombreJugador) {
+    public PartidaCliente(String nombrePartida, String nombreJugador,Socket s) {
+        this.s=s;
         this.nombreJugador = nombreJugador;
         this.nombrePartida = nombrePartida;
         this.salida = false;
@@ -58,7 +61,7 @@ public class PartidaCliente {
     }
 
     public Carta verCartaDescubierta() {
-        return Cliente.server.verCartaDescubierta(this.nombrePartida);
+        return null;// Cliente.server.verCartaDescubierta(this.nombrePartida);
     }
 
     public boolean verCerrado() {
@@ -107,7 +110,7 @@ public class PartidaCliente {
     }
 
     public void ordenar() {
-        Cliente.server.ordenarMano(this.nombrePartida, this.nombreJugador);
+        //Cliente.server.ordenarMano(this.nombrePartida, this.nombreJugador);
     }
 
 }

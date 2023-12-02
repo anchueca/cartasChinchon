@@ -12,6 +12,7 @@ import servidor.usuarios.Humano;
 import servidor.usuarios.IA;
 import servidor.usuarios.Jugador;
 
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,9 +97,9 @@ public class Partida {
 
 
     //////JUGADORES////////
-    public boolean nuevoHumano(String jugador) {
+    public boolean nuevoHumano(String jugador, Socket s) {
         if (this.estado == EstadoPartida.ESPERANDO && !this.getJugadoresS().contains(jugador)) {
-            Humano humano = new Humano(jugador);
+            Humano humano = new Humano(jugador,s);
             if (this.getJugadores().isEmpty()) this.anfitrion = humano;
             this.jugadores.add(humano);
             return true;

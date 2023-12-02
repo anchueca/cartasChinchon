@@ -2,10 +2,13 @@ package servidor.usuarios;
 
 import modeloDominio.baraja.Carta;
 
+import java.net.Socket;
+
 public class Humano extends Jugador {
 
-    public Humano(String nombre) {
-        super(nombre);
+    private Socket s;
+    public Humano(String nombre, Socket s) {
+        super(nombre);this.s=s;
     }
 
     @Override

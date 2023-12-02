@@ -8,6 +8,7 @@ import cliente.excepciones.NumeroParametrosExcepcion;
 import javax.swing.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class ConsolaBonita extends JFrame {
     private JLabel PartidaActual;
     private final ProcesadorComandos procesadorComandos;
 
-    public ConsolaBonita() {
+    public ConsolaBonita() throws IOException {
         this.procesadorComandos = new ProcesadorComandos(new EjecutorConsolaBonita(this));
         this.indice = 0;
         this.comandos = new LinkedList<>();
@@ -47,7 +48,11 @@ public class ConsolaBonita extends JFrame {
     }
 
     public static void main(String[] args) {
-        new ConsolaBonita()/*.iniciar()*/;
+        try {
+            new ConsolaBonita()/*.iniciar()*/;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setPartida(String nombrePartida) {
