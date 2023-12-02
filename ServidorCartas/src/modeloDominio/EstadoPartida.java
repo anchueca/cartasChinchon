@@ -1,5 +1,5 @@
 package modeloDominio;
 
 public enum EstadoPartida {
-    ESPERANDO,ENCURSO,FINALIZADO
+    ESPERANDO, ENCURSO, FINALIZADO
 }

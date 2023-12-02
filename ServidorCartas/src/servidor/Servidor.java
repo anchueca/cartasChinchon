@@ -16,12 +16,12 @@ import java.util.Map;
 //@Path("/Chinchon")
 public class Servidor extends Application {
 
-    	/*
-	Propiedades estáticas
-	 */
-	private static final int MAXPartidas=32;
-	private static final Map<String,Partida> partidas=new HashMap<>();
-	private static int PartidasActivas=0;
+    /*
+Propiedades estáticas
+ */
+    private static final int MAXPartidas = 32;
+    private static final Map<String, Partida> partidas = new HashMap<>();
+    private static int PartidasActivas = 0;
 
 
     ///////////GESTIÓN//////////////
@@ -31,39 +31,41 @@ public class Servidor extends Application {
     */
     @GET
     @Path("partidas")
-    public List<String> getPartidas(){
+    public List<String> getPartidas() {
         return new ArrayList<>(Servidor.partidas.keySet());
     }
+
     /*
     Crea una nueva partida vacía
      */
     @PUT
     @Path("partida/{nombre}")
-    public boolean crearPartida(String nombre){
-        if(Servidor.PartidasActivas<Servidor.MAXPartidas && this.buscarPartida(nombre)==null){
-            Servidor.partidas.put(nombre,new Partida(nombre, Tamano.NORMAL));
+    public boolean crearPartida(String nombre) {
+        if (Servidor.PartidasActivas < Servidor.MAXPartidas && this.buscarPartida(nombre) == null) {
+            Servidor.partidas.put(nombre, new Partida(nombre, Tamano.NORMAL));
             Servidor.PartidasActivas++;
             return true;
         }
         return false;
     }
+
     /*
     Se une a aprtida
      */
     @POST
     @Path("partida/{nombre}/{jugador}")
-    public boolean entrarPartida(String nombre,String jugador){
-        Partida partida=this.buscarPartida(nombre);
-        if(partida==null)return false;
+    public boolean entrarPartida(String nombre, String jugador) {
+        Partida partida = this.buscarPartida(nombre);
+        if (partida == null) return false;
         partida.nuevoHumano(jugador);
         return true;
     }
 
-    public boolean abandonarPartida(String nombre,String nombreJugador){
-        Partida partida=this.buscarPartida(nombre);
-        if(partida==null) return false;
-        else{
-            if(partida.expulsarJugador(nombreJugador) && partida.numJugadores()==0){//reviar condicion ¿Necesario?
+    public boolean abandonarPartida(String nombre, String nombreJugador) {
+        Partida partida = this.buscarPartida(nombre);
+        if (partida == null) return false;
+        else {
+            if (partida.expulsarJugador(nombreJugador) && partida.numJugadores() == 0) {//reviar condicion ¿Necesario?
                 Servidor.partidas.remove(nombre);
                 Servidor.PartidasActivas--;
                 return true;
@@ -72,9 +74,9 @@ public class Servidor extends Application {
         }
     }
 
-	public Partida buscarPartida(String nombre) {
-		return Servidor.partidas.get(nombre);
-	}
+    public Partida buscarPartida(String nombre) {
+        return Servidor.partidas.get(nombre);
+    }
 
     /*public static void main(String[] args) {
         try {
@@ -104,43 +106,45 @@ public class Servidor extends Application {
     //////////////////////Información partida//////////////////
 
 
-    public List<String> listaJugadores(String nombre){
-        Partida partida=this.buscarPartida(nombre);
-        if(partida==null);
-        else{
+    public List<String> listaJugadores(String nombre) {
+        Partida partida = this.buscarPartida(nombre);
+        if (partida == null) ;
+        else {
             return partida.getJugadoresS();
         }
         return null;
     }
+
     @GET
     //@Path("partida/{partida]")
-    public EstadoPartida estadoPartida(String nombre){
-        Partida partida=this.buscarPartida(nombre);
-        if(partida==null);
-        else{
+    public EstadoPartida estadoPartida(String nombre) {
+        Partida partida = this.buscarPartida(nombre);
+        if (partida == null) ;
+        else {
             return partida.getEstado();
         }
         return null;
     }
-    public boolean partidaActualizada(String nombre,String jugador){//por implementar
-        Partida partida=this.buscarPartida(nombre);
-        if(partida==null)return false;
-        else{
-            return true;//partida.;
-        }
+
+    public boolean partidaActualizada(String nombre, String jugador) {//por implementar
+        Partida partida = this.buscarPartida(nombre);
+        //partida.;
+        return partida != null;
 
     }
-    public Mano verMano(String nombre, String jugador){
-        Partida partida=this.buscarPartida(nombre);
-        if(partida==null)return null;
-        else{
+
+    public Mano verMano(String nombre, String jugador) {
+        Partida partida = this.buscarPartida(nombre);
+        if (partida == null) return null;
+        else {
             return partida.getMano(jugador);
         }
     }
-    public Carta verCartaDescubierta(String nombre){
-        Partida partida=this.buscarPartida(nombre);
-        if(partida==null)return null;
-        else{
+
+    public Carta verCartaDescubierta(String nombre) {
+        Partida partida = this.buscarPartida(nombre);
+        if (partida == null) return null;
+        else {
             return partida.getDescubierta();
         }
     }
@@ -150,24 +154,24 @@ public class Servidor extends Application {
 
     //@POST
     //@Path("partida/{partida]/{jugador}/{jugada}")
-    public boolean jugada(String partida,String jugador,String jugada){
+    public boolean jugada(String partida, String jugador, String jugada) {
         return false;
     }
 
 
-
-    public boolean iniciarPartida(String nombre,String nombreJugador){
-        Partida partida=this.buscarPartida(nombre);
-        if(partida==null)return false;
-        else{
+    public boolean iniciarPartida(String nombre, String nombreJugador) {
+        Partida partida = this.buscarPartida(nombre);
+        if (partida == null) return false;
+        else {
             return partida.iniciarPartida(nombreJugador);
         }
     }
 
-    public void ordenarMano(String nombre,String jugador){
-        Partida partida=this.buscarPartida(nombre);
-        if(partida==null)return;
-        else{
+    public void ordenarMano(String nombre, String jugador) {
+        Partida partida = this.buscarPartida(nombre);
+        if (partida == null) {
+        }
+        else {
             partida.ordenarMano(jugador);
         }
     }

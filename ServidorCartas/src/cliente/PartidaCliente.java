@@ -11,28 +11,33 @@ import java.util.Map;
 /*
 Clase de la partida general del cliente
  */
-public class PartidaCliente{
-    
+public class PartidaCliente {
+
+    static Servidor server = new Servidor();//Para pruebas
     private final String nombreJugador;
     private final String nombrePartida;
     private boolean salida;
-    static Servidor server=new Servidor();//Para pruebas
-    public PartidaCliente(String nombrePartida,String nombreJugador) {
-        this.nombreJugador=nombreJugador;
-        this.nombrePartida=nombrePartida;
-        this.salida=false;
+
+    public PartidaCliente(String nombrePartida, String nombreJugador) {
+        this.nombreJugador = nombreJugador;
+        this.nombrePartida = nombrePartida;
+        this.salida = false;
     }
 
-    public boolean enFuncionamiento(){return this.salida;}
-    public String getNombrePartida(){
+    public boolean enFuncionamiento() {
+        return this.salida;
+    }
+
+    public String getNombrePartida() {
         return this.nombrePartida;
     }
-    public String getNombreJuagador(){
+
+    public String getNombreJuagador() {
         return this.nombreJugador;
     }
 
     public boolean verPartidaActualizada() {
-        return PartidaCliente.server.partidaActualizada(this.nombrePartida,this.nombreJugador);
+        return PartidaCliente.server.partidaActualizada(this.nombrePartida, this.nombreJugador);
     }
 
     public boolean verTurno() {
@@ -40,14 +45,15 @@ public class PartidaCliente{
     }
 
     public Mano verMano() {
-        return PartidaCliente.server.verMano(this.nombrePartida,this.nombreJugador);
+        return PartidaCliente.server.verMano(this.nombrePartida, this.nombreJugador);
     }
 
     public EstadoPartida verEstadoPartida() {
         return PartidaCliente.server.estadoPartida(this.nombrePartida);
     }
-    public boolean empezarPartida(){
-        PartidaCliente.server.iniciarPartida(this.nombrePartida,this.nombreJugador);
+
+    public boolean empezarPartida() {
+        PartidaCliente.server.iniciarPartida(this.nombrePartida, this.nombreJugador);
         return true;
     }
 
@@ -63,9 +69,10 @@ public class PartidaCliente{
         return null;
     }
 
-    public void actualizarPartida(){
+    public void actualizarPartida() {
         //this.server
     }
+
     public boolean cogerCartaCubierta() {
         return false;
     }
@@ -89,15 +96,18 @@ public class PartidaCliente{
     public boolean moverMano(int i, int j) {
         return false;
     }
-    public List<String> listaJugadores(){
+
+    public List<String> listaJugadores() {
         return PartidaCliente.server.listaJugadores(this.nombrePartida);
     }
-    public boolean salir(){
-        this.salida= PartidaCliente.server.abandonarPartida(this.nombrePartida,this.nombreJugador);
+
+    public boolean salir() {
+        this.salida = PartidaCliente.server.abandonarPartida(this.nombrePartida, this.nombreJugador);
         return salida;
     }
-    public void ordenar(){
-        Cliente.server.ordenarMano(this.nombrePartida,this.nombreJugador);
+
+    public void ordenar() {
+        Cliente.server.ordenarMano(this.nombrePartida, this.nombreJugador);
     }
 
 }

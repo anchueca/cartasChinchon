@@ -1,4 +1,4 @@
 package cliente.excepciones;
 
-public class NumeroParametrosExcepcion extends Exception{
+public class NumeroParametrosExcepcion extends Exception {
 }
