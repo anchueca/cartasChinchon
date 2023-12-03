@@ -3,23 +3,33 @@ package servidor.usuarios;
 import modeloDominio.AccionesChinchonI;
 import modeloDominio.baraja.Carta;
 import modeloDominio.baraja.Mano;
-
+import servidor.Partida;
+/*
+El jugador realiza acciones que comunica a la partida a traves del atrobuto partida
+ */
 public abstract class Jugador implements AccionesChinchonI {
     protected Mano mano;
     private final String nombre;
     private int puntuacion;
     private boolean actualizado;
+    private Partida partida;
 
-    protected Jugador(String nombre) {
+    protected Jugador(String nombre,Partida partida) {
         this.nombre = nombre;
         this.mano = new Mano();
         this.puntuacion = 0;
         this.actualizado = false;
     }
+    protected Jugador(String nombre,Partida partida,Mano mano,int puntuacion) {
+        this.nombre = nombre;
+        this.mano = mano;
+        this.puntuacion = puntuacion;
+        this.actualizado = false;
+    }
 
     /////GETTERS Y SETTERS
 		/*
-	Devuelve falso si ha habido cambios (llamada a actualizado()) desde la última vez que se llamó la método.
+	Devuelve falso si ha habido cambios (llamada a actualizado()) desde la última vez que se llamó al método.
 	 */
     public boolean estaActualizado() {
         if (!this.actualizado) {
@@ -27,6 +37,9 @@ public abstract class Jugador implements AccionesChinchonI {
             return false;
         }
         return true;
+    }
+    protected Partida getPartida(){
+        return this.partida;
     }
 
     public abstract void darTurno();

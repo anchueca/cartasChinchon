@@ -1,6 +1,5 @@
 package cliente.interfaz;
 
-import cliente.AccionesConsola;
 import cliente.EjecutorConsolaBonita;
 import cliente.ProcesadorComandos;
 import cliente.excepciones.NumeroParametrosExcepcion;
@@ -22,13 +21,17 @@ public class ConsolaBonita extends JFrame {
     private JPanel prinicpal;
     private JLabel PartidaActual;
     private final ProcesadorComandos procesadorComandos;
-
+//Constructor del cliente y la interfaz
     public ConsolaBonita() throws IOException {
+        //Instancio el procesador y le asocio el objeto que se ocupará de procesar los comandos (este debe conocer la interfaz)
         this.procesadorComandos = new ProcesadorComandos(new EjecutorConsolaBonita(this));
+        //Inicializo el historial
         this.indice = 0;
         this.comandos = new LinkedList<>();
+        //Configuración de la interfaz
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setBounds(100, 100, 450, 173);
+        //Añado el evento de entrada por teclado
         Entrada.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -36,9 +39,10 @@ public class ConsolaBonita extends JFrame {
             }
         });
 
-        AccionesConsola acciones = procesadorComandos.getAccionesConsola();
-        if (acciones instanceof EjecutorConsolaBonita) ((EjecutorConsolaBonita) acciones).setConsolaBonita(this);
-        else this.Salida.setText("Error en el procesador de instrucciones. La funcionalidad puede verse limitada");
+        //
+        //AccionesConsola acciones = procesadorComandos.getAccionesConsola();
+        //if (acciones instanceof EjecutorConsolaBonita) ((EjecutorConsolaBonita) acciones).setConsolaBonita(this);
+        //else this.Salida.setText("Error en el procesador de instrucciones. La funcionalidad puede verse limitada");
 
         this.setTitle("SuperChinchon");
         this.setContentPane(this.prinicpal);
@@ -46,7 +50,7 @@ public class ConsolaBonita extends JFrame {
         this.pack();
         this.setVisible(true);
     }
-
+//Entrada al programa cliente
     public static void main(String[] args) {
         try {
             new ConsolaBonita()/*.iniciar()*/;
@@ -54,7 +58,9 @@ public class ConsolaBonita extends JFrame {
             e.printStackTrace();
         }
     }
-
+/*
+Manipulación de los label de información
+ */
     public void setPartida(String nombrePartida) {
         PartidaActual.setText(nombrePartida);
     }
@@ -71,31 +77,41 @@ public class ConsolaBonita extends JFrame {
         Salida.setText("");
     }
 
+    /*
+    Procesa la intrducción de comandos
+     */
     public void gestionarEntrada(KeyEvent e) {
         switch (e.getKeyCode()) {
+            /*
+            Cuando se pulsa enter se ejecuta el comando
+             */
             case KeyEvent.VK_ENTER:
                 String entrada = this.Entrada.getText();
+                //Limito el tamaño del comando por seguridad
                 try {
+                    //Si la entrada es vacía no me molesto
+                    if (entrada.isEmpty()) return;
                     this.Entrada.setText("");
                     if (entrada.length() > 100) {//limita la entrada
                         meterSalida("Error: El comando es demasiado largo");
                         return;
                     }
-                    if (entrada.isEmpty()) return;
-                    //procesa
+
+                    //Manda procesar y ejecutar el comando
                     if (!this.procesadorComandos.procesarInstrccion(entrada)) meterSalida("Comando no reconocido");
                 } catch (NumeroParametrosExcepcion ex) {
                     meterSalida("Número de parámetros incorrecto");
                 }
+                //Añado el comando al historial
                 this.comandos.add(0, entrada);
                 this.indice = -1;
                 break;
-
+            //Navegación por el historial
+            //Por ahora no está limitado
             case KeyEvent.VK_UP:
                 if (this.indice < this.comandos.size() - 1) this.indice++;
                 this.Entrada.setText(this.comandos.get(this.indice));
                 break;
-
             case KeyEvent.VK_DOWN:
                 if(this.indice==0)this.Entrada.setText("");
                 else if (this.indice > 0) this.indice--;

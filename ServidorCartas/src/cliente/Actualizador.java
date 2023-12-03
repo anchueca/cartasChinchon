@@ -1,5 +1,7 @@
 package cliente;
-
+/*
+Este hilo es el encargado de esperar y recibir los mensajes del servidor para actualizar el cliente
+ */
 public class Actualizador extends Thread {
 
     private final AccionesConsola partida;
@@ -25,10 +27,16 @@ public class Actualizador extends Thread {
         }
     }
 
+    /*
+    Detiene el hilo y queda a la espera de ser reanudado. Esto se emplea cuando se abandona una partida y no
+    tener que crear otro hilo
+     */
     public synchronized void pausar() {
         this.pausado = true;
     }
-
+/*
+Reanuda el hilo
+ */
     public synchronized void reanudar() {
         this.pausado = false;
         this.notify();

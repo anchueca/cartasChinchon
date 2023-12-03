@@ -1,6 +1,7 @@
 package cliente;
 
 import cliente.interfaz.ConsolaBonita;
+import modeloDominio.Codigos;
 import modeloDominio.EstadoPartida;
 import modeloDominio.ProcesadorMensajes;
 import modeloDominio.baraja.Carta;
@@ -10,6 +11,10 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
+
+/*
+Implementación de las acciones asociadas a la presentación de consolaBonita
+ */
 
 public class EjecutorConsolaBonita implements AccionesConsola {
 
@@ -45,10 +50,10 @@ public class EjecutorConsolaBonita implements AccionesConsola {
         this.consolaBonita = consolaBonita;
     }
 
-    ////////Accioens de gestión///////////////
+    ////////Accioens de gestión (fuera de partida)///////////////
     public void unirsePartida(String partida, String jugador) {
-        ProcesadorMensajes.enviarObjeto("entrar "+partida+" "+jugador+"\n",this.s);
-        if (ProcesadorMensajes.recibirString(this.s).compareTo(":)")==0) {
+        ProcesadorMensajes.enviarObjeto("entrar "+partida+" "+jugador,this.s);
+        if(ProcesadorMensajes.recibirCodigo(this.s)== Codigos.BIEN){
             this.partida = new PartidaCliente(partida, jugador,this.s);
             this.setPartida(this.partida);
             this.consolaBonita.setPartida(partida);
@@ -59,9 +64,10 @@ public class EjecutorConsolaBonita implements AccionesConsola {
         } else this.consolaBonita.meterSalida("No se ha podido entrar");
     }
 
-    public void crearPartida(String partida) {
-        ProcesadorMensajes.enviarObjeto("crear "+partida+"\n",this.s);
-        if (ProcesadorMensajes.recibirString(this.s).compareTo(":)")==0) this.consolaBonita.meterSalida("Partida creada");
+    public void crearPartida(String partida, String baraja) {
+        if(baraja.isEmpty())baraja="NORMAL";
+        ProcesadorMensajes.enviarObjeto("crear "+partida+" "+baraja,this.s);
+        if(ProcesadorMensajes.recibirCodigo(this.s)== Codigos.BIEN) this.consolaBonita.meterSalida("Partida creada");
         else this.consolaBonita.meterSalida("No se ha podido crear");
     }
 
@@ -85,9 +91,31 @@ public class EjecutorConsolaBonita implements AccionesConsola {
         this.consolaBonita.meterSalida(cadena);
     }
 
+    public void listaPartidas() {
+        ProcesadorMensajes.enviarObjeto("partidas",this.s);
+        String n = "Lista partidas:\n";
+        if(ProcesadorMensajes.recibirCodigo(this.s)== Codigos.BIEN){
+            List<String> lista = (List<String>) ProcesadorMensajes.recibirObjeto(this.s);
+            for (int i = 0, j = lista.size(); i < j; i++) {
+                n += i + ".- " + lista.get(i) + "\n";
+            }
+        }
 
+        this.consolaBonita.meterSalida(n);
+    }
 
-    ///////////CONSULTA DE DATOS////////////
+    public void salir() {
+        this.consolaBonita.dispose();
+        this.actualizador.interrupt();
+        this.consolaBonita.meterSalida("Saliendo...");
+        try {
+            this.s.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    ///////////CONSULTA DE DATOS (dentro de la partida)////////////
     public void listaJugadores() {
         String cadena = "Juagdores: ";
         for (String ca : this.partida.listaJugadores()
@@ -104,18 +132,7 @@ public class EjecutorConsolaBonita implements AccionesConsola {
         this.partida.verEstadoPartida().toString();
     }
 
-    public void listaPartidas() {
-        ProcesadorMensajes.enviarObjeto("partidas\n",this.s);
-        String n = "Lista partidas:\n";
-        if(ProcesadorMensajes.recibirString(this.s).compareTo(":)")==0){
-            List<String> lista = (List<String>) ProcesadorMensajes.recibirObjeto(this.s);
-            for (int i = 0, j = lista.size(); i < j; i++) {
-                n += i + ".- " + lista.get(i) + "\n";
-            }
-        }
 
-        this.consolaBonita.meterSalida(n);
-    }
     public void pintarPartida() {
         this.consolaBonita.limpiarPantalla();
         String salida = "";
@@ -157,7 +174,7 @@ public class EjecutorConsolaBonita implements AccionesConsola {
         this.consolaBonita.meterSalida(ca);
     }
 
-    //////ACCIOENS De JUEGO
+    //////////ACCIOENES DE JUEGO/////////////
 
     public void empezar() {
         if (this.partida.empezarPartida()) this.consolaBonita.meterSalida("Partida iniciada correctamente");
@@ -167,13 +184,7 @@ public class EjecutorConsolaBonita implements AccionesConsola {
         this.partida.ordenar();
         this.pintarPartida();
     }
-
-    public void salir() {
-        this.consolaBonita.dispose();
-        this.actualizador.interrupt();
-        this.consolaBonita.meterSalida("Saliendo...");
-    }
-
+    
     public void echar(int i) {//por refinar
         Mano mano = this.partida.verMano();
         if (this.partida.echarCarta(mano.verCarta(i))) {
@@ -199,24 +210,6 @@ public class EjecutorConsolaBonita implements AccionesConsola {
 
     }
 
-    public void salirForzado() {
-        this.salirPartida();
-        if (this.partida != null) {
-            this.setPartida(null);
-            this.consolaBonita.meterSalida("Salida forzada");
-        }
-    }
-
-    /*
-Comprueba actualizaciones y si procede hace las acciones convenientes
- */
-    public boolean actualizarPartida() {
-        if (this.partida.verPartidaActualizada()) {
-            this.pintarPartida();
-            return true;
-        }
-        return false;
-    }
 
     public void coger() {
         this.coger("0");
@@ -238,4 +231,25 @@ Comprueba actualizaciones y si procede hace las acciones convenientes
     public boolean cogerCartaCubierta() {
         return true;
     }
+
+    /*
+Comprueba actualizaciones y si procede hace las acciones convenientes
+ */
+    public boolean actualizarPartida() {
+        if (this.partida.verPartidaActualizada()) {
+            this.pintarPartida();
+            return true;
+        }
+        return false;
+    }
+
+    /////////////OTROS///////////////
+    public void salirForzado() {
+        this.salirPartida();
+        if (this.partida != null) {
+            this.setPartida(null);
+            this.consolaBonita.meterSalida("Salida forzada");
+        }
+    }
+
 }

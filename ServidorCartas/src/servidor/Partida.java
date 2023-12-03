@@ -39,6 +39,9 @@ public class Partida {
         this.descubierta = new Baraja();
     }
 
+    /*
+    Crea la partida sin todavía jugadores. El primer jugador en entrar será el anfitrión
+     */
     protected Partida(String nombrePartida, Tamano barajaTamano) {
         this();
         this.nombre = nombrePartida;
@@ -97,19 +100,19 @@ public class Partida {
 
 
     //////JUGADORES////////
-    public boolean nuevoHumano(String jugador, Socket s) {
+    public Humano nuevoHumano(String jugador, Socket s) {
         if (this.estado == EstadoPartida.ESPERANDO && !this.getJugadoresS().contains(jugador)) {
-            Humano humano = new Humano(jugador,s);
+            Humano humano = new Humano(jugador,this,s);
             if (this.getJugadores().isEmpty()) this.anfitrion = humano;
             this.jugadores.add(humano);
-            return true;
+            return humano;
         }
-        return false;
+        return null;
     }
 
     public boolean nuevoIA(String jugador) {
         if (this.estado == EstadoPartida.ESPERANDO) {
-            this.getJugadores().add(new IA(jugador));
+            this.getJugadores().add(new IA(jugador,this));
             return true;
         }
         return false;
@@ -117,14 +120,24 @@ public class Partida {
 
     public boolean expulsarJugador(String jugador) {
         Jugador jugador1 = this.buscarJugador(jugador);
+        //Si no existe nada
         if (jugador1 == null) return false;
+        //Miro si es anfitrión
+        if(this.anfitrion==jugador1){
+            //Pongo como nuevo anfitrión al primeor de la lista
+            this.anfitrion=this.jugadores.get(0);
+            //Si resulta que es el mismo pongo al siguiente (si hay al menos dos personas)
+            if(this.anfitrion==jugador1 && this.numJugadores()!=1)this.anfitrion=this.jugadores.get(2);
+        }
+        //Si la aprtida está empezada una IA tomo su control
         if (this.estado == EstadoPartida.ESPERANDO || this.estado == EstadoPartida.FINALIZADO)
             return this.getJugadores().remove(jugador1);
+        //Sino lo echo
         return this.robotizar(jugador1);
     }
 
     public boolean robotizar(Jugador jugador) {
-        this.getJugadores().set(this.getJugadores().indexOf(jugador), new IA(jugador.getNombre()));
+        this.getJugadores().set(this.getJugadores().indexOf(jugador), new IA(jugador));
         return true;
     }
 

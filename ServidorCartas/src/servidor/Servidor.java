@@ -8,9 +8,6 @@ import modeloDominio.baraja.Carta;
 import modeloDominio.baraja.Mano;
 import modeloDominio.baraja.Tamano;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -21,53 +18,69 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-//@ApplicationPath("/SuperJuego")
-//@Path("/Chinchon")
 public class Servidor extends Thread{
 
     /*
 Propiedades estáticas
  */
+
+    //PENDIENTE GESTIONAR PARTIDAS VACÍAS. EN ESPECIAL LAS NUEVAS
     private static final int MAXPartidas = 32;
     private static final Map<String, Partida> partidas = new HashMap<>();
     private static int PartidasActivas = 0;
     private final Socket s;
-
     public Servidor(Socket s) {
         this.s=s;
-
     }
+
+    ////////ENTRADA SERVIDOR////////
 
     public static void main(String[] args) {
         try (ServerSocket serverSocket=new ServerSocket(55555);){
             ExecutorService executor= Executors.newCachedThreadPool();
             while(!Thread.currentThread().isInterrupted()){
                 try{
+                    System.out.println("Conexión recibida");
+                    //Crea una instancia de la clase que atiende al cliente
                     executor.execute(new Servidor(serverSocket.accept()));
                 }catch (IOException e){
                     e.printStackTrace();
                 }
             }
+            System.out.println("Servidores suspendido.");
             executor.shutdown();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    /////////ENTRADA DEL HILO PARA ATENDER CLIENTE ////////////////
+
     public void run(){
-        while(true){//Hay que meter algo para cuando se salga de la partida se vuelva aquí
-            try {
-                if (!this.procesarInstrccion(ProcesadorMensajes.recibirString(this.s)))
-                    ProcesadorMensajes.enviarCodigo(this.s, Codigos.MAL);
-            } catch (NumeroParametrosExcepcion e) {
-                ProcesadorMensajes.enviarCodigo(this.s, Codigos.MAL);
+        String mensaje;
+        try{
+            while(true){//Hay que meter algo para cuando se salga de la partida se vuelva aquí
+                //Recibo una cadena del cliente
+                mensaje=ProcesadorMensajes.recibirString(this.s);
+                if(mensaje==null){//Si es nulo es porque se ha cerrado el socket o se ha producido algún error
+                    this.s.close();
+                    System.out.println("Socket cerrado en el cleinte. Cierrde de conexión.");
+                    return;
+                }
+                //Proceso la cadena recibida. Si se une a una partida el hilo queda "capturado" hasta que lo "suelte"
+                this.procesarInstrccion(mensaje);
             }
+        }catch (IOException e) {
+            System.out.println("No se ha podido cerrar el socket correctamente.");
+            e.printStackTrace();
         }
+
     }
 
     /*Proceso los mensajes que llegan al servidor*/
-    public boolean procesarInstrccion(String instruccion) throws NumeroParametrosExcepcion {
+    public Codigos procesarInstrccion(String instruccion) {
         String[] palabras = instruccion.split("\\s+");
+        try{
             switch (palabras[0]) {
                 case "entrar": {
                     if (palabras.length != 3) throw new NumeroParametrosExcepcion();
@@ -75,16 +88,12 @@ Propiedades estáticas
                     break;
                 }
                 case "crear": {
-                    if (palabras.length != 2) throw new NumeroParametrosExcepcion();
-                    this.crearPartida(palabras[1]);
+                    if (palabras.length != 3) throw new NumeroParametrosExcepcion();
+                    this.crearPartida(palabras[1],palabras[2]);
                     break;
                 }
                 case "salir": {
 
-                    break;
-                }
-                case "ayuda": {
-                    //"Mostrando ayuda " + (this.acciones.enPartida() ? "inicio" : "juego");
                     break;
                 }
                 case "partidas": {
@@ -92,10 +101,12 @@ Propiedades estáticas
                     break;
                 }
                 default:
-                    return false;
+                    return Codigos.INEXISTENTE;
             }
-        return true;
-
+            return Codigos.BIEN;
+        }catch (NumeroParametrosExcepcion e){
+            return Codigos.MAL;
+        }
     }
 
     ///////////GESTIÓN//////////////
@@ -105,7 +116,7 @@ Propiedades estáticas
     */
 
     public boolean getPartidas() {
-        ProcesadorMensajes.enviarCodigo(this.s,Codigos.BIEN);
+        ProcesadorMensajes.enviarObjeto(Codigos.BIEN,this.s);
         ProcesadorMensajes.enviarObjeto(new ArrayList<>(Servidor.partidas.keySet()),this.s);
         return true;
     }
@@ -114,33 +125,36 @@ Propiedades estáticas
     Crea una nueva partida vacía
      */
 
-    public boolean crearPartida(String nombre) {
-        if (Servidor.PartidasActivas < Servidor.MAXPartidas && this.buscarPartida(nombre) == null) {
-            ProcesadorMensajes.enviarCodigo(this.s,Codigos.BIEN);
-            Servidor.partidas.put(nombre, new Partida(nombre, Tamano.NORMAL));
-            Servidor.PartidasActivas++;
-            return true;
+    public boolean crearPartida(String nombre,String tamano) {
+        try{
+            if (Servidor.PartidasActivas < Servidor.MAXPartidas && this.buscarPartida(nombre) == null) {
+                Servidor.partidas.put(nombre, new Partida(nombre, Tamano.valueOf(tamano.toUpperCase())));
+                Servidor.PartidasActivas++;
+                ProcesadorMensajes.enviarObjeto(Codigos.BIEN,this.s);
+                return true;
+            }
+            ProcesadorMensajes.enviarObjeto(Codigos.MAL,this.s);
+            return false;
+        }catch (IllegalArgumentException e){
+            ProcesadorMensajes.enviarObjeto(Codigos.MAL,this.s);
+            return false;
         }
-        ProcesadorMensajes.enviarCodigo(this.s,Codigos.MAL);
-        return false;
+
     }
 
     /*
-    Se une a aprtida
+    Se une a partida y "captura" el hilo.
      */
-    @POST
-    @Path("partida/{nombre}/{jugador}")
     public boolean entrarPartida(String nombre, String jugador) {
         Partida partida = this.buscarPartida(nombre);
         if (partida == null) {
-            ProcesadorMensajes.enviarCodigo(this.s, Codigos.MAL);
+            ProcesadorMensajes.enviarObjeto(Codigos.MAL,this.s);
             return false;
         }
         partida.nuevoHumano(jugador,this.s);
-        ProcesadorMensajes.enviarCodigo(this.s, Codigos.BIEN);
+        ProcesadorMensajes.enviarObjeto(Codigos.BIEN,this.s);
         return true;
     }
-
 
 
     public Partida buscarPartida(String nombre) {
@@ -153,7 +167,9 @@ Propiedades estáticas
         Partida partida = this.buscarPartida(nombre);
         if (partida == null) return false;
         else {
-            if (partida.expulsarJugador(nombreJugador) && partida.numJugadores() == 0) {//reviar condicion ¿Necesario?
+            //Si no hay más gente en la sala se elimina
+            //HABRÍA QUE IGNORAR LAS IAS
+            if (partida.expulsarJugador(nombreJugador) && partida.numJugadores() == 0) {
                 Servidor.partidas.remove(nombre);
                 Servidor.PartidasActivas--;
                 return true;
@@ -172,8 +188,6 @@ Propiedades estáticas
         return null;
     }
 
-    @GET
-    //@Path("partida/{partida]")
     public EstadoPartida estadoPartida(String nombre) {
         Partida partida = this.buscarPartida(nombre);
         if (partida == null) ;
@@ -209,8 +223,6 @@ Propiedades estáticas
 
     /////////////ACCIONES////////////////
 
-    //@POST
-    //@Path("partida/{partida]/{jugador}/{jugada}")
     public boolean jugada(String partida, String jugador, String jugada) {
         return false;
     }
@@ -233,6 +245,4 @@ Propiedades estáticas
         }
     }
 
-//    @GET
-//    @PATH("partida/{partida}/{jugador}/{mano}")
 }

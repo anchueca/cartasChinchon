@@ -26,7 +26,7 @@ public interface AccionesConsola {
 
     void unirsePartida(String partida, String jugador);
 
-    void crearPartida(String partida);
+    void crearPartida(String partida, String baraja);
 
     void salir();
 

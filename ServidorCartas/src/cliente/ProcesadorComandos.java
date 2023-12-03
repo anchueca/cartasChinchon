@@ -6,21 +6,31 @@ import cliente.excepciones.NumeroParametrosExcepcion;
 Interfaz de usuario del chinchón por consola
  */
 public class ProcesadorComandos {
-    private final AccionesConsola acciones;
-
     public ProcesadorComandos(AccionesConsola acciones) {
         this.acciones = acciones;
     }
 
+    /*
+     AccionesConsola posee la implementación de los métodos que se deben ejecutar
+     */
+    private final AccionesConsola acciones;
     public AccionesConsola getAccionesConsola() {
         return this.acciones;
     }
 
     /*
-    Proesa los comandos
+    Proesa los comandos. Sería mejor que el control de argumenots lo hiciera el método y no aquí.
+    Devuelve falso si no se reconoce el comando.
+
+    Hay otro equivalente en el servidor. Sería deseable juntarlos en alguna estructura más general para no repetir
+    la estructura. Quizá se podría emplear un Map que haga corresponder la instrucción y el método asociado
+    (¿Delegados, alguna interfaz/clase abstracta?) no obstante no sé como se haría en Java y sería quizá mucho trabajo.
+    Estaría bien que encapsulara también la documentación de los métodos aosciados. Así se podría generar automáticamente
+    el resultado de ayuda (está sin implementar).
      */
     public boolean procesarInstrccion(String instruccion) throws NumeroParametrosExcepcion {
         String[] palabras = instruccion.split("\\s+");
+        //Acciones fuera de la partida
         if (!this.acciones.enPartida()) {
             switch (palabras[0]) {
                 case "entrar": {
@@ -29,8 +39,9 @@ public class ProcesadorComandos {
                     break;
                 }
                 case "crear": {
-                    if (palabras.length != 2) throw new NumeroParametrosExcepcion();
-                    this.acciones.crearPartida(palabras[1]);
+                    if (palabras.length < 2 || palabras.length>3) throw new NumeroParametrosExcepcion();
+                    if(palabras.length==2)this.acciones.crearPartida(palabras[1],"");
+                    else this.acciones.crearPartida(palabras[1],palabras[2]);
                     break;
                 }
                 case "salir": {
@@ -48,7 +59,7 @@ public class ProcesadorComandos {
                 default:
                     return false;
             }
-        } else {
+        } else {//Acciones dentro de la partida
             switch (palabras[0]) {
                 case "salir": {
                     this.acciones.salirPartida();
@@ -115,6 +126,5 @@ public class ProcesadorComandos {
             }
         }
         return true;
-
     }
 }
