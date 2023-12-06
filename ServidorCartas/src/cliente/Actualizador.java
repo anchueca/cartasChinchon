@@ -1,9 +1,11 @@
 package cliente;
+
 /*
 Este hilo es el encargado de esperar y recibir los mensajes del servidor para actualizar el cliente
  */
 public class Actualizador extends Thread {
 
+    //ES NECESARIO UN CONTROL PARA QUE NO SE INTERPONGA EN UNA SOLICITUD/RESPUESTA DEL CLIENTE
     private final AccionesConsola partida;
     private boolean pausado;
 
@@ -15,7 +17,7 @@ public class Actualizador extends Thread {
     public void run() {//bloqueante
         try {
             while (!Thread.currentThread().isInterrupted()) {
-                Thread.sleep(1000);
+                Thread.sleep(10000);
                 synchronized (this) {
                     if (pausado) this.wait();
                     this.partida.actualizarPartida();//Compruebo si se han producido cambios
@@ -23,7 +25,7 @@ public class Actualizador extends Thread {
 
             }
         } catch (InterruptedException e) {
-            if (this.partida.enPartida()) new RuntimeException(e);
+            if (this.partida.enPartida()) throw new RuntimeException(e);
         }
     }
 
@@ -34,9 +36,10 @@ public class Actualizador extends Thread {
     public synchronized void pausar() {
         this.pausado = true;
     }
-/*
-Reanuda el hilo
- */
+
+    /*
+    Reanuda el hilo
+     */
     public synchronized void reanudar() {
         this.pausado = false;
         this.notify();

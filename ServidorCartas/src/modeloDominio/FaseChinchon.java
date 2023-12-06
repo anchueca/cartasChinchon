@@ -1,5 +1,5 @@
 package modeloDominio;
 
 public enum FaseChinchon {
-    ABIERTO, CERRADO
+    ABIERTO, CERRADO, ESPERANDO
 }

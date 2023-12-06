@@ -4,22 +4,25 @@ import java.util.*;
 
 public class Baraja implements Iterable<Carta> {
     private Deque<Carta> cartas;
+    private Tamano tipo;
 
-    public Baraja(Deque<Carta> cartas) {
+    public Baraja(Deque<Carta> cartas,Tamano tamano) {
         this.cartas = cartas;
+        this.tipo=tamano;
     }
 
-    public Baraja(Collection<Carta> cartas) {
+    public Baraja(Collection<Carta> cartas,Tamano tamano) {
         this.cartas = new ArrayDeque<>(cartas);
+        this.tipo=tamano;
     }
 
     public Baraja() {
         this.cartas = new ArrayDeque<>();
+        this.tipo=null;
     }
 
     public static Baraja barajaFactoria(Tamano tamano) {//Comvendría establecer otros parámetros
         Deque<Carta> cartas = new ArrayDeque<>();
-
         for (Palo palo : Palo.values()
         ) {
             for (int i = 1; i < 13; i++) {
@@ -27,7 +30,7 @@ public class Baraja implements Iterable<Carta> {
                 cartas.add(new Carta(i, palo));
             }
         }
-        return new Baraja(cartas);
+        return new Baraja(cartas,tamano);
     }
 
     public Carta tomarCarta() {
@@ -63,5 +66,9 @@ public class Baraja implements Iterable<Carta> {
 
     public Iterator<Carta> iterator() {
         return this.cartas.iterator();
+    }
+
+    public String toString(){
+        return "Baraja "+this.tipo.toString().toLowerCase()+": cartas "+this.numCartas();
     }
 }

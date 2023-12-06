@@ -27,6 +27,60 @@ public class Mano implements Iterable<Carta>, Serializable {
         this.cartas = new ArrayList<>();
     }
 
+    /*
+        Por ahora asumo que las escaleras y tríos están agrupados
+    Codificado primer bit 0 si es un trío o 1 si es pareja el resto de bits representan las cartas onvolucradas
+    ej: 10001110 escalera de la cuarta, quinta y sexta carta.
+     */
+    public static List<Byte> cartasCasadas(Mano mano) {
+        List<Byte> lista = new ArrayList<>();
+        byte indicador = 0;
+        Carta cartaPrevia = mano.verCarta(0);
+        Carta cartaActual;
+        for (int i = 1, j = mano.numCartas(); i < j; i++) {
+            //nueva carta
+            cartaActual = mano.verCarta(i);
+            //si coinciden caso trío
+            if (cartaActual.getNumero() == cartaPrevia.getNumero()) {
+                //Si buscaba tríos incorpora la carta
+                if ((indicador >> 6) == 0) indicador |= 1 << i;
+                else {//Sino compruebo si era un trío(o más cartas) y lo tengo en cuenta si procede
+                    if (Mano.comprobacionMayorOIgualQueTres(indicador)) lista.add(indicador);
+                    //Reinicio
+                    indicador = (byte) (1 << i);
+                }
+                //Compruebo si se presta a una escalera
+            } else if (cartaActual.getNumero() - 1 == cartaPrevia.getNumero()
+                    && cartaPrevia.getPalo() == cartaActual.getPalo()) {
+                //Si buscaba la escalera añado la carta
+                if ((indicador >> 6) == 1) indicador |= 1 << i;
+                else {//Sino compruebo si la escalera es válida (al menos tres cartas) y añado si prcede
+                    if (Mano.comprobacionMayorOIgualQueTres(indicador)) lista.add(indicador);/*al menos tres*/
+                    //reinicio
+                    indicador = (byte) ((1 << i) | (1 << 6));
+                }
+            }
+        }
+        //Caso final
+        if (Mano.comprobacionMayorOIgualQueTres(indicador)) lista.add(indicador);/*al menos tres*/
+        return lista;
+    }
+
+    /**
+     * Devuelve verdadero si el byte que recibe como parámetro contiene al menos tres unos.
+     *
+     * @param indicador el byte que se va a comprobar
+     * @return verdadero si el byte contiene al menos tres unos, falso en caso contrario
+     */
+    private static boolean comprobacionMayorOIgualQueTres(byte indicador) {
+        int contador = 0;
+        for (int i = 0; i < 8; i++) {
+            contador += (indicador >> i) & 1;
+            if (contador >= 3) return true;
+        }
+        return false;
+    }
+
     public int numCartas() {
         return this.cartas.size();
     }
@@ -79,59 +133,5 @@ public class Mano implements Iterable<Carta>, Serializable {
     @Override
     public Iterator<Carta> iterator() {
         return this.cartas.iterator();
-    }
-
-
-/*
-    Por ahora asumo que las escaleras y tríos están agrupados
-Codificado primer bit 0 si es un trío o 1 si es pareja el resto de bits representan las cartas onvolucradas
-ej: 10001110 escalera de la cuarta, quinta y sexta carta.
- */
-    public static List<Byte> cartasCasadas(Mano mano){
-        List<Byte> lista=new ArrayList<>();
-        byte indicador=0;
-        Carta cartaPrevia=mano.verCarta(0);
-        Carta cartaActual;
-        for(int i=1,j=mano.numCartas();i<j;i++){
-            //nueva carta
-            cartaActual=mano.verCarta(i);
-            //si coinciden caso trío
-            if(cartaActual.getNumero()==cartaPrevia.getNumero()){
-                //Si buscaba tríos incorpora la carta
-                if((indicador>>6)==0)indicador|= 1<<i;
-                else{//Sino compruebo si era un trío(o más cartas) y lo tengo en cuenta si procede
-                    if(Mano.comprobacionMayorOIgualQueTres(indicador))lista.add(indicador);
-                    //Reinicio
-                    indicador= (byte) (1 << i);
-                }
-            //Compruebo si se presta a una escalera
-            } else if(cartaActual.getNumero()-1==cartaPrevia.getNumero()
-                    && cartaPrevia.getPalo()==cartaActual.getPalo()){
-                //Si buscaba la escalera añado la carta
-                if((indicador>>6)==1)indicador|= 1<<i;
-                else{//Sino compruebo si la escalera es válida (al menos tres cartas) y añado si prcede
-                    if(Mano.comprobacionMayorOIgualQueTres(indicador))lista.add(indicador);/*al menos tres*/
-                    //reinicio
-                    indicador= (byte) ((1 << i) | (1<<6));
-                }
-            }
-        }
-        //Caso final
-        if(Mano.comprobacionMayorOIgualQueTres(indicador))lista.add(indicador);/*al menos tres*/
-        return lista;
-    }
-    /**
-     * Devuelve verdadero si el byte que recibe como parámetro contiene al menos tres unos.
-     *
-     * @param indicador el byte que se va a comprobar
-     * @return verdadero si el byte contiene al menos tres unos, falso en caso contrario
-     */
-    private static boolean comprobacionMayorOIgualQueTres(byte indicador){
-        int contador = 0;
-        for (int i = 0; i < 8; i++) {
-            contador += (indicador >> i) & 1;
-            if (contador >= 3) return true;
-        }
-        return false;
     }
 }

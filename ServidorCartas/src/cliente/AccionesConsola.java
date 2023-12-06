@@ -47,4 +47,6 @@ public interface AccionesConsola {
     void mover(int i, int j);
 
     void verMano();
+    void crearIA(String nombre);
+    void verTurno();
 }

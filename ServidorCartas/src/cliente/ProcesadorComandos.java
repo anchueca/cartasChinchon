@@ -1,21 +1,18 @@
 package cliente;
 
-import cliente.excepciones.NumeroParametrosExcepcion;
+import modeloDominio.excepciones.NumeroParametrosExcepcion;
 
 /*
 Interfaz de usuario del chinchón por consola
  */
 public class ProcesadorComandos {
-    public ProcesadorComandos(AccionesConsola acciones) {
-        this.acciones = acciones;
-    }
-
     /*
      AccionesConsola posee la implementación de los métodos que se deben ejecutar
      */
     private final AccionesConsola acciones;
-    public AccionesConsola getAccionesConsola() {
-        return this.acciones;
+
+    public ProcesadorComandos(AccionesConsola acciones) {
+        this.acciones = acciones;
     }
 
     /*
@@ -39,9 +36,9 @@ public class ProcesadorComandos {
                     break;
                 }
                 case "crear": {
-                    if (palabras.length < 2 || palabras.length>3) throw new NumeroParametrosExcepcion();
-                    if(palabras.length==2)this.acciones.crearPartida(palabras[1],"");
-                    else this.acciones.crearPartida(palabras[1],palabras[2]);
+                    if (palabras.length < 2 || palabras.length > 3) throw new NumeroParametrosExcepcion();
+                    if (palabras.length == 2) this.acciones.crearPartida(palabras[1], "");
+                    else this.acciones.crearPartida(palabras[1], palabras[2]);
                     break;
                 }
                 case "salir": {
@@ -118,6 +115,16 @@ public class ProcesadorComandos {
                 }
                 case "ver": {
                     this.acciones.pintarPartida();
+                    break;
+                }
+                case "turno": {
+                    this.acciones.verTurno();
+                    break;
+                }
+                case "crearIA": {
+                    if (palabras.length > 3) throw new NumeroParametrosExcepcion();
+                    if (palabras.length ==2) this.acciones.crearIA(palabras[1]);
+                    else this.acciones.crearIA("");
                     break;
                 }
                 default:
