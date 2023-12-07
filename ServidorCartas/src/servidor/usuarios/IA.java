@@ -20,7 +20,6 @@ public class IA extends Jugador {
         //Por ahora de inteligencia tiene poco
         super.cogerCartaDecubierta();
         super.echarCarta(0);
-        this.getPartida().siguienteTurno();
     }
 
     public String toString() {

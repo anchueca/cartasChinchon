@@ -10,10 +10,11 @@ import java.util.Map;
 public class ProcesadorMensajes {
     /*
 
-    Esta clase sirve para no tener que estar continuamente creando los ObjectStream y, principalmente, ahorrarme
+    Esta clase sirve para no tener que estar continuamente creando los ObjectStream y, principalmente, para ahorrarme
     escribir código.
 
-    Cacheo de los socket. Por ahora no limpia.
+    Cacheo los socket. Por ahora no limpia.
+
     Cada acceso buscará y añadirá su propio socket. Desconozco si acceder a un dato durante una inserción
     podría dar problemas. En cualquier caso, he empleado bloques synchronized para asegurarme
 
@@ -23,12 +24,16 @@ public class ProcesadorMensajes {
     Problema de concurrencia por solucionar: si dos hilos usan el mismo socket sus comunicaciones podrían mezclarse. Es
     necesario bloquear los streams asociados al socket DURANTE TODA LA COMUNICACIÓN.
 
-    NOTA: Sincronizar los métodos de esta clase impediría a dos hilos usar sockets diferentes simultáneamente.
+    NOTA: Sincronizar los métodos de esta clase impediría a dos hilos usar sockets diferentes simultáneamente, lo que
+    lastraría el rendimiento del servidor en cuanto a comunicaciones, pues solo podría comunicarme con un cliente
+    simultáneamente.
+
     ACTUALIZACIÓN 4/12/2023:He pensado en hacer lock del socket durante toda el transcurso de la comunicación para
     evitar que se entremezclen otros mensajes. Este sistema debe aplicarse tanto en el cliente como en el servidor.
     Si otro hilo quiere usarlo tendrá que esperar para tomar el lock.
+
     También he añadido el lock en el propio enviar. Así si el socket está cogido y el hilo no respeta el lock
-    (se me ha olvidado pedirlo) también quedará bloqueado aunque no su comunicación.
+    (si se me ha olvidado pedirlo) también quedaría bloqueado aunque no la comunicación que iniciase.
      */
 
     private static ProcesadorMensajes procesadorMensajes;

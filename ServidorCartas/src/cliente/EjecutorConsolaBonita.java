@@ -16,7 +16,7 @@ import java.util.Map;
 Implementación de las acciones asociadas a la presentación de consolaBonita
  */
 
-public class EjecutorConsolaBonita implements AccionesConsola {
+public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
 
     private final Actualizador actualizador;
     private final Socket s;
@@ -203,7 +203,6 @@ public class EjecutorConsolaBonita implements AccionesConsola {
             mano.tomarCarta(i);
             this.consolaBonita.meterSalida("OK");
         } else this.consolaBonita.meterSalida("Jugada no válida");
-
     }
 
     public void salirPartida() {
@@ -211,13 +210,11 @@ public class EjecutorConsolaBonita implements AccionesConsola {
             this.setPartida(null);
             this.consolaBonita.meterSalida("saliendo de la partida");
         } else this.consolaBonita.meterSalida("No es posible abandonar la partida");
-
     }
 
     public void mover(int i, int j) {
         if (this.partida.moverMano(i, j)) this.consolaBonita.meterSalida("Movimiento efectuado");
         else this.consolaBonita.meterSalida("Movimiento incorrecto");
-
     }
 
     public void cerrar(int i) {
@@ -253,16 +250,25 @@ public class EjecutorConsolaBonita implements AccionesConsola {
     /*
 Comprueba actualizaciones y si procede hace las acciones convenientes. La idea es que sea llamado por el actualizador
  */
-    public boolean actualizarPartida() {
+    public boolean recibirMensaje() {
         String cadena;
-        if ((cadena=this.partida.actualizarPartida())!=null) {
+        if ((cadena=this.partida.recibirMensaje())!=null) {
             this.consolaBonita.meterSalida(cadena);
             return true;
         }
         return false;
-
     }
-
+    /*
+    Cuando ya he leído el mensaje llamo a este método. Recibe directaente los datos sin esperar leer el código de mensaje
+     */
+    public boolean recibirMensaje(Codigos codigo){
+        String cadena;
+        if ((cadena=this.partida.procesarMensaje(codigo))!=null) {
+            this.consolaBonita.meterSalida(cadena);
+            return true;
+        }
+        return false;
+    }
     public void crearIA(String nombre){
         if (this.partida.crearIA(nombre)) this.consolaBonita.meterSalida("IA creada");
         else this.consolaBonita.meterSalida("No se ha podido crear");
@@ -275,7 +281,6 @@ Comprueba actualizaciones y si procede hace las acciones convenientes. La idea e
             this.setPartida(null);
             this.consolaBonita.meterSalida("Salida forzada");
         }
-
     }
 
 }

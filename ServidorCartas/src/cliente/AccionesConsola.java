@@ -9,7 +9,7 @@ public interface AccionesConsola {
 
     boolean enPartida();
 
-    boolean actualizarPartida();
+    boolean recibirMensaje();
 
     void salirForzado();
 

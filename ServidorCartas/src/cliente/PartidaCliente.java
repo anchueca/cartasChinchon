@@ -19,6 +19,7 @@ Clase de la partida general del cliente
  */
 public class PartidaCliente {
 
+    private RecibeMensajesI receptor;
     private final Socket s;
     private final String nombreJugador;
     private final String nombrePartida;
@@ -29,6 +30,14 @@ public class PartidaCliente {
         this.nombreJugador = nombreJugador;
         this.nombrePartida = nombrePartida;
         this.salida = false;
+        this.receptor=null;
+    }
+    public PartidaCliente(String nombrePartida, String nombreJugador, Socket s,RecibeMensajesI recptor) {
+        this.s = s;
+        this.nombreJugador = nombreJugador;
+        this.nombrePartida = nombrePartida;
+        this.salida = false;
+        this.receptor=recptor;
     }
 
     public boolean enFuncionamiento() {
@@ -110,25 +119,37 @@ public class PartidaCliente {
 
     /*
     Recibe las actualizaciones del servidor de forma asíncrona. Es solo de escucha del servidor. Por ahora
-    la comunicación se inicia con un mensaje de tipo Codigos MENSAJE y luego el texto
+    la comunicación se inicia con un mensaje de tipo Codigos MENSAJE y luego el texto que manda el servidor
      */
-    public String actualizarPartida() {
+    public String recibirMensaje() {
         //Compruebo si hay algo pendiente
         //El proceso se realiza cuando no hay otras comunicaciones
         synchronized (this.s){
             //Si hay algo pendiente lo tomo
             if(ProcesadorMensajes.getProcesadorMensajes().enEspera(this.s)){
-                //Debo recoger MENSAJE
-                if(ProcesadorMensajes.getProcesadorMensajes().recibirCodigo(this.s)==Codigos.MENSAJE){
-                    //Depende lo que fuera podría tener que procesarse aquí
-                    return ProcesadorMensajes.getProcesadorMensajes().recibirString(this.s);
-                }
-                //Aquí podría haber más cosas
+                //Recibo el mensaje y o mando a procesar
+                return this.procesarMensaje(ProcesadorMensajes.getProcesadorMensajes().recibirCodigo(this.s));
             }
             //Si no hay nada, pues nada
             return null;
         }
-
+    }
+    /*
+    Procesa el mensaje asociado al código recibido.
+    La diferencia con el método recibirMensaje radica en que el actual no espera el objeto de clase Codigos.
+    La razón de este método y no haberlo unido en un único método es para contemplar el siguiente caso:
+    Aunque este método debería ser llamado únicamente por el hilo Actualizador para comprobar si el servidor
+    ha mandado un mensaje (no perteneciente a una comunicación iniciada por el cliente) podría darse el caso
+    de que el cliente iniciase una comunicación secuestrando la comunicación y, al esperar respuesta quedase una
+    solicitud de mensaje (MENSAJE) por parte del servidor que el Actualizador no ha recogido todavía. Mi solución
+    es, al detectar el código MENSAJE en vez del de BIEN como respuesta, llamar a este método procesarMensaje pasándole
+    el código MENSAJE y así evitar que el método recibirMensaje espere el Codigos ya recibido
+     */
+    public String procesarMensaje(Codigos codigo){
+        switch (codigo){
+            case MENSAJE : return ProcesadorMensajes.getProcesadorMensajes().recibirString(this.s);
+            default : return null;
+        }
     }
 
     public Carta cogerCartaCubierta() {

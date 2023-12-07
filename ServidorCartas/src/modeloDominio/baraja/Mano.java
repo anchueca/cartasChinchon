@@ -129,9 +129,11 @@ public class Mano implements Iterable<Carta>, Serializable {
             this.cartas.set(j, carta);
         }
     }
-
     @Override
     public Iterator<Carta> iterator() {
         return this.cartas.iterator();
+    }
+    public String toString(){
+        return "Mano: "+this.cartas.toString();
     }
 }

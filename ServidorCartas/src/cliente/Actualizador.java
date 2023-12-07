@@ -2,10 +2,9 @@ package cliente;
 
 /*
 Este hilo es el encargado de esperar y recibir los mensajes del servidor para actualizar el cliente
+Se encarga de llamar al método actalizarPartida de la partida para ver si ha habido alguna actualización.
  */
 public class Actualizador extends Thread {
-
-    //ES NECESARIO UN CONTROL PARA QUE NO SE INTERPONGA EN UNA SOLICITUD/RESPUESTA DEL CLIENTE
     private final AccionesConsola partida;
     private boolean pausado;
 
@@ -17,10 +16,10 @@ public class Actualizador extends Thread {
     public void run() {//bloqueante
         try {
             while (!Thread.currentThread().isInterrupted()) {
-                Thread.sleep(10000);
+                Thread.sleep(500);
                 synchronized (this) {
                     if (pausado) this.wait();
-                    this.partida.actualizarPartida();//Compruebo si se han producido cambios
+                    this.partida.recibirMensaje();//Compruebo si se han producido cambios
                 }
 
             }

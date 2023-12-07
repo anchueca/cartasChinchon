@@ -111,9 +111,8 @@ Propiedades estáticas
     ///////////GESTIÓN//////////////
 
     /*
-   Devuelve la lista de nombre de partidas
+   Devuelve la lista de nombres de partidas
     */
-
     public void getPartidas() {
         ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.BIEN, this.s);
         ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(new ArrayList<>(Servidor.partidas.keySet()), this.s);
@@ -122,7 +121,6 @@ Propiedades estáticas
     /*
     Crea una nueva partida vacía
      */
-
     public void crearPartida(String nombre, String tamano) {
         try {
             if (Servidor.PartidasActivas < Servidor.MAXPartidas && this.buscarPartida(nombre) == null) {
@@ -135,7 +133,6 @@ Propiedades estáticas
         } catch (IllegalArgumentException e) {
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL, this.s);
         }
-
     }
 
     /*
@@ -144,6 +141,7 @@ Propiedades estáticas
     public void entrarPartida(String nombre, String jugador) throws IOException {
         Partida partida = this.buscarPartida(nombre);
         Humano humano;
+        //Solo se entra a la partida si esta existe y la partida lo admite
         if (partida == null || (humano = partida.nuevoJugador(jugador, this.s)) == null) {
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL, this.s);
             return;
@@ -152,7 +150,6 @@ Propiedades estáticas
         //El objeto Humano "captura" el hilo y se encarga de procesar los mensajes
         humano.receptorHumano();
     }
-
 
     public Partida buscarPartida(String nombre) {
         return Servidor.partidas.get(nombre);

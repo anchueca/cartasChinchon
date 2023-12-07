@@ -258,20 +258,20 @@ public class Partida {
         this.enviarMensaje(mensaje,this.jugadores);
     }
     public void enviarMensaje(String mensaje,Jugador jugador){
-        //EL IDE me propone esta extraña colección. Parece un apaño para meter elementos donde debería haber colecciones
+        //El IDE me propone esta extraña colección. Parece un apaño para meter elementos donde debería haber colecciones
         //Podría hacer un add en una lista, pero así solo lo hago en una (aunque luego haya escrito dos de comentarios)
         this.enviarMensaje(mensaje,new ArrayList<Jugador>(Collections.singleton(jugador)));
     }
     public void enviarMensaje(String mensaje,List<Jugador> lista){
-        this.hilo.execute(new Runnable() {
+        /*this.hilo.execute(new Runnable() {
             @Override
             public void run() {
                 for (Jugador jugador: lista
                 ) {
-                    //jugador.recibirMensaje(mensaje);
+                    jugador.recibirMensaje(mensaje);
                 }
             }
-        });
+        });*/
     }
 
 
