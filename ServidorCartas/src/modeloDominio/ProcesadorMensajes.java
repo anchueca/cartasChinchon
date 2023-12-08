@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
@@ -85,6 +86,7 @@ public class ProcesadorMensajes {
     }
 
     public void abrirConexion(Socket s) throws InterruptedException {
+        System.out.println("Solicito comunicación");
         this.getSemaforo(s).acquire();
         System.out.println("///////////////////////////////////");
         System.out.println("Inicio comunicación");
@@ -103,7 +105,7 @@ public class ProcesadorMensajes {
         // Escribir el documento XML en el OutputStream
         boolean i = false;
         try {
-            System.out.print("Mandando el elemento "+objeto);
+            System.out.print(new Date()+" Mandando el elemento "+objeto);
 
             ObjectOutputStream out = this.getObjectOutputStream(s);
             out.writeObject(objeto);
@@ -124,7 +126,7 @@ public class ProcesadorMensajes {
 
     public Object recibirObjeto(Socket s) {
         try {
-            System.out.println(RecibeObjetos.getRecibeObjetos()==Thread.currentThread()?"RecogeObjetos esperando objeto":"Esperando objeto");
+            System.out.println(RecibeObjetos.getRecibeObjetos()==Thread.currentThread()?new Date()+" RecogeObjetos esperando objeto":new Date()+" Esperando objeto");
             ObjectInputStream in = this.getObjectInputStream(s);
             Object objeto;
             objeto = in.readObject();

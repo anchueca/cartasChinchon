@@ -242,7 +242,9 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
     public boolean recibirMensaje(Codigos codigo){
         String cadena;
         try {
-            ProcesadorMensajes.getProcesadorMensajes().abrirConexion(this.s);
+            //Si es el recogeObjetos no hace falta que reserve la conexión
+            if(Thread.currentThread()!=RecibeObjetos.getRecibeObjetos())
+                ProcesadorMensajes.getProcesadorMensajes().abrirConexion(this.s);
             if(this.partida==null)ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL,this.s);
             else {
                 ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.BIEN,this.s);
@@ -251,10 +253,14 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
                     return true;
                 }
             }
-            ProcesadorMensajes.getProcesadorMensajes().cerrarConexion(this.s);
+
         } catch (InterruptedException e) {
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL,this.s);
             return false;
+        }
+        finally {
+            if(Thread.currentThread()!=RecibeObjetos.getRecibeObjetos())
+                ProcesadorMensajes.getProcesadorMensajes().cerrarConexion(this.s);
         }
         return false;
     }

@@ -31,6 +31,8 @@ public class Humano extends Jugador {
         //Cuando la partida se abandone será null
         while (!this.salida) {
             try {
+                //Doy un pequeño margen para que el hilo de los mensajes pueda trabajar
+                Thread.sleep(200);
                 //tomo la comunicación
                 ProcesadorMensajes.getProcesadorMensajes().abrirConexion(this.s);
             mensaje = ProcesadorMensajes.getProcesadorMensajes().recibirString(this.s);
@@ -52,6 +54,10 @@ public class Humano extends Jugador {
         }
     }
 
+    public void recibirTurno(){
+        this.recibirTurno();
+        this.recibirMensaje("Es tu turno");
+    }
     /*
     Recibe y procesa los mensajes recibidos del cliente. Estoy repitiendo código:((
      */
@@ -246,6 +252,15 @@ public class Humano extends Jugador {
         return false;
     }
 
+    protected boolean meterCarta(int carta,int destino){
+        if (super.meterCarta(carta,destino)) {
+            ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.BIEN, this.s);
+            return true;
+        }
+        ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL, this.s);
+        return false;
+    }
+
     protected boolean cerrar(int carta) {
         if (super.cerrar(carta)) {
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.BIEN, this.s);
@@ -265,6 +280,7 @@ public class Humano extends Jugador {
 
     public void recibirMensaje(String mensaje){
         try {
+            System.out.println("Solicito inicio para mandar mensaje: "+mensaje);
             ProcesadorMensajes.getProcesadorMensajes().abrirConexion(this.s);
             System.out.println("Mensaje enviado a: "+this.getNombre());
         //Aviso que voy a enviar un mensaje de texto
@@ -273,8 +289,8 @@ public class Humano extends Jugador {
         if(ProcesadorMensajes.getProcesadorMensajes().recibirCodigo(this.s)==Codigos.BIEN){
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(mensaje,this.s);
         }
-        } catch (InterruptedException e) {
-            return;
+        } catch (InterruptedException ignored) {
+
         }finally {
                 if(!ProcesadorMensajes.getProcesadorMensajes().libreConexcion(this.s))
                     ProcesadorMensajes.getProcesadorMensajes().cerrarConexion(this.s);

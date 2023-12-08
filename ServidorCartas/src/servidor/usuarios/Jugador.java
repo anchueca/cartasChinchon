@@ -153,4 +153,15 @@ public abstract class Jugador {
     public String toString() {
         return this.nombre;
     }
+
+    //SIN IMPLEMENTAR//////
+    protected boolean meterCarta(int carta, int destino) {
+        if(this.partida.getFase()==FaseChinchon.CERRADO && this.turno==1){
+            //LA JUGADA DEBE SER LEGAL. ESTÁ SIN COMPROBAR
+            this.partida.getTurno().getMano().añadirCarta(this.mano.tomarCarta(carta),destino);
+            this.partida.siguienteTurno();
+            return true;
+        }
+        return false;
+    }
 }

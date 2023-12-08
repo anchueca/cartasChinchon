@@ -117,6 +117,9 @@ public class Mano implements Iterable<Carta>, Serializable {
     public void añadirCarta(Carta carta) {
         this.cartas.add(carta);
     }
+    public void añadirCarta(Carta carta,int destino) {
+        this.cartas.add(destino,carta);
+    }
 
     public void ordenar() {
         this.cartas.sort(null);

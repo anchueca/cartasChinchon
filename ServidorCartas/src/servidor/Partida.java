@@ -157,7 +157,7 @@ public class Partida {
     public boolean nuevoJugador(String jugador) {
         if(this.nuevoJugador(new IA(jugador.isEmpty()?"IA "+this.numIA:jugador,this))){
             this.numIA++;
-            this.enviarMensaje(jugador+" añadido a la partida");
+            this.enviarMensaje(jugador.toString()+" añadido a la partida");
             return true;
         }
         return false;
@@ -263,16 +263,22 @@ public class Partida {
         this.enviarMensaje(mensaje,new ArrayList<Jugador>(lista));
     }
     public void enviarMensaje(String mensaje, Collection<Jugador> jugadores){
-        System.out.println("Enviando: "+mensaje);
-        this.hilo.execute(new Runnable() {
+        System.out.println("::::::::::Enviando: "+mensaje);
+        Runnable hilo=new Runnable() {
             @Override
             public void run() {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 for (Jugador jugador: jugadores
                 ) {
                     jugador.recibirMensaje(mensaje);
                 }
             }
-        });
+        };
+        this.hilo.execute(hilo);
     }
 
 
