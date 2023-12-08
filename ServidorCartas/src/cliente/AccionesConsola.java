@@ -2,6 +2,9 @@ package cliente;
 
 import modeloDominio.EstadoPartida;
 
+/*
+Interfaz de la interfaz de usuario
+ */
 public interface AccionesConsola {
     void pintarPartida();
 
@@ -16,7 +19,7 @@ public interface AccionesConsola {
 
     void listaJugadores();
 
-    void estado();
+    void verResumen();
 
     void puntuaciones();
 
@@ -47,4 +50,5 @@ public interface AccionesConsola {
     void verMano();
     void crearIA(String nombre);
     void verTurno();
+    void enviarChat(String texto);
 }

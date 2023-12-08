@@ -16,16 +16,17 @@ public class ProcesadorComandos {
     }
 
     /*
-    Proesa los comandos. Sería mejor que el control de argumenots lo hiciera el método y no aquí.
+    Procesa los comandos. Sería mejor que el control de argumentos lo hiciera el método y no aquí.
     Devuelve falso si no se reconoce el comando.
 
     Hay otro equivalente en el servidor. Sería deseable juntarlos en alguna estructura más general para no repetir
     la estructura. Quizá se podría emplear un Map que haga corresponder la instrucción y el método asociado
-    (¿Delegados, alguna interfaz/clase abstracta?) no obstante no sé como se haría en Java y sería quizá mucho trabajo.
-    Estaría bien que encapsulara también la documentación de los métodos aosciados. Así se podría generar automáticamente
+    (¿Delegados, alguna interfaz/clase abstracta?) no obstante, no sé como se haría en Java y sería quizá mucho trabajo.
+    Estaría bien que encapsulara también la documentación de los métodos asociados. Así se podría generar automáticamente
     el resultado de ayuda (está sin implementar).
      */
-    public boolean procesarInstrccion(String instruccion) throws NumeroParametrosExcepcion {
+    public boolean procesarInstruccion(String instruccion) throws NumeroParametrosExcepcion {
+        if(instruccion.charAt(0)==':')this.acciones.enviarChat(instruccion.substring(1));
         String[] palabras = instruccion.split("\\s+");
         //Acciones fuera de la partida
         if (!this.acciones.enPartida()) {
@@ -106,7 +107,7 @@ public class ProcesadorComandos {
                     break;
                 }
                 case "estado": {
-                    this.acciones.estado();
+                    this.acciones.verResumen();
                     break;
                 }
                 case "puntuaciones": {

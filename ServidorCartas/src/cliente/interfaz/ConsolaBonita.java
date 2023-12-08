@@ -100,7 +100,7 @@ public class ConsolaBonita extends JFrame {
                         return;
                     }
                     //Manda procesar y ejecutar el comando
-                    if (!this.procesadorComandos.procesarInstrccion(entrada)) meterSalida("Comando no reconocido");
+                    if (!this.procesadorComandos.procesarInstruccion(entrada)) meterSalida("Comando no reconocido");
                 } catch (NumeroParametrosExcepcion ex) {
                     meterSalida("Número de parámetros incorrecto");
                 }

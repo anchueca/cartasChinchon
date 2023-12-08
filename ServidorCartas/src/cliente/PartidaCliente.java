@@ -323,4 +323,16 @@ public class PartidaCliente {
         }
     }
 
+    public void enviarChat(String texto) {
+        try {
+            getProcesadorMensajes().abrirConexion(this.s);
+            getProcesadorMensajes().enviarObjeto("chat", this.s);
+            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            if(codigo == Codigos.BIEN)getProcesadorMensajes().enviarObjeto(texto, this.s);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }finally{
+            getProcesadorMensajes().cerrarConexion(this.s);
+        }
+    }
 }

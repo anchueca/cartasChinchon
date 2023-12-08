@@ -1,5 +1,6 @@
 package servidor.usuarios;
 
+import cliente.RecibeObjetos;
 import modeloDominio.Codigos;
 import modeloDominio.EstadoPartida;
 import modeloDominio.FaseChinchon;
@@ -17,9 +18,7 @@ public class Humano extends Jugador {
 
     private Socket s;
     private boolean salida;
-    /*
-    Uso el semáforo para controlar las entradas
-     */
+
     public Humano(String nombre, Partida partida, Socket s) {
         super(nombre, partida);
         this.s = s;
@@ -55,7 +54,7 @@ public class Humano extends Jugador {
     }
 
     public void recibirTurno(){
-        this.recibirTurno();
+        super.recibirTurno();
         this.recibirMensaje("Es tu turno");
     }
     /*
@@ -130,6 +129,10 @@ public class Humano extends Jugador {
                     this.mandarMano();
                     break;
                 }
+                case "chat": {
+                    this.enviarChat();
+                    break;
+                }
                 case "crearIA": {
                     if (palabras.length > 3) throw new NumeroParametrosExcepcion();
                     if (palabras.length ==2) this.crearIA(palabras[1]);
@@ -142,6 +145,15 @@ public class Humano extends Jugador {
         } catch (NumeroParametrosExcepcion e) {
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL, this.s);
         }
+    }
+/*
+Permite conversar con otros jugadores
+ */
+    private void enviarChat() {
+        ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.BIEN, this.s);
+        List<Jugador> jugadores=new ArrayList<>(this.getPartida().getJugadores());
+        jugadores.remove(this);
+        this.getPartida().enviarMensaje(this.getNombre()+": "+(String) RecibeObjetos.getRecibeObjetos().recibirObjeto(),jugadores);
     }
 
     /*

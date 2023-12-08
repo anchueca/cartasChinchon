@@ -25,7 +25,7 @@ public class ProcesadorMensajes {
     Realmente este sistema de cacheo solo tiene sentido en el lado del servidor. El cliente solo tiene un socket aunque en el futuro, si el
     cliente padece de ludopatía podría habilitarse jugar varias partidas a la vez (con distintos sockets).
 
-    Problema de concurrencia por solucionar: si dos hilos usan el mismo socket sus comunicaciones podrían mezclarse. Es
+    Problema de concurrencia: si dos hilos usan el mismo socket sus comunicaciones podrían mezclarse. Es
     necesario bloquear los streams asociados al socket DURANTE TODA LA COMUNICACIÓN.
 
     NOTA: Sincronizar los métodos de esta clase impediría a dos hilos usar sockets diferentes simultáneamente, lo que
@@ -40,8 +40,8 @@ public class ProcesadorMensajes {
     (si se me ha olvidado pedirlo) también quedaría bloqueado aunque no la comunicación que iniciase.
 
     ACTUALIZACIÓN 8/12/2023: He repensado la cuestión del lock con sincronización y he optado por una solución mejor:
-    usar un semáforo para cada socket y añadir los métodos abrirComunicacion y cerrarComunicacion en ProcesadorMensajes.
-    Así, se puede reservar el socket y se abortan los demás intentos de comunicación.
+    usar un semáforo para cada socket y añadir los métodos abrirComunicacion, cerrarComunicacion y libreConexion
+     en ProcesadorMensajes. Así, se puede reservar el socket y esperan los demás intentos de comunicación.
      */
 
     private static ProcesadorMensajes procesadorMensajes;
@@ -87,12 +87,15 @@ public class ProcesadorMensajes {
 
     public void abrirConexion(Socket s) throws InterruptedException {
         System.out.println("Solicito comunicación");
+        //Si ya está en uso espera a que se libere
         this.getSemaforo(s).acquire();
         System.out.println("///////////////////////////////////");
         System.out.println("Inicio comunicación");
 
     }
     public void cerrarConexion(Socket s) {
+        //Si está sin cerrar se cierra
+        if(libreConexcion(s))return;
         this.getSemaforo(s).release();
         System.out.println("Fin comunicación");
         System.out.println("///////////////////////////////////");
@@ -106,7 +109,6 @@ public class ProcesadorMensajes {
         boolean i = false;
         try {
             System.out.print(new Date()+" Mandando el elemento "+objeto);
-
             ObjectOutputStream out = this.getObjectOutputStream(s);
             out.writeObject(objeto);
             i = true;
@@ -114,9 +116,8 @@ public class ProcesadorMensajes {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } finally {
-            return i;
         }
+        return i;
     }
 
     public String recibirString(Socket s) {

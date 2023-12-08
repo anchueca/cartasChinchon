@@ -32,10 +32,14 @@ public class RecibeObjetos extends Thread{
 
     public void run(){
         while(!Thread.currentThread().isInterrupted() && !this.s.isClosed()){
+            //Espero un mensaje
             this.objeto=ProcesadorMensajes.getProcesadorMensajes().recibirObjeto(this.s);
             System.out.println("El recogedor ha recibido: "+this.objeto);
+            //Si es un Codigos.MENSAJE es porque ha llegado una "interrupcion" del servidor
             if(this.receptor!=null && this.objeto== Codigos.MENSAJE){
+                //Proceso el mensaje
                 this.receptor.recibirMensaje((Codigos) this.objeto);
+                //Ahora continuo el bucle como si el mensaje no hubiera llegado
             }
             else{
                 //Hay uno disponble

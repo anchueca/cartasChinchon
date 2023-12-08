@@ -32,11 +32,15 @@ public class Baraja implements Iterable<Carta> {
         }
         return new Baraja(cartas,tamano);
     }
-
+/*
+Toma una carta de la baraja
+ */
     public Carta tomarCarta() {
         return this.cartas.poll();
     }
-
+/*
+Devuelve la carta sin quitarla de la baraja
+ */
     public Carta verCarta() {
         return this.cartas.peek();
     }
@@ -50,7 +54,9 @@ public class Baraja implements Iterable<Carta> {
     public void meterCarta(Carta carta) {
         this.cartas.addFirst(carta);
     }
-
+/*
+Mete un conjunto de cartas en la baraja
+ */
     public void meterCarta(Collection<Carta> cartas) {
         this.cartas.addAll(cartas);
     }
