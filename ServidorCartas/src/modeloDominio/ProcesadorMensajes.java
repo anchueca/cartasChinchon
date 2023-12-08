@@ -1,11 +1,14 @@
 package modeloDominio;
 
+import cliente.RecibeObjetos;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 public class ProcesadorMensajes {
     /*
@@ -34,6 +37,10 @@ public class ProcesadorMensajes {
 
     También he añadido el lock en el propio enviar. Así si el socket está cogido y el hilo no respeta el lock
     (si se me ha olvidado pedirlo) también quedaría bloqueado aunque no la comunicación que iniciase.
+
+    ACTUALIZACIÓN 8/12/2023: He repensado la cuestión del lock con sincronización y he optado por una solución mejor:
+    usar un semáforo para cada socket y añadir los métodos abrirComunicacion y cerrarComunicacion en ProcesadorMensajes.
+    Así, se puede reservar el socket y se abortan los demás intentos de comunicación.
      */
 
     private static ProcesadorMensajes procesadorMensajes;
@@ -53,12 +60,8 @@ public class ProcesadorMensajes {
     private ObjectOutputStream getObjectOutputStream(Socket s) throws IOException {
         Object[] streams;
         if ((streams = this.streams.get(s)) == null) {
-            synchronized (this){
-                this.streams.put(s,
-                        new Object[]{new ObjectOutputStream(s.getOutputStream()), new ObjectInputStream(s.getInputStream())});
-            }
-
-            System.out.println("Elemenot cacheado: " + s);
+            this.streams.put(s,this.nuevoSocket(s));
+            System.out.println("Elemento cacheado: " + s);
         } else return (ObjectOutputStream) streams[0];
         return this.getObjectOutputStream(s);
     }
@@ -67,49 +70,65 @@ public class ProcesadorMensajes {
     private ObjectInputStream getObjectInputStream(Socket s) throws IOException {
         Object[] streams;
         if ((streams = this.streams.get(s)) == null) {
-            synchronized (this){
-                this.streams.put(s,
-                        new Object[]{new ObjectOutputStream(s.getOutputStream()), new ObjectInputStream(s.getInputStream())});
-            }
-            System.out.println("Elemenot cacheado: " + s);
+            this.streams.put(s,this.nuevoSocket(s));
+            System.out.println("Elemento cacheado: " + s);
         } else return (ObjectInputStream) streams[1];
         return this.getObjectInputStream(s);
+    }
+
+    private synchronized Object[] nuevoSocket(Socket s) throws IOException {
+        return new Object[]{new ObjectOutputStream(s.getOutputStream()),
+                new ObjectInputStream(s.getInputStream()),new Semaphore(1)};
+    }
+    private Semaphore getSemaforo(Socket s){
+        return (Semaphore) this.streams.get(s)[2];
+    }
+
+    public void abrirConexion(Socket s) throws InterruptedException {
+        this.getSemaforo(s).acquire();
+        System.out.println("///////////////////////////////////");
+        System.out.println("Inicio comunicación");
+
+    }
+    public void cerrarConexion(Socket s) {
+        this.getSemaforo(s).release();
+        System.out.println("Fin comunicación");
+        System.out.println("///////////////////////////////////");
+    }
+    public boolean libreConexcion(Socket s){
+        return this.getSemaforo(s).availablePermits()==1;
     }
 
     public boolean enviarObjeto(Object objeto, Socket s) {
         // Escribir el documento XML en el OutputStream
         boolean i = false;
         try {
-            System.out.println("///////////////////////////////////");
-            System.out.println("Mandando objeto a " + s);
-            System.out.println("Elemento enviado: " + objeto);
+            System.out.print("Mandando el elemento "+objeto);
 
             ObjectOutputStream out = this.getObjectOutputStream(s);
-            synchronized (s){out.writeObject(objeto);}
+            out.writeObject(objeto);
             i = true;
-            System.out.println("Objeto enviado a " + s);
+            System.out.println(". Objeto enviado ");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         } finally {
-            System.out.println("///////////////////////////////////");
             return i;
         }
     }
 
     public String recibirString(Socket s) {
-        return (String) this.recibirObjeto(s);
+        Object cadena=this.recibirObjeto(s);
+        return (cadena instanceof String)?(String) cadena:"";
     }
 
     public Object recibirObjeto(Socket s) {
         try {
-            System.out.println("///////////////////////////////////");
-            System.out.println("Esperando objeto de " + s);
+            System.out.println(RecibeObjetos.getRecibeObjetos()==Thread.currentThread()?"RecogeObjetos esperando objeto":"Esperando objeto");
             ObjectInputStream in = this.getObjectInputStream(s);
             Object objeto;
-            synchronized (s){objeto = in.readObject();}
+            objeto = in.readObject();
             System.out.println("Elemento recibido: " + objeto);
-
             return objeto;
 
         } catch (IOException e) {
@@ -118,12 +137,11 @@ public class ProcesadorMensajes {
         } catch (ClassNotFoundException e) {
             System.out.println("Clase no encontrada");
             return null;
-        } finally {
-            System.out.println("///////////////////////////////////");
         }
     }
 
     public Codigos recibirCodigo(Socket s) {
+        System.out.println("Recibir código.");
         Object objeto = this.recibirObjeto(s);
         if (objeto instanceof Codigos) return (Codigos) objeto;
         return null;
@@ -131,7 +149,8 @@ public class ProcesadorMensajes {
 
     public boolean enEspera(Socket s) {
         try {
-            return s.getInputStream().available() != 0;
+            int pendiente=s.getInputStream().available();
+            return  pendiente!= 0;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

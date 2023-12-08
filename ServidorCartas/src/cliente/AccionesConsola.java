@@ -9,8 +9,6 @@ public interface AccionesConsola {
 
     boolean enPartida();
 
-    boolean recibirMensaje();
-
     void salirForzado();
 
     //PartidaCliente getPartida();

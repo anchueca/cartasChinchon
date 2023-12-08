@@ -13,7 +13,7 @@ import servidor.usuarios.Jugador;
 
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -141,7 +141,7 @@ public class Partida {
         Humano humano =new Humano(jugador, this, s);
         if (this.nuevoJugador(humano)) {
             if (this.numJugadores()==1) this.anfitrion = humano;
-            this.enviarMensaje(jugador+"entra a la partida");
+            this.enviarMensaje(jugador+" entra a la partida");
             return humano;
         }
         return null;
@@ -157,7 +157,7 @@ public class Partida {
     public boolean nuevoJugador(String jugador) {
         if(this.nuevoJugador(new IA(jugador.isEmpty()?"IA "+this.numIA:jugador,this))){
             this.numIA++;
-            this.enviarMensaje(jugador+"añadido a la partida");
+            this.enviarMensaje(jugador+" añadido a la partida");
             return true;
         }
         return false;
@@ -172,12 +172,13 @@ public class Partida {
             //Pongo como nuevo anfitrión al primeor de la lista
             this.anfitrion = this.jugadores.get(0);
             //Si resulta que es el mismo pongo al siguiente (si hay al menos dos personas)
-            if (this.anfitrion == jugador && this.numJugadores() != 1) this.anfitrion = this.jugadores.get(2);
+            //TAL COMO ESTÁ UNA IA PODRÍA SER ANFITRIÓN
+            if (this.anfitrion == jugador && this.numJugadores() != 1) this.anfitrion = this.jugadores.get(1);
             this.enviarMensaje(this.anfitrion.getNombre()+" es el nuevo anfitrión");
         }
         //Si no lo echo
         if (this.estado == EstadoPartida.ESPERANDO || this.estado == EstadoPartida.FINALIZADO){
-            this.enviarMensaje(jugador.getNombre()+"abandona la partida");
+            this.enviarMensaje(jugador.getNombre()+" abandona la partida");
             return this.jugadores.remove(jugador);
         }
         //Si la aprtida está empezada una IA tomo su control
@@ -189,7 +190,6 @@ public class Partida {
         this.enviarMensaje("Una IA ha tomado el control de "+jugador.getNombre()+" la hora de las máquinas ha llegado");
         return true;
     }
-
 
 /////////GESTIÓN PARTIDA////////////////
 
@@ -258,20 +258,21 @@ public class Partida {
         this.enviarMensaje(mensaje,this.jugadores);
     }
     public void enviarMensaje(String mensaje,Jugador jugador){
-        //El IDE me propone esta extraña colección. Parece un apaño para meter elementos donde debería haber colecciones
-        //Podría hacer un add en una lista, pero así solo lo hago en una (aunque luego haya escrito dos de comentarios)
-        this.enviarMensaje(mensaje,new ArrayList<Jugador>(Collections.singleton(jugador)));
+        List<Jugador> lista=new ArrayList<>();
+        lista.add(jugador);
+        this.enviarMensaje(mensaje,new ArrayList<Jugador>(lista));
     }
-    public void enviarMensaje(String mensaje,List<Jugador> lista){
-        /*this.hilo.execute(new Runnable() {
+    public void enviarMensaje(String mensaje, Collection<Jugador> jugadores){
+        System.out.println("Enviando: "+mensaje);
+        this.hilo.execute(new Runnable() {
             @Override
             public void run() {
-                for (Jugador jugador: lista
+                for (Jugador jugador: jugadores
                 ) {
                     jugador.recibirMensaje(mensaje);
                 }
             }
-        });*/
+        });
     }
 
 

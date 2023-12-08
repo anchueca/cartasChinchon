@@ -17,6 +17,9 @@ public class Humano extends Jugador {
 
     private Socket s;
     private boolean salida;
+    /*
+    Uso el semáforo para controlar las entradas
+     */
     public Humano(String nombre, Partida partida, Socket s) {
         super(nombre, partida);
         this.s = s;
@@ -27,6 +30,9 @@ public class Humano extends Jugador {
         String mensaje;
         //Cuando la partida se abandone será null
         while (!this.salida) {
+            try {
+                //tomo la comunicación
+                ProcesadorMensajes.getProcesadorMensajes().abrirConexion(this.s);
             mensaje = ProcesadorMensajes.getProcesadorMensajes().recibirString(this.s);
             if (mensaje == null) {//Si es nulo es porque se ha cerrado el socket o se ha producido algún error
                 this.salirForzado();
@@ -34,9 +40,14 @@ public class Humano extends Jugador {
                 return;
             }
             //Proceso la cadena recibida
-            //Al atender una petición no permito otra comnunicación
-            synchronized (this.s) {
-                this.procesarInstrccion(mensaje);
+            this.procesarInstrccion(mensaje);
+
+        }catch (InterruptedException e) {
+                salida=true;
+                System.out.println("Problema en la comunicación. Método interrumpido");
+            }finally {
+                if (!ProcesadorMensajes.getProcesadorMensajes().libreConexcion(this.s))
+                    ProcesadorMensajes.getProcesadorMensajes().cerrarConexion(this.s);
             }
         }
     }
@@ -253,13 +264,20 @@ public class Humano extends Jugador {
     }
 
     public void recibirMensaje(String mensaje){
-        synchronized (this.s){
-            //Aviso que voy a enviar un mensaje de texto
-            ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MENSAJE,this.s);
-            //Si el cliente me notifica que va bien lo mando
-            if(ProcesadorMensajes.getProcesadorMensajes().recibirCodigo(this.s)==Codigos.BIEN){
-                ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(mensaje,this.s);
-            }
+        try {
+            ProcesadorMensajes.getProcesadorMensajes().abrirConexion(this.s);
+            System.out.println("Mensaje enviado a: "+this.getNombre());
+        //Aviso que voy a enviar un mensaje de texto
+        ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MENSAJE,this.s);
+        //Si el cliente me notifica que va bien lo mando
+        if(ProcesadorMensajes.getProcesadorMensajes().recibirCodigo(this.s)==Codigos.BIEN){
+            ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(mensaje,this.s);
+        }
+        } catch (InterruptedException e) {
+            return;
+        }finally {
+                if(!ProcesadorMensajes.getProcesadorMensajes().libreConexcion(this.s))
+                    ProcesadorMensajes.getProcesadorMensajes().cerrarConexion(this.s);
         }
     }
 

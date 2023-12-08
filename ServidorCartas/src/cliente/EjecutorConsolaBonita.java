@@ -18,16 +18,16 @@ Implementación de las acciones asociadas a la presentación de consolaBonita
 
 public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
 
-    private final Actualizador actualizador;
     private final Socket s;
     private final ConsolaBonita consolaBonita;
     /////Atributos//////
     private PartidaCliente partida;
 
-    //////COntructores/////////
+    //////Contructores/////////
     public EjecutorConsolaBonita(PartidaCliente partida, ConsolaBonita consolaBonita) throws IOException {
         this.s = new Socket("localhost", 55555);
-        this.actualizador = new Actualizador(this);
+        RecibeObjetos.getRecibeObjetos(this.s);
+        RecibeObjetos.getRecibeObjetos().setReceptor(this);
         this.consolaBonita = consolaBonita;
         this.partida = partida;
     }
@@ -47,44 +47,33 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
 
     ////////Accioens de gestión (fuera de partida)///////////////
     public void unirsePartida(String partida, String jugador) {
-        synchronized (this.s) {
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto("entrar " + partida + " " + jugador, this.s);
-            if (ProcesadorMensajes.getProcesadorMensajes().recibirCodigo(this.s) == Codigos.BIEN) {
-                this.partida = new PartidaCliente(partida, jugador, this.s);
-                this.setPartida(this.partida);
+            if (RecibeObjetos.getRecibeObjetos().recibirObjeto() == Codigos.BIEN) {
+                this.setPartida(new PartidaCliente(partida, jugador, this.s,this));
                 this.consolaBonita.setPartida(partida);
                 this.consolaBonita.setJugador(jugador);
-                this.consolaBonita.limpiarPantalla();
                 this.consolaBonita.meterSalida("Entando...");
-                this.estado();
+                //this.estado();
             } else this.consolaBonita.meterSalida("No se ha podido entrar");
-        }
-
     }
 
     public void crearPartida(String partida, String baraja) {
-        synchronized (this.s) {
             if (baraja.isEmpty()) baraja = "NORMAL";
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto("crear " + partida + " " + baraja, this.s);
-            if (ProcesadorMensajes.getProcesadorMensajes().recibirCodigo(this.s) == Codigos.BIEN)
+            if (RecibeObjetos.getRecibeObjetos().recibirObjeto() == Codigos.BIEN)
                 this.consolaBonita.meterSalida("Partida creada");
             else this.consolaBonita.meterSalida("No se ha podido crear");
-        }
-
     }
 
     public void setPartida(PartidaCliente partida) {
         String cadena;
         if (partida == null) {//salgo
-            this.actualizador.pausar();
             this.partida = null;
             this.consolaBonita.setPartida("");
             this.consolaBonita.setJugador("");
             cadena = "Abandonando partida...";
         } else {//entro
             this.partida = partida;
-            if (!this.actualizador.isAlive()) this.actualizador.start();
-            else this.actualizador.reanudar();
             this.consolaBonita.setPartida("");
             this.consolaBonita.setJugador("");
             cadena = "Cargando partida";
@@ -97,9 +86,10 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
         synchronized (this.s) {
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto("partidas", this.s);
             String n = "Lista partidas:\n";
-            if (ProcesadorMensajes.getProcesadorMensajes().recibirCodigo(this.s) == Codigos.BIEN) {
-                List<String> lista = (List<String>) ProcesadorMensajes.getProcesadorMensajes().recibirObjeto(this.s);
-                for (int i = 0, j = lista.size(); i < j; i++) {
+            if (RecibeObjetos.getRecibeObjetos().recibirObjeto() == Codigos.BIEN) {
+                List<String> lista = (List<String>) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+                if(lista==null)n="No se han podido recibir las partidas";
+                else for (int i = 0, j = lista.size(); i < j; i++) {
                     n += i + ".- " + lista.get(i) + "\n";
                 }
             }
@@ -110,7 +100,6 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
 
     public void salir() {
         this.consolaBonita.dispose();
-        this.actualizador.interrupt();
         this.consolaBonita.meterSalida("Saliendo...");
         try {
             this.s.close();
@@ -146,7 +135,6 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
             salida += "\nDescubierta: " + (descubierta == null ? "Nada" : descubierta);
         } else salida = "La partida no está en curso";
         this.consolaBonita.meterSalida(salida);
-
     }
 
     public void verMano() {
@@ -247,25 +235,26 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
         return this.partida.cogerCartaCubierta();
     }
 
+
     /*
-Comprueba actualizaciones y si procede hace las acciones convenientes. La idea es que sea llamado por el actualizador
- */
-    public boolean recibirMensaje() {
-        String cadena;
-        if ((cadena=this.partida.recibirMensaje())!=null) {
-            this.consolaBonita.meterSalida(cadena);
-            return true;
-        }
-        return false;
-    }
-    /*
-    Cuando ya he leído el mensaje llamo a este método. Recibe directaente los datos sin esperar leer el código de mensaje
+    Recibe directaente los datos sin esperar leer el código de mensaje
      */
     public boolean recibirMensaje(Codigos codigo){
         String cadena;
-        if ((cadena=this.partida.procesarMensaje(codigo))!=null) {
-            this.consolaBonita.meterSalida(cadena);
-            return true;
+        try {
+            ProcesadorMensajes.getProcesadorMensajes().abrirConexion(this.s);
+            if(this.partida==null)ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL,this.s);
+            else {
+                ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.BIEN,this.s);
+                if ((cadena=this.partida.procesarMensaje(codigo))!=null) {
+                    this.consolaBonita.meterSalida(cadena);
+                    return true;
+                }
+            }
+            ProcesadorMensajes.getProcesadorMensajes().cerrarConexion(this.s);
+        } catch (InterruptedException e) {
+            ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL,this.s);
+            return false;
         }
         return false;
     }
