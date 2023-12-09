@@ -123,6 +123,7 @@ public class PartidaCliente {
             return null;
         } catch (InterruptedException | ClassCastException e) {
             getProcesadorMensajes().enviarObjeto(Codigos.REINICIO, this.s);
+            throw new ReinicioEnComunicacionExcepcion();
         }finally{
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
