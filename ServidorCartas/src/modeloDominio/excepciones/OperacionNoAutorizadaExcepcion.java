@@ -1,4 +1,4 @@
 package modeloDominio.excepciones;
 
-public class OperacionNoAutorizadaExcepcion {
+public class OperacionNoAutorizadaExcepcion extends Exception {
 }

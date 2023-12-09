@@ -40,10 +40,6 @@ public class ConsolaBonita extends JFrame {
             }
         });
 
-        //AccionesConsola acciones = procesadorComandos.getAccionesConsola();
-        //if (acciones instanceof EjecutorConsolaBonita) ((EjecutorConsolaBonita) acciones).setConsolaBonita(this);
-        //else this.Salida.setText("Error en el procesador de instrucciones. La funcionalidad puede verse limitada");
-
         this.setTitle("SuperChinchon");
         this.setContentPane(this.prinicpal);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -100,7 +96,8 @@ public class ConsolaBonita extends JFrame {
                         return;
                     }
                     //Manda procesar y ejecutar el comando
-                    if (!this.procesadorComandos.procesarInstruccion(entrada)) meterSalida("Comando no reconocido");
+                    if(entrada.compareTo("limpiar")==0)this.limpiarPantalla();
+                    else if (!this.procesadorComandos.procesarInstruccion(entrada)) meterSalida("Comando no reconocido");
                 } catch (NumeroParametrosExcepcion ex) {
                     meterSalida("Número de parámetros incorrecto");
                 }

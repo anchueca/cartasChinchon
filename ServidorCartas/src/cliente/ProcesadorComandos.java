@@ -26,7 +26,10 @@ public class ProcesadorComandos {
     el resultado de ayuda (está sin implementar).
      */
     public boolean procesarInstruccion(String instruccion) throws NumeroParametrosExcepcion {
-        if(instruccion.charAt(0)==':')this.acciones.enviarChat(instruccion.substring(1));
+        if(instruccion.charAt(0)==':'){
+            this.acciones.enviarChat(instruccion.substring(1));
+            return true;
+        }
         String[] palabras = instruccion.split("\\s+");
         //Acciones fuera de la partida
         if (!this.acciones.enPartida()) {
@@ -120,6 +123,10 @@ public class ProcesadorComandos {
                 }
                 case "turno": {
                     this.acciones.verTurno();
+                    break;
+                }
+                case "anfitrion": {
+                    this.acciones.verAnfitrion();
                     break;
                 }
                 case "crearIA": {

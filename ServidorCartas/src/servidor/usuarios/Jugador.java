@@ -165,4 +165,11 @@ public abstract class Jugador {
         return false;
     }
 
+    protected Jugador turno() {
+        return this.partida.getTurno();
+    }
+
+    protected Jugador anfitrion() {
+        return this.partida.getAnfitrion();
+    }
 }

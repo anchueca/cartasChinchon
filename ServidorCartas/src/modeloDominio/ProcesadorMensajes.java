@@ -1,6 +1,7 @@
 package modeloDominio;
 
 import cliente.RecibeObjetos;
+import modeloDominio.excepciones.ReinicioEnComunicacionExcepcion;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -85,7 +86,7 @@ public class ProcesadorMensajes {
         return (Semaphore) this.streams.get(s)[2];
     }
 
-    public void abrirConexion(Socket s) throws InterruptedException {
+    public void abrirComunicacion(Socket s) throws InterruptedException {
         System.out.println("Solicito comunicación");
         //Si ya está en uso espera a que se libere
         this.getSemaforo(s).acquire();
@@ -93,14 +94,14 @@ public class ProcesadorMensajes {
         System.out.println("Inicio comunicación");
 
     }
-    public void cerrarConexion(Socket s) {
+    public void cerrarComunicacion(Socket s) {
         //Si está sin cerrar se cierra
-        if(libreConexcion(s))return;
+        if(libreComunicacion(s))return;
         this.getSemaforo(s).release();
         System.out.println("Fin comunicación");
         System.out.println("///////////////////////////////////");
     }
-    public boolean libreConexcion(Socket s){
+    public boolean libreComunicacion(Socket s){
         return this.getSemaforo(s).availablePermits()==1;
     }
 
@@ -120,18 +121,18 @@ public class ProcesadorMensajes {
         return i;
     }
 
-    public String recibirString(Socket s) {
-        Object cadena=this.recibirObjeto(s);
-        return (cadena instanceof String)?(String) cadena:"";
+    public String recibirString(Socket s) throws ClassCastException, ReinicioEnComunicacionExcepcion {
+        return (String) this.recibirObjeto(s);
     }
 
-    public Object recibirObjeto(Socket s) {
+    public Object recibirObjeto(Socket s) throws ReinicioEnComunicacionExcepcion {
         try {
             System.out.println(RecibeObjetos.getRecibeObjetos()==Thread.currentThread()?new Date()+" RecogeObjetos esperando objeto":new Date()+" Esperando objeto");
             ObjectInputStream in = this.getObjectInputStream(s);
             Object objeto;
             objeto = in.readObject();
             System.out.println("Elemento recibido: " + objeto);
+            if(objeto==Codigos.REINICIO)throw new ReinicioEnComunicacionExcepcion();
             return objeto;
 
         } catch (IOException e) {
@@ -143,7 +144,7 @@ public class ProcesadorMensajes {
         }
     }
 
-    public Codigos recibirCodigo(Socket s) {
+    public Codigos recibirCodigo(Socket s) throws ReinicioEnComunicacionExcepcion {
         System.out.println("Recibir código.");
         Object objeto = this.recibirObjeto(s);
         if (objeto instanceof Codigos) return (Codigos) objeto;

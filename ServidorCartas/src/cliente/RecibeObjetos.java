@@ -2,6 +2,7 @@ package cliente;
 
 import modeloDominio.Codigos;
 import modeloDominio.ProcesadorMensajes;
+import modeloDominio.excepciones.ReinicioEnComunicacionExcepcion;
 
 import java.net.Socket;
 import java.util.concurrent.Semaphore;
@@ -33,7 +34,10 @@ public class RecibeObjetos extends Thread{
     public void run(){
         while(!Thread.currentThread().isInterrupted() && !this.s.isClosed()){
             //Espero un mensaje
-            this.objeto=ProcesadorMensajes.getProcesadorMensajes().recibirObjeto(this.s);
+            try {
+                this.objeto=ProcesadorMensajes.getProcesadorMensajes().recibirObjeto(this.s);
+            } catch (ReinicioEnComunicacionExcepcion ignored) {
+            }
             System.out.println("El recogedor ha recibido: "+this.objeto);
             //Si es un Codigos.MENSAJE es porque ha llegado una "interrupcion" del servidor
             if(this.receptor!=null && this.objeto== Codigos.MENSAJE){
@@ -57,7 +61,7 @@ public class RecibeObjetos extends Thread{
     public synchronized void setReceptor(RecibeMensajesI receptor){
         this.receptor=receptor;
     }
-    public synchronized Object recibirObjeto(){
+    public synchronized Object recibirObjeto() throws ReinicioEnComunicacionExcepcion {
         try {
             //Podré cogerlo si hay algo
             this.disponible.acquire();
@@ -69,6 +73,7 @@ public class RecibeObjetos extends Thread{
         //Como ya he cogido indico al hilo que espere otro
         this.paraCoger.release();
         System.out.println("Objeto recogido del RecibeObjetos: "+objeto);
+        if(objeto==Codigos.REINICIO)throw new ReinicioEnComunicacionExcepcion();
         return objeto;
     }
 }

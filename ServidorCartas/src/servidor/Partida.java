@@ -155,9 +155,10 @@ public class Partida {
         return false;
     }
     public boolean nuevoJugador(String jugador) {
-        if(this.nuevoJugador(new IA(jugador.isEmpty()?"IA "+this.numIA:jugador,this))){
+        IA ia=new IA(jugador.isEmpty()?"IA "+this.numIA:jugador,this);
+        if(this.nuevoJugador(ia)){
             this.numIA++;
-            this.enviarMensaje(jugador.toString()+" añadido a la partida");
+            this.enviarMensaje(ia+" añadido a la partida");
             return true;
         }
         return false;
@@ -193,46 +194,28 @@ public class Partida {
 
 /////////GESTIÓN PARTIDA////////////////
 
+    /*
+    Inicia la partida con la primera ronda
+     */
     public void iniciarPartida() {
         this.estado = EstadoPartida.ENCURSO;
-        this.fase = FaseChinchon.ABIERTO;
         this.enviarMensaje("La partida comienza");
-        //Determino aleatoriamente el primer jugador será el siguiente por la implementación de inicioRonda
+        //Determino aleatoriamente el primer jugador. Será el siguiente por la implementación de inicioRonda
         this.turno=this.jugadores.get(Math.abs(new Random().nextInt()%this.numJugadores()));
         this.inicioRonda();
     }
-
+/*
+Inicia una nueva ronda
+ */
     public void inicioRonda() {
-        this.enviarMensaje("Nueva ronda");
-        this.repartirMano();
-        this.fase = FaseChinchon.ABIERTO;
-        this.siguienteTurno();
-    }
-    /*
-    Asigna el turno siguiente
-     */
-    public void siguienteTurno() {
-        int turno = this.jugadores.indexOf(this.turno);
-        turno++;
-        turno %= this.jugadores.size();
-        this.turno = this.jugadores.get(turno);
-        //Le doy el turno
-        this.turno.recibirTurno();
-        this.enviarMensaje("Te toca",this.turno);
-    }
-
-    /*
-    Reparte la baraja entre todos los juadores y la decubierta
-     */
-    public void repartirMano() {
         //recojo las deescubiertas
         if (this.descubierta.numCartas() != 0) this.baraja.meterCarta(this.descubierta);
         //recojo la de los jugadores
         Carta carta;
         for (Jugador jugador : this.jugadores)
             while ((carta = jugador.tomarCarta(0)) != null) this.baraja.meterCarta(carta);
-
         this.baraja.barajar();
+
         //reparto
         for (int i = 0; i < 7; i++)
             for (Jugador jugador : jugadores
@@ -240,6 +223,22 @@ public class Partida {
                 jugador.darCarta(this.baraja.tomarCarta());
             }
         this.descubierta.meterCarta(this.baraja.tomarCarta());
+        this.fase = FaseChinchon.ABIERTO;
+        this.enviarMensaje("Nueva ronda");
+        //Comienoz juego
+        this.siguienteTurno();
+    }
+    /*
+    Asigna el turno siguiente y lo notifica al jugador. Si es uns IA jugará
+     */
+    public void siguienteTurno() {
+        int turno = this.jugadores.indexOf(this.turno);
+        turno++;
+        turno %= this.jugadores.size();
+        this.turno = this.jugadores.get(turno);
+        //Le doy el turno
+        this.enviarMensaje("Te toca",this.turno);
+        this.turno.recibirTurno();
     }
 
     public String toString() {
@@ -264,21 +263,20 @@ public class Partida {
     }
     public void enviarMensaje(String mensaje, Collection<Jugador> jugadores){
         System.out.println("::::::::::Enviando: "+mensaje);
-        Runnable hilo=new Runnable() {
+        for (Jugador jugador: jugadores
+        ) {
+            jugador.recibirMensaje(mensaje);
+        }
+        /*Runnable hilo=new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
                 for (Jugador jugador: jugadores
                 ) {
                     jugador.recibirMensaje(mensaje);
                 }
             }
-        };
-        this.hilo.execute(hilo);
+        };*/
+        //this.hilo.execute(hilo);
     }
 
 

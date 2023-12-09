@@ -6,6 +6,7 @@ import modeloDominio.EstadoPartida;
 import modeloDominio.ProcesadorMensajes;
 import modeloDominio.baraja.Carta;
 import modeloDominio.baraja.Mano;
+import modeloDominio.excepciones.ReinicioEnComunicacionExcepcion;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -42,7 +43,11 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
     }
 
     public EstadoPartida estadoPartida() {
-        return this.partida.verEstadoPartida();
+        try {
+            return this.partida.verEstadoPartida();
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            return this.estadoPartida();
+        }
     }
 
     ////////Accioens de gestión (fuera de partida)///////////////
@@ -51,7 +56,9 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
     Gestiona la entrada a la partida
      */
     public void unirsePartida(String partida, String jugador) {
-        //Manda mensaje al servidor
+
+        try {
+            //Manda mensaje al servidor
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto("entrar " + partida + " " + jugador, this.s);
             //Si la respuesta del servidor es correcta
             if (RecibeObjetos.getRecibeObjetos().recibirObjeto() == Codigos.BIEN) {
@@ -63,13 +70,17 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
                 this.consolaBonita.meterSalida("Entando...");
                 //this.estado();
             } else this.consolaBonita.meterSalida("No se ha podido entrar");
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.unirsePartida(partida, jugador);
+        }
     }
 
     /*
     Crea una partida en el servidor, pero no se une a ella
      */
     public void crearPartida(String partida, String baraja) {
-        //Por defecto la baraja es la NORMAL
+        try {
+            //Por defecto la baraja es la NORMAL
             if (baraja.isEmpty()) baraja = "NORMAL";
             //Envía el mensaje al servidor
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto("crear " + partida + " " + baraja, this.s);
@@ -77,6 +88,9 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
             if (RecibeObjetos.getRecibeObjetos().recibirObjeto() == Codigos.BIEN)
                 this.consolaBonita.meterSalida("Partida creada");
             else this.consolaBonita.meterSalida("No se ha podido crear");
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.crearPartida(partida,baraja);
+        }
     }
 
     /*
@@ -108,7 +122,8 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
     Muetsra por pantalla las partidas del servidor
      */
     public void listaPartidas() {
-        //Envío el mensaje al servidor
+        try {
+            //Envío el mensaje al servidor
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto("partidas", this.s);
             String n = "Lista partidas:\n";
             //Si la respuesta el correcta
@@ -123,6 +138,10 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
             }
             //Muestro el texto
             this.consolaBonita.meterSalida(n);
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.listaPartidas();
+        }
+
     }
 /*
 Salida del programa
@@ -143,22 +162,32 @@ Salida del programa
      */
     public void listaJugadores() {
         String cadena = "Juagdores: ";
-        for (String ca : this.partida.listaJugadores()
-        ) {
-            cadena += ca + " ";
+        try {
+            for (String ca : this.partida.listaJugadores()
+            ) {
+                cadena += ca + " ";
+            }
+            this.consolaBonita.meterSalida(cadena);
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.listaJugadores();
         }
-        this.consolaBonita.meterSalida(cadena);
+
 
     }
 /*
 Muestra un resumen del estado actual de la partida
  */
     public void verResumen() {
-        this.consolaBonita.meterSalida("Nombre partida: "+this.partida.getNombrePartida()+" "
-                +this.partida.verEstadoPartida().toString()+this.partida.verFasePartida() +"\nJugador:"+this.partida.getNombreJuagador());
-        this.verTurno();
-        this.puntuaciones();
-        this.verMano();
+        try {
+            this.consolaBonita.meterSalida("Nombre partida: "+this.partida.getNombrePartida()+" "
+                    +this.partida.verEstadoPartida().toString()+this.partida.verFasePartida() +"\nJugador:"+this.partida.getNombreJuagador());
+            this.verTurno();
+            this.puntuaciones();
+            this.verMano();
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.verResumen();
+        }
+
     }
 
 /*
@@ -168,15 +197,20 @@ Muestra por pantalla la información principal relativa a la partida
         //this.consolaBonita.limpiarPantalla();
         String salida = "";
         //Solo tiene sentido una vez empezada la partida
-        if (this.partida.verEstadoPartida() == EstadoPartida.ENCURSO) {
-            //pinto la mano
-            this.verMano();
-            //Muestra la carta descubierta
-            Carta descubierta = this.partida.verCartaDescubierta();
-            salida += "\nDescubierta: " + (descubierta == null ? "Nada" : descubierta);
-        } else salida = "La partida no está en curso";
+        try {
+            if (this.partida.verEstadoPartida() == EstadoPartida.ENCURSO) {
+                //pinto la mano
+                this.verMano();
+                //Muestra la carta descubierta
+                Carta descubierta = this.partida.verCartaDescubierta();
+                salida += "\nDescubierta: " + (descubierta == null ? "Nada" : descubierta);
+            } else salida = "La partida no está en curso";
+            this.consolaBonita.meterSalida(salida);
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.pintarPartida();
+        }
         //Muestro por pantalla
-        this.consolaBonita.meterSalida(salida);
+
     }
 /*
 Muestra por pantalla las cartas de la mano y las parejas y escaleras formadas
@@ -184,44 +218,59 @@ Muestra por pantalla las cartas de la mano y las parejas y escaleras formadas
     public void verMano() {
         String salida = "";
         //Solo tienne sentido una vez empezada la partida
-        if (this.partida.verEstadoPartida() == EstadoPartida.ENCURSO) {
-            salida += "Cartas: ";
-            //Obtengo la mano
-            Mano mano = this.partida.verMano();
-            if (mano != null) for (int i = 0, j = mano.numCartas(); i < j; i++) {
-                salida += "\n" + i + ".-(" + mano.verCarta(i) + ")";
-            }
-            salida += "\n\nCasadas:";
-            //Muestro las cartas casadas
-            for (Byte bite : Mano.cartasCasadas(mano)
-            ) {
-                salida += "\n" + bite.toString();
-            }
-        } else salida = "La partida no está en curso";
+        try {
+            if (this.partida.verEstadoPartida() == EstadoPartida.ENCURSO) {
+                salida += "Cartas: ";
+                //Obtengo la mano
+                Mano mano = this.partida.verMano();
+                if (mano != null) for (int i = 0, j = mano.numCartas(); i < j; i++) {
+                    salida += "\n" + i + ".-(" + mano.verCarta(i) + ")";
+                }
+                salida += "\n\nCasadas:";
+                //Muestro las cartas casadas
+                for (Byte bite : Mano.cartasCasadas(mano)
+                ) {
+                    salida += "\n" + bite.toString();
+                }
+            } else salida = "La partida no está en curso";
+            this.consolaBonita.meterSalida(salida);
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.verMano();
+        }
         //Muestra por pantalla
-        this.consolaBonita.meterSalida(salida);
+
     }
 /*
 Muestra por pantalla la tabla de puntuaciones
  */
     public void puntuaciones() {
-        Map<String, Integer> mapa = this.partida.verPuntuaciones();
-        String ca = "Puntuaciones:";
-        for (String nombre : mapa.keySet()
-        ) {
-            ca += "\n" + nombre + ": " + mapa.get(nombre);
+        Map<String, Integer> mapa = null;
+        try {
+            mapa = this.partida.verPuntuaciones();
+            String ca = "Puntuaciones:";
+            for (String nombre : mapa.keySet()
+            ) {
+                ca += "\n" + nombre + ": " + mapa.get(nombre);
+            }
+            this.consolaBonita.meterSalida(ca);
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.puntuaciones();
         }
-        this.consolaBonita.meterSalida(ca);
+
     }
 
     /*
     Muestra por pantalla de quién es el turno
      */
     public void verTurno(){
-        String turno=this.partida.verTurno();
-        if (this.partida.verEstadoPartida()!=EstadoPartida.ENCURSO || turno==null) {
-            this.consolaBonita.meterSalida("No es posible consultar el turno");
-        } else this.consolaBonita.meterSalida("Turno: r"+(turno.compareTo(this.partida.getNombreJuagador())==0?"Te toca":turno));
+        try {
+            String turno=this.partida.verTurno();
+            if (this.partida.verEstadoPartida()!=EstadoPartida.ENCURSO || turno==null) {
+                this.consolaBonita.meterSalida("No es posible consultar el turno");
+            } else this.consolaBonita.meterSalida("Turno: r"+(turno.compareTo(this.partida.getNombreJuagador())==0?"Te toca":turno));
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.verTurno();
+        }
     }
 /*
 Envía al resto de jugadores un mensaje. Es parte de un chat primitivo
@@ -229,7 +278,24 @@ Envía al resto de jugadores un mensaje. Es parte de un chat primitivo
     @Override
     public void enviarChat(String texto) {
         if(this.partida==null)this.consolaBonita.meterSalida("No hay nadie que te escuche");
-        else this.partida.enviarChat(texto);
+        else {
+            try {
+                this.partida.enviarChat(texto);
+            } catch (ReinicioEnComunicacionExcepcion e) {
+                this.enviarChat(texto);
+            }
+        }
+    }
+
+    @Override
+    public void verAnfitrion() {
+        String anfitrion= null;
+        try {
+            anfitrion = this.partida.verAnfitrion();
+            this.consolaBonita.meterSalida("Anfitrion: "+anfitrion==null?"Desconocido":anfitrion);
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.empezar();
+        }
     }
 
     //////////ACCIOENES DE JUEGO/////////////
@@ -238,44 +304,65 @@ Envía al resto de jugadores un mensaje. Es parte de un chat primitivo
     Inicia la partida. Solo puede hacerlo el anfitrión. En caso contrario devolverá mal
      */
     public void empezar() {
-        if (this.partida.empezarPartida()) {
-            this.consolaBonita.meterSalida("Partida iniciada correctamente");
-            this.verResumen();
-        } else this.consolaBonita.meterSalida("No se ha podido iniciar");
+        try {
+            if (this.partida.empezarPartida()) {
+                this.consolaBonita.meterSalida("Partida iniciada correctamente");
+                this.verResumen();
+            } else this.consolaBonita.meterSalida("No se ha podido iniciar");
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.empezar();
+        }
     }
 
     /*
     Solicita al servidor que ordene la mano
      */
     public void ordenar() {
-        if (this.partida.ordenar()) this.pintarPartida();
-        else this.consolaBonita.meterSalida("No se ha podido ordenar");
+        try {
+            if (this.partida.ordenar()) this.pintarPartida();
+            else this.consolaBonita.meterSalida("No se ha podido ordenar");
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.ordenar();
+        }
     }
 /*
 Lanza la carta iésima de la mano
  */
     public void echar(int i) {//por refinar
-        Mano mano = this.partida.verMano();
-        if (this.partida.echarCarta(i)==Codigos.BIEN) {
-            mano.tomarCarta(i);
-            this.consolaBonita.meterSalida("OK");
-        } else this.consolaBonita.meterSalida("Jugada no válida");
+
+        try {
+            Mano mano = this.partida.verMano();
+            if (this.partida.echarCarta(i)==Codigos.BIEN) {
+                mano.tomarCarta(i);
+                this.consolaBonita.meterSalida("OK");
+            } else this.consolaBonita.meterSalida("Jugada no válida");
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.echar(i);
+        }
     }
 /*
 Abandona la partida si el servidor te deja (lo hará)
  */
     public void salirPartida() {
-        if (this.partida.salir()) {
-            this.setPartida(null);
-            this.consolaBonita.meterSalida("saliendo de la partida");
-        } else this.consolaBonita.meterSalida("No es posible abandonar la partida");
+        try {
+            if (this.partida.salir()) {
+                this.setPartida(null);
+                this.consolaBonita.meterSalida("saliendo de la partida");
+            } else this.consolaBonita.meterSalida("No es posible abandonar la partida");
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.salirPartida();
+        }
     }
 /*
 Permuta las cartas iésima y jotaésima de la mano
  */
     public void mover(int i, int j) {
-        if (this.partida.moverMano(i, j)) this.consolaBonita.meterSalida("Movimiento efectuado");
-        else this.consolaBonita.meterSalida("Movimiento incorrecto");
+        try {
+            if (this.partida.moverMano(i, j)) this.consolaBonita.meterSalida("Movimiento efectuado");
+            else this.consolaBonita.meterSalida("Movimiento incorrecto");
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.mover(i,j);
+        }
     }
 
     /*
@@ -296,26 +383,31 @@ Gestiona qué carta se echar a partir de la cadena opción: vubierta/descubierta
  */
     public void coger(String opcion) {
         //Compruebo cuál de las opciones es
-        Carta carta;
-        if(opcion.compareTo("descubierta") == 0)carta=this.cogerCartaDecubierta();
-        else if(opcion.compareTo("cubierta") == 0)carta=this.cogerCartaCubierta();
-        else {
-            this.consolaBonita.meterSalida("Opción desconocida");
-            return;
+        try {
+            Carta carta;
+            if(opcion.compareTo("descubierta") == 0)carta=this.cogerCartaDecubierta();
+            else if(opcion.compareTo("cubierta") == 0)carta=this.cogerCartaCubierta();
+            else {
+                this.consolaBonita.meterSalida("Opción desconocida");
+                return;
+            }
+            if(carta==null)this.consolaBonita.meterSalida("Jugada inválida");
+            else this.consolaBonita.meterSalida("Carta obtenida: "+carta);
+        }catch (ReinicioEnComunicacionExcepcion e){
+            this.coger(opcion);
         }
-        if(carta==null)this.consolaBonita.meterSalida("Jugada inválida");
-        else this.consolaBonita.meterSalida("Carta obtenida: "+carta);
+
     }
 /*
 Toma la carta descubierta
  */
-    public Carta cogerCartaDecubierta() {
+    public Carta cogerCartaDecubierta() throws ReinicioEnComunicacionExcepcion {
         return this.partida.cogerCartaDecubierta();
     }
 /*
 Toma la carta cubierta
  */
-    public Carta cogerCartaCubierta() {
+    public Carta cogerCartaCubierta() throws ReinicioEnComunicacionExcepcion {
         return this.partida.cogerCartaCubierta();
     }
 
@@ -328,7 +420,7 @@ Toma la carta cubierta
         try {
             //Si es el recogeObjetos no hace falta que reserve la conexión
             if(Thread.currentThread()!=RecibeObjetos.getRecibeObjetos())
-                ProcesadorMensajes.getProcesadorMensajes().abrirConexion(this.s);
+                ProcesadorMensajes.getProcesadorMensajes().abrirComunicacion(this.s);
             //Si todavía no hay partida se rechaza el mensaje
             if(this.partida==null)ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL,this.s);
             else {
@@ -341,14 +433,16 @@ Toma la carta cubierta
                 }
             }
 //Si ae produce un error devuelvo mal
-        } catch (InterruptedException e) {
+        } catch (InterruptedException| ClassCastException e) {
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL,this.s);
             return false;
         }
         //Finalmente se cierra la conexión
-        finally {
+        catch (ReinicioEnComunicacionExcepcion ignored) {
+
+        } finally {
             if(Thread.currentThread()!=RecibeObjetos.getRecibeObjetos())
-                ProcesadorMensajes.getProcesadorMensajes().cerrarConexion(this.s);
+                ProcesadorMensajes.getProcesadorMensajes().cerrarComunicacion(this.s);
         }
         return false;
     }
@@ -356,8 +450,12 @@ Toma la carta cubierta
     Crea un jugador IA en la partida. Solo se puede si se es anfitrión
      */
     public void crearIA(String nombre){
-        if (this.partida.crearIA(nombre)) this.consolaBonita.meterSalida("IA creada");
-        else this.consolaBonita.meterSalida("No se ha podido crear");
+        try {
+            if (this.partida.crearIA(nombre)) this.consolaBonita.meterSalida("IA creada");
+            else this.consolaBonita.meterSalida("No se ha podido crear");
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.crearIA(nombre);
+        }
     }
 
     /////////////OTROS///////////////

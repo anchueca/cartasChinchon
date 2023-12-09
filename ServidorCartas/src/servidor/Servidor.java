@@ -4,6 +4,7 @@ import modeloDominio.Codigos;
 import modeloDominio.ProcesadorMensajes;
 import modeloDominio.baraja.Tamano;
 import modeloDominio.excepciones.NumeroParametrosExcepcion;
+import modeloDominio.excepciones.ReinicioEnComunicacionExcepcion;
 import servidor.usuarios.Humano;
 
 import java.io.IOException;
@@ -61,18 +62,16 @@ Propiedades estáticas
             //Si es nulo es porque se ha cerrado el socket o se ha producido algún error
             while ((mensaje = ProcesadorMensajes.getProcesadorMensajes().recibirString(this.s)) != null)
                 //Proceso la cadena recibida. Si se une a una partida el hilo queda "capturado" hasta que lo "suelte"
-                //Al atender una petición no permito otra comnunicación
-                synchronized (this.s) {
-                    this.procesarInstrccion(mensaje);
-                }
+                this.procesarInstrccion(mensaje);
 
             this.s.close();
             System.out.println("Socket cerrado en el cleinte. Cierrde de conexión.");
         } catch (IOException e) {
             System.out.println("No se ha podido cerrar el socket correctamente.");
             e.printStackTrace();
+        }catch (ReinicioEnComunicacionExcepcion e){
+            this.run();
         }
-
     }
 
     /*

@@ -51,4 +51,6 @@ public interface AccionesConsola {
     void crearIA(String nombre);
     void verTurno();
     void enviarChat(String texto);
+
+    void verAnfitrion();
 }
