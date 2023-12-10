@@ -161,11 +161,19 @@ Salida del programa
     Muestra por pantalla el conjunto de jugadores en la partida
      */
     public void listaJugadores() {
-        String cadena = "Juagdores: ";
+        String cadena = "Juagdores:\n";
         try {
+            int i=0;
             for (String ca : this.partida.listaJugadores()
             ) {
-                cadena += ca + " ";
+                cadena += ca;
+                if(i<4){
+                    i++;
+                    cadena+="\t";
+                }else {
+                    cadena +="\n";
+                    i=0;
+                }
             }
             this.consolaBonita.meterSalida(cadena);
         } catch (ReinicioEnComunicacionExcepcion e) {
@@ -179,15 +187,14 @@ Muestra un resumen del estado actual de la partida
  */
     public void verResumen() {
         try {
-            this.consolaBonita.meterSalida("Nombre partida: "+this.partida.getNombrePartida()+" "
-                    +this.partida.verEstadoPartida().toString()+this.partida.verFasePartida() +"\nJugador:"+this.partida.getNombreJuagador());
+            this.consolaBonita.meterSalida("Nombre partida: "+this.partida.getNombrePartida()+"\tEstado: "
+                    +this.partida.verEstadoPartida().toString()+"\tFase "+this.partida.verFasePartida() +"\nJugador: "+this.partida.getNombreJuagador());
             this.verTurno();
             this.puntuaciones();
             this.verMano();
-        } catch (ReinicioEnComunicacionExcepcion e) {
-            this.verResumen();
-        }
+        } catch (ReinicioEnComunicacionExcepcion ignored) {
 
+        }
     }
 
 /*
@@ -246,11 +253,19 @@ Muestra por pantalla la tabla de puntuaciones
     public void puntuaciones() {
         Map<String, Integer> mapa = null;
         try {
+            int i=0;
             mapa = this.partida.verPuntuaciones();
-            String ca = "Puntuaciones:";
+            String ca = "Puntuaciones:\n\t";
             for (String nombre : mapa.keySet()
             ) {
-                ca += "\n" + nombre + ": " + mapa.get(nombre);
+                ca+=nombre + ": " + mapa.get(nombre);
+                if(i<4){
+                    i++;
+                    ca+="\t";
+                }else {
+                    ca += "\n";
+                    i=0;
+                }
             }
             this.consolaBonita.meterSalida(ca);
         } catch (ReinicioEnComunicacionExcepcion e) {
@@ -307,7 +322,7 @@ Envía al resto de jugadores un mensaje. Es parte de un chat primitivo
         try {
             if (this.partida.empezarPartida()) {
                 this.consolaBonita.meterSalida("Partida iniciada correctamente");
-                this.verResumen();
+                //this.verResumen();
             } else this.consolaBonita.meterSalida("No se ha podido iniciar");
         } catch (ReinicioEnComunicacionExcepcion e) {
             this.empezar();

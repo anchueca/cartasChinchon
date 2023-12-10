@@ -259,10 +259,9 @@ Inicia una nueva ronda
     public void enviarMensaje(String mensaje,Jugador jugador){
         List<Jugador> lista=new ArrayList<>();
         lista.add(jugador);
-        this.enviarMensaje(mensaje,new ArrayList<Jugador>(lista));
+        this.enviarMensaje(mensaje, new ArrayList<>(lista));
     }
     public void enviarMensaje(String mensaje, Collection<Jugador> jugadores){
-        System.out.println("::::::::::Enviando: "+mensaje);
         for (Jugador jugador: jugadores
         ) {
             jugador.recibirMensaje(mensaje);

@@ -75,7 +75,7 @@ public class PartidaCliente {
             getProcesadorMensajes().abrirComunicacion(this.s);
             getProcesadorMensajes().enviarObjeto("turno", this.s);
             Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
-            if (codigo== Codigos.BIEN)return  getProcesadorMensajes().recibirString(this.s);
+            if (codigo== Codigos.BIEN)return (String) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             return null;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -88,7 +88,7 @@ public class PartidaCliente {
             getProcesadorMensajes().abrirComunicacion(this.s);
             getProcesadorMensajes().enviarObjeto("anfitrion", this.s);
             Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
-            if (codigo== Codigos.BIEN)return  getProcesadorMensajes().recibirString(this.s);
+            if (codigo== Codigos.BIEN)return  (String) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             return null;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

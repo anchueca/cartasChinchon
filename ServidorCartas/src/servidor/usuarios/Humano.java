@@ -24,11 +24,15 @@ public class Humano extends Jugador {
     private ExecutorService hilo = Executors.newSingleThreadExecutor();
     private boolean salida;
     private final Semaphore semaforo=new Semaphore(1);
+    //Lo uso para guardar la solicitud recibida cuando durante el envío de un mensaje veo que el cliente ya habñia
+    //iniciado una comunicación
+    private String buffer;
 
     public Humano(String nombre, Partida partida, Socket s) {
         super(nombre, partida);
         this.s = s;
         this.salida=false;
+        this.buffer=null;
     }
 
     public void receptorHumano() throws IOException {
@@ -38,11 +42,13 @@ public class Humano extends Jugador {
             try {
                 //Doy un pequeño margen para que el hilo de los mensajes pueda trabajar y así no secuestro la
                 //comunicación
-                while(!getProcesadorMensajes().libreComunicacion(this.s) || !getProcesadorMensajes().enEspera(this.s))
+                if(buffer==null)
+                    while(!getProcesadorMensajes().libreComunicacion(this.s)
+                        || !getProcesadorMensajes().enEspera(this.s))
                     Thread.sleep(200);
                 //tomo la comunicación
                 getProcesadorMensajes().abrirComunicacion(this.s);
-            mensaje = getProcesadorMensajes().recibirString(this.s);
+            mensaje = buffer==null?getProcesadorMensajes().recibirString(this.s):buffer;
             if (mensaje == null) {//Si es nulo es porque se ha cerrado el socket o se ha producido algún error
                 this.salirForzado();
                 //Vuelve a Servidor donde se gestionará el cierre
@@ -324,14 +330,25 @@ Permite conversar con otros jugadores
             @Override
             public void run() {
                 try {
+                    System.out.println("Quiero mandar un mensaje");
                     semaforo.acquire();
-                    System.out.println("Solicito inicio para mandar mensaje: "+mensaje);
+                    System.out.println("Permisos: "+semaforo.availablePermits()+" Solicito inicio para mandar mensaje: "+mensaje);
                     getProcesadorMensajes().abrirComunicacion(s);
                     System.out.println("Mensaje enviado a: "+getNombre());
                     //Aviso que voy a enviar un mensaje de texto
                     getProcesadorMensajes().enviarObjeto(Codigos.MENSAJE,s);
+                    //Considero la posibilidad de que el cliente hubiera iniciado una comunicación
+                    Object objeto=getProcesadorMensajes().recibirObjeto(s);
+                    //Si es un String se ha producido una colisión
+                    if(objeto instanceof String){
+                        System.out.println("Colisión. Guardando en el buffer");
+                        //Meto el String en el buffer
+                        buffer= (String) objeto;
+                        //Leo el código que debería llegar a continuación
+                        objeto=getProcesadorMensajes().recibirCodigo(s);
+                    }
                     //Si el cliente me notifica que va bien lo mando
-                    if(getProcesadorMensajes().recibirCodigo(s)==Codigos.BIEN){
+                    if(objeto==Codigos.BIEN){
                         getProcesadorMensajes().enviarObjeto(mensaje,s);
                     }
                     else System.out.println("Mensaje rechazado por "+getNombre());
