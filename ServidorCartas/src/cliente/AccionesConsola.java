@@ -2,6 +2,8 @@ package cliente;
 
 import modeloDominio.EstadoPartida;
 
+import java.net.Socket;
+
 /*
 Interfaz de la interfaz de usuario
  */
@@ -51,6 +53,6 @@ public interface AccionesConsola {
     void crearIA(String nombre);
     void verTurno();
     void enviarChat(String texto);
-
+    Socket iniciarConexion(String direccion,int puerto);
     void verAnfitrion();
 }

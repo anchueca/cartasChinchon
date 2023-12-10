@@ -57,6 +57,11 @@ public class ProcesadorComandos {
                     acciones.listaPartidas();
                     break;
                 }
+                case "conectar": {
+                    if (palabras.length != 3) throw new NumeroParametrosExcepcion();
+                    acciones.iniciarConexion(palabras[1], Integer.parseInt(palabras[2]));
+                    break;
+                }
                 default:
                     return false;
             }

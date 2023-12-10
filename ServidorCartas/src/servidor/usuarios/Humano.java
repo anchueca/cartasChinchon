@@ -299,14 +299,14 @@ Permite conversar con otros jugadores
         return false;
     }
 
-    protected boolean meterCarta(int carta,int destino){
+    /*protected boolean meterCarta(int carta,int destino){
         if (super.meterCarta(carta,destino)) {
             getProcesadorMensajes().enviarObjeto(Codigos.BIEN, this.s);
             return true;
         }
         getProcesadorMensajes().enviarObjeto(Codigos.MAL, this.s);
         return false;
-    }
+    }*/
 
     protected boolean cerrar(int carta) {
         if (super.cerrar(carta)) {

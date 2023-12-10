@@ -16,12 +16,13 @@ public class RecibeObjetos extends Thread{
     private final Semaphore paraCoger =new Semaphore(0);
 
     public static synchronized RecibeObjetos getRecibeObjetos(Socket s){
-        if(RecibeObjetos.recibeObjetos==null){
-            RecibeObjetos.recibeObjetos=new RecibeObjetos(s);
-            RecibeObjetos.recibeObjetos.setDaemon(true);
-            RecibeObjetos.recibeObjetos.start();
-            System.out.println("RecibeObjetos iniciado");
+        if(RecibeObjetos.recibeObjetos!=null){
+            RecibeObjetos.recibeObjetos.interrupt();
         }
+        RecibeObjetos.recibeObjetos=new RecibeObjetos(s);
+        RecibeObjetos.recibeObjetos.setDaemon(true);
+        RecibeObjetos.recibeObjetos.start();
+        System.out.println("RecibeObjetos iniciado");
         return RecibeObjetos.recibeObjetos;
     }
     public static RecibeObjetos getRecibeObjetos(){return RecibeObjetos.recibeObjetos;}

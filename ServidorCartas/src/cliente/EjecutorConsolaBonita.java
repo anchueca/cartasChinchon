@@ -19,18 +19,16 @@ Implementación de las acciones asociadas a la presentación de consolaBonita
 
 public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
 
-    private final Socket s;
+    private Socket s;
     private final ConsolaBonita consolaBonita;
     /////Atributos//////
     private PartidaCliente partida;
 
     //////Contructores/////////
-    public EjecutorConsolaBonita(PartidaCliente partida, ConsolaBonita consolaBonita) throws IOException {
-        this.s = new Socket("localhost", 55555);
-        RecibeObjetos.getRecibeObjetos(this.s);
-        RecibeObjetos.getRecibeObjetos().setReceptor(this);
+    public EjecutorConsolaBonita(PartidaCliente partida, ConsolaBonita consolaBonita){
         this.consolaBonita = consolaBonita;
         this.partida = partida;
+        this.s = this.iniciarConexion("localhost", 55555);
     }
 
     public EjecutorConsolaBonita(ConsolaBonita consolaBonita) throws IOException {
@@ -52,11 +50,30 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
 
     ////////Accioens de gestión (fuera de partida)///////////////
 
+    public Socket iniciarConexion(String direccion,int puerto){
+        try {
+            if(this.s!=null)s.close();
+            this.consolaBonita.meterSalida("Inicando conexión...");
+            Socket s=new Socket(direccion,puerto);
+            this.consolaBonita.meterSalida("Conexión establecida a "+direccion+":"+puerto);
+            RecibeObjetos.getRecibeObjetos(s);
+            RecibeObjetos.getRecibeObjetos().setReceptor(this);
+            this.s=s;
+            return s;
+        } catch (IOException e) {
+            this.consolaBonita.meterSalida("No se ha podido conectar a "+direccion+":"+puerto);
+            return null;
+        }
+    }
+
     /*
     Gestiona la entrada a la partida
      */
     public void unirsePartida(String partida, String jugador) {
-
+        if(this.s==null){
+            this.consolaBonita.meterSalida("No está conectado");
+            return;
+        }
         try {
             //Manda mensaje al servidor
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto("entrar " + partida + " " + jugador, this.s);
@@ -79,6 +96,10 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
     Crea una partida en el servidor, pero no se une a ella
      */
     public void crearPartida(String partida, String baraja) {
+        if(this.s==null){
+            this.consolaBonita.meterSalida("No está conectado");
+            return;
+        }
         try {
             //Por defecto la baraja es la NORMAL
             if (baraja.isEmpty()) baraja = "NORMAL";
@@ -122,6 +143,10 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
     Muetsra por pantalla las partidas del servidor
      */
     public void listaPartidas() {
+        if(this.s==null){
+            this.consolaBonita.meterSalida("No está conectado");
+            return;
+        }
         try {
             //Envío el mensaje al servidor
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto("partidas", this.s);
@@ -150,7 +175,7 @@ Salida del programa
         this.consolaBonita.dispose();
         this.consolaBonita.meterSalida("Saliendo...");
         try {
-            this.s.close();
+            if(s!=null)this.s.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

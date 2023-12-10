@@ -13,7 +13,13 @@ public class Mano implements Iterable<Carta>, Serializable {
     public Mano(List<Carta> cartas) {
         this.cartas = cartas;
     }
-
+    /*
+    Constructor copia
+     */
+    public Mano (Mano mano){
+        this.cartas=new ArrayList<>(mano.numCartas());
+        for(Carta carta : mano)this.cartas.add(carta);
+    }
     public Mano(Collection<Carta> cartas) {
         this.cartas = new ArrayList<>(cartas);
     }
@@ -31,6 +37,14 @@ public class Mano implements Iterable<Carta>, Serializable {
         Por ahora asumo que las escaleras y tríos están agrupados
     Codificado primer bit 0 si es un trío o 1 si es pareja el resto de bits representan las cartas onvolucradas
     ej: 10001110 escalera de la cuarta, quinta y sexta carta.
+     */
+    /*
+    Recibe una lista de 7 cartas (pares de valores número, palo) ordenado y devuelva una lista de bytes que codifica
+    lo siguiente: cada byte representa un conjunto de cartas casadas (conjunto de tres o más cartas del mismo número
+    al que llamaré siempre trío o tres o más cartas en escalera del mismo palo) de modo que el primer bit representa
+    si es un trío (0) o una escalera (1) y el resto de bits estarán a uno si la posición de esa carta en la lista
+    forma parte del trío o escalera. Las cartas casadas ya están agrupadas y una misma carta no puede estar en varios
+    tríos o escaleras
      */
     public static List<Byte> cartasCasadas(Mano mano) {
         List<Byte> lista = new ArrayList<>();
