@@ -358,7 +358,7 @@ public class EjecutorConsolaBonita implements AccionesConsola, RecibeMensajesI {
     @Override
     public void ayuda() {
         if (this.partida == null) this.consolaBonita.meterSalida(
-                "Lista de comando:\n\n salir,salir!,ayuda,partidas,conectar");
+                "Lista de comando:\n\n salir,salir!,ayuda,partidas,conectar,crear,entrar");
         else this.consolaBonita.meterSalida("salir,salir!,ayuda,mover,echar,cerrar,coger,ordenar,empezar,jugadores," +
                 "estado,puntuaciones,ver,turno,anfitrion,crearIA");
     }
