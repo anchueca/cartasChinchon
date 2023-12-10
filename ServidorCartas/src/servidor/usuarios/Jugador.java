@@ -122,25 +122,20 @@ public abstract class Jugador {
         }
         return false;
     }
-    //HAY QUE COMPROBAR QUE SEA LEGAL. MIRAR PUNTOS
-    protected boolean cerrar(int carta){
+    /*
+    Efectúa el cierre
+     */
+    protected boolean cerrar(Carta carta){
         if (this.getPartida().getEstado() == EstadoPartida.ENCURSO && this.turno==1) {
-            //Obtenog las no casadas
+            //Tomo la que voy a echar para que no moleste en la siguiente instrucción
+            this.mano.tomarCarta(carta);
+            //Obtengo las no casadas
             Mano noCasadas=this.getNoCasadas();
-            switch (noCasadas.numCartas()){
-                //Si solo hay una etiene que ser la que se va a echar
-                case 1: if(this.mano.verCarta(carta)!=getNoCasadas().tomarCarta(0))return false;
-                break;
-                //Compruebo que la carta que se paga vale tres o menos y que se lanza una de las
-                case 2: if()
-                    break;
-                    //Solo puedes dejar como mucho una sin casar (echas una)
-                default: return false;
-
-            }
-            //La que quede debe valer tres o menos
-            this.getPartida().cerrar(this.mano.tomarCarta(carta));
-            return true;
+            //Devuelvo la carta a su sitio
+            this.mano.añadirCarta(carta);
+            //Si solo hay una debe valer tres o menos
+            return noCasadas.numCartas() == 0 || (noCasadas.numCartas() == 1 && noCasadas.verCarta(0).getNumero() <= 3);
+            //Si todo es legal efectúo la jugada
         }
         return false;
     }

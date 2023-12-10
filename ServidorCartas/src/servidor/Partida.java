@@ -129,6 +129,10 @@ public class Partida {
         this.enviarMensaje("Carta echada");
         this.descubierta.meterCarta(carta);
     }
+    /*
+    Cierra la ronda. No hace ninguna comprobación de su legalidad (delegado a Jugador). La carta debe haber sido
+    retirada previamente de la mano del jugador
+     */
     public void cerrar(Carta carta){
         //Técnicamente, la carta se echaría boca abajo sobre el montón, pero en el juego no tiene sentido tal cosa.
         //Meto la carta en la baraja porque ahí acabaarán todas al recoger todas las cartas

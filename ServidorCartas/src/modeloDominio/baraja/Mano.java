@@ -127,6 +127,13 @@ public class Mano implements Iterable<Carta>, Serializable {
             return null;
         }
     }
+    public Carta verCarta(Carta i) {
+        int j = this.cartas.indexOf(i);
+        if (j != -1) {
+            return this.cartas.get(j);
+        }
+        return null;
+    }
 
     public void añadirCarta(Carta carta) {
         this.cartas.add(carta);

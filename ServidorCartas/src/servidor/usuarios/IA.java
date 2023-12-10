@@ -1,5 +1,6 @@
 package servidor.usuarios;
 
+import modeloDominio.baraja.Mano;
 import servidor.Partida;
 
 public class IA extends Jugador {
@@ -18,8 +19,23 @@ public class IA extends Jugador {
         super.recibirTurno();
         //Gestión de la IA
         //Por ahora de inteligencia tiene poco
-        super.cogerCartaDecubierta();
-        super.echarCarta(0);
+        this.cogerCartaDecubierta();
+        Mano nocasadas=this.getNoCasadas();
+        //Si hay dos cartas o menos sin casar intento cerrar (pruebo si pedo cerrar con una y luego con otra). Si
+        //hay una siempre podré
+        if(nocasadas.numCartas()<=2)if(this.cerrar(nocasadas.verCarta(0))){
+            this.getPartida().cerrar(this.mano.tomarCarta(nocasadas.verCarta(0)));
+            return;
+        }
+        //Pruebo con la siguiente
+            else if(this.cerrar(nocasadas.verCarta(1))){
+            {
+                this.getPartida().cerrar(this.mano.tomarCarta(nocasadas.verCarta(1)));
+                return;
+            }
+        }
+        //Si no puedo echo una carta y el juego sigue
+        this.echarCarta(0);
     }
 
     public String toString() {

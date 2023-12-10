@@ -309,8 +309,10 @@ Permite conversar con otros jugadores
     }*/
 
     protected boolean cerrar(int carta) {
-        if (super.cerrar(carta)) {
+        if (super.cerrar(this.mano.verCarta(carta))) {
             getProcesadorMensajes().enviarObjeto(Codigos.BIEN, this.s);
+            //Si todo ha ido bien cierro
+            this.getPartida().cerrar(this.mano.tomarCarta(carta));
             return true;
         }
         getProcesadorMensajes().enviarObjeto(Codigos.MAL, this.s);
