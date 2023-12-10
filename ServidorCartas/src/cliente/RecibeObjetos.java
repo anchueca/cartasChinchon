@@ -40,9 +40,12 @@ public class RecibeObjetos extends Thread{
             }
             System.out.println("El recogedor ha recibido: "+this.objeto);
             //Si es un Codigos.MENSAJE es porque ha llegado una "interrupcion" del servidor
-            if(this.receptor!=null && this.objeto== Codigos.MENSAJE){
+            if(this.objeto== Codigos.MENSAJE){
                 //Proceso el mensaje
-                this.receptor.recibirMensaje((Codigos) this.objeto);
+                if(this.receptor!=null)this.receptor.recibirMensaje((Codigos) this.objeto);
+                else{
+                    ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL,this.s);
+                }
                 //Ahora continuo el bucle como si el mensaje no hubiera llegado
             }
             else{
@@ -60,6 +63,15 @@ public class RecibeObjetos extends Thread{
 
     public synchronized void setReceptor(RecibeMensajesI receptor){
         this.receptor=receptor;
+        //Limbio el buffer
+        try {
+            if(objeto != null && receptor==null) {
+                this.objeto=null;
+                this.disponible.acquire();
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
     public synchronized Object recibirObjeto() throws ReinicioEnComunicacionExcepcion {
         try {

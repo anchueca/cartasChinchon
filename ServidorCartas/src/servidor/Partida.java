@@ -11,6 +11,7 @@ import servidor.usuarios.Humano;
 import servidor.usuarios.IA;
 import servidor.usuarios.Jugador;
 
+import javax.sound.midi.SysexMessage;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -170,20 +171,37 @@ public class Partida {
     public boolean expulsarJugador(Jugador jugador) {
         //Miro si es anfitrión
         if (this.anfitrion == jugador) {
-            //Pongo como nuevo anfitrión al primeor de la lista
-            this.anfitrion = this.jugadores.get(0);
-            //Si resulta que es el mismo pongo al siguiente (si hay al menos dos personas)
-            //TAL COMO ESTÁ UNA IA PODRÍA SER ANFITRIÓN
-            if (this.anfitrion == jugador && this.numJugadores() != 1) this.anfitrion = this.jugadores.get(1);
-            this.enviarMensaje(this.anfitrion.getNombre()+" es el nuevo anfitrión");
+            for(int i=0,j=this.numJugadores();i<j;i++){
+                //Recorro los jugadores
+                this.anfitrion = this.jugadores.get(i);
+                //Si el nuevo anfitrion no es el propio jugador o una IA salgo
+                if (this.anfitrion != jugador && !(this.anfitrion instanceof IA))break;
+                //Si no pongo null
+                this.anfitrion=null;
+            }
         }
         //Si no lo echo
         if (this.estado == EstadoPartida.ESPERANDO || this.estado == EstadoPartida.FINALIZADO){
+            this.jugadores.remove(jugador);
             this.enviarMensaje(jugador.getNombre()+" abandona la partida");
-            return this.jugadores.remove(jugador);
         }
-        //Si la aprtida está empezada una IA tomo su control
-        return this.robotizar(jugador);
+        //Miro si queda algún jugador humano
+        boolean salida=true;
+        for(Jugador jugador1:this.jugadores)if(jugador1 instanceof Humano && jugador1!=jugador){
+            salida=false;
+            break;
+        }
+        //Si no hay nadie elimino la partida
+        if(salida){
+            System.out.println("Eliminando partida");
+            this.hilo.shutdown();
+            Servidor.finPartida(this);
+            return true;
+        }
+        //Notifico el cambio si hay jugadores
+        if(this.anfitrion!=null)this.enviarMensaje(this.anfitrion.getNombre()+" es el nuevo anfitrión");
+        //Si la partida está empezada una IA tomo su control
+        return this.estado != EstadoPartida.ENCURSO || this.robotizar(jugador);
     }
 
     public boolean robotizar(Jugador jugador) {

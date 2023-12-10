@@ -141,7 +141,7 @@ public abstract class Jugador {
         }
         return false;
     }
-//DOs jugadores son iguales si tienen el mismo nombre
+//Dos jugadores son iguales si tienen el mismo nombre
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof Jugador){

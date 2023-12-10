@@ -44,7 +44,7 @@ public class Humano extends Jugador {
                 //comunicación
                 if(buffer==null)
                     while(!getProcesadorMensajes().libreComunicacion(this.s)
-                        || !getProcesadorMensajes().enEspera(this.s))
+                        || semaforo.availablePermits()==0)
                     Thread.sleep(200);
                 //tomo la comunicación
                 getProcesadorMensajes().abrirComunicacion(this.s);

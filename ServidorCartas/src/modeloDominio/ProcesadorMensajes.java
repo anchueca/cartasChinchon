@@ -123,6 +123,7 @@ public class ProcesadorMensajes {
 
     public String recibirString(Socket s) throws ClassCastException, ReinicioEnComunicacionExcepcion {
         Object objeto=this.recibirObjeto(s);
+        if(objeto==null)return null;
         return (objeto instanceof String)?(String) objeto:objeto.toString();
     }
 

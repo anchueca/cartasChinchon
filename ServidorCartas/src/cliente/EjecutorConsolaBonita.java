@@ -362,6 +362,7 @@ Abandona la partida si el servidor te deja (lo hará)
         try {
             if (this.partida.salir()) {
                 this.setPartida(null);
+                RecibeObjetos.getRecibeObjetos().setReceptor(null);
                 this.consolaBonita.meterSalida("saliendo de la partida");
             } else this.consolaBonita.meterSalida("No es posible abandonar la partida");
         } catch (ReinicioEnComunicacionExcepcion e) {

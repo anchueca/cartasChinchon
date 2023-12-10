@@ -19,8 +19,6 @@ import static modeloDominio.ProcesadorMensajes.getProcesadorMensajes;
 Clase de la partida general del cliente
  */
 public class PartidaCliente {
-
-    private RecibeMensajesI receptor;
     private final Socket s;
     private final String nombreJugador;
     private final String nombrePartida;
@@ -31,14 +29,13 @@ public class PartidaCliente {
         this.nombreJugador = nombreJugador;
         this.nombrePartida = nombrePartida;
         this.salida = false;
-        this.receptor=null;
     }
     public PartidaCliente(String nombrePartida, String nombreJugador, Socket s,RecibeMensajesI receptor) {
         this.s = s;
         this.nombreJugador = nombreJugador;
         this.nombrePartida = nombrePartida;
         this.salida = false;
-        this.receptor=receptor;
+        RecibeObjetos.getRecibeObjetos().setReceptor(receptor);
     }
 
     /////////////CONSULTAS////////////////////
@@ -283,7 +280,6 @@ public class PartidaCliente {
     public boolean salir()throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
-
             getProcesadorMensajes().enviarObjeto("salir", this.s);
             Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             return codigo == Codigos.BIEN;

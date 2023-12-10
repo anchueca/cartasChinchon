@@ -25,7 +25,7 @@ Propiedades estáticas
     //PENDIENTE GESTIONAR PARTIDAS VACÍAS. EN ESPECIAL LAS NUEVAS
     private static final int MAXPartidas = 32;
     private static final Map<String, Partida> partidas = new HashMap<>();
-    private static int PartidasActivas = 0;
+    private static int ContadorPartidas = 0;
     private final Socket s;
 
     public Servidor(Socket s) {
@@ -122,23 +122,27 @@ Propiedades estáticas
      */
     public void crearPartida(String nombre, String tamano) {
         try {
-            if (Servidor.PartidasActivas < Servidor.MAXPartidas && this.buscarPartida(nombre) == null) {
-                Servidor.partidas.put(nombre, new Partida(nombre, Tamano.valueOf(tamano.toUpperCase())));
-                Servidor.PartidasActivas++;
+            if (Servidor.añadirPartida(nombre,Tamano.valueOf(tamano)))
                 ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.BIEN, this.s);
-                return;
-            }
-            ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL, this.s);
+            else ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL, this.s);
         } catch (IllegalArgumentException e) {
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL, this.s);
         }
+    }
+    private static synchronized boolean añadirPartida(String nombre,Tamano tamano){
+        if (Servidor.partidas.size() < Servidor.MAXPartidas && buscarPartida(nombre) == null) {
+            Servidor.partidas.put(nombre, new Partida(nombre, tamano));
+            Servidor.ContadorPartidas++;
+            return true;
+        }
+        return false;
     }
 
     /*
     Se une a partida y "captura" el hilo.
      */
     public void entrarPartida(String nombre, String jugador) throws IOException {
-        Partida partida = this.buscarPartida(nombre);
+        Partida partida = buscarPartida(nombre);
         Humano humano;
         //Solo se entra a la partida si esta existe y la partida lo admite
         if (partida == null || (humano = partida.nuevoJugador(jugador, this.s)) == null) {
@@ -150,8 +154,11 @@ Propiedades estáticas
         humano.receptorHumano();
     }
 
-    public Partida buscarPartida(String nombre) {
+    public static Partida buscarPartida(String nombre) {
         return Servidor.partidas.get(nombre);
     }
-
+    public static synchronized void finPartida(Partida partida){
+        Servidor.partidas.remove(partida.getNombre());
+        System.out.println("Partida "+partida.getNombre()+" eliminada");
+    }
 }
