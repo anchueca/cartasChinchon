@@ -4,7 +4,7 @@ import java.util.*;
 
 public class Baraja implements Iterable<Carta> {
     private Deque<Carta> cartas;
-    private Tamano tipo;
+    private final Tamano tipo;
 
     public Baraja(Deque<Carta> cartas,Tamano tamano) {
         this.cartas = cartas;

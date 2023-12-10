@@ -11,7 +11,6 @@ import servidor.usuarios.Humano;
 import servidor.usuarios.IA;
 import servidor.usuarios.Jugador;
 
-import javax.sound.midi.SysexMessage;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -72,10 +71,6 @@ public class Partida {
         return estado;
     }
 
-    public void setEstado(EstadoPartida estado) {
-        this.estado = estado;
-    }
-
     public FaseChinchon getFase() {
         return this.fase;
     }
@@ -118,15 +113,15 @@ public class Partida {
         return this.descubierta.verCarta();
     }
     public Carta cogerDescubierta(){
-        this.enviarMensaje("Carta descubierta cogida");
+        this.enviarMensaje(this.turno.getNombre()+": Carta descubierta cogida");
         return this.baraja.tomarCarta();
     }
     public Carta cogerCubierta(){
-        this.enviarMensaje("Carta cubierta cogida");
+        this.enviarMensaje(this.turno.getNombre()+": Carta cubierta cogida");
         return this.descubierta.tomarCarta();
     }
     public void echarCarta(Carta carta){
-        this.enviarMensaje("Carta echada");
+        this.enviarMensaje(this.turno.getNombre()+": Carta echada");
         this.descubierta.meterCarta(carta);
     }
     /*

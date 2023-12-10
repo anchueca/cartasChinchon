@@ -21,7 +21,7 @@ import static modeloDominio.ProcesadorMensajes.getProcesadorMensajes;
 public class Humano extends Jugador {
 
     private Socket s;
-    private ExecutorService hilo = Executors.newSingleThreadExecutor();
+    private final ExecutorService hilo = Executors.newSingleThreadExecutor();
     private boolean salida;
     private final Semaphore semaforo=new Semaphore(1);
     //Lo uso para guardar la solicitud recibida cuando durante el envío de un mensaje veo que el cliente ya habñia
@@ -35,7 +35,7 @@ public class Humano extends Jugador {
         this.buffer=null;
     }
 
-    public void receptorHumano() throws IOException {
+    public void receptorHumano() {
         String mensaje;
         //Cuando la partida se abandone será null
         while (!this.salida) {
@@ -131,6 +131,10 @@ public class Humano extends Jugador {
                 }
                 case "estado": {
                     this.mandarEstado();
+                    break;
+                }
+                case "fase": {
+                    this.mandarFase();
                     break;
                 }
                 case "puntuaciones": {
@@ -246,6 +250,10 @@ Permite conversar con otros jugadores
         getProcesadorMensajes().enviarObjeto(Codigos.BIEN, this.s);
         getProcesadorMensajes().enviarObjeto(this.getPartida().getEstado(), this.s);
     }
+    private void mandarFase() {
+        getProcesadorMensajes().enviarObjeto(Codigos.BIEN, this.s);
+        getProcesadorMensajes().enviarObjeto(this.getPartida().getFase(), this.s);
+    }
 
     private void mandarCartaDescubierta() {
         if (this.getPartida().getEstado() == EstadoPartida.ENCURSO && this.getPartida().getFase() == FaseChinchon.ABIERTO) {
@@ -277,7 +285,7 @@ Permite conversar con otros jugadores
             getProcesadorMensajes().enviarObjeto(Codigos.BIEN, this.s);
             getProcesadorMensajes().enviarObjeto(carta, this.s);
         }
-        getProcesadorMensajes().enviarObjeto(Codigos.MAL, this.s);
+        else getProcesadorMensajes().enviarObjeto(Codigos.MAL, this.s);
         return carta;
     }
 
@@ -354,9 +362,7 @@ Permite conversar con otros jugadores
                         getProcesadorMensajes().enviarObjeto(mensaje,s);
                     }
                     else System.out.println("Mensaje rechazado por "+getNombre());
-                } catch (InterruptedException ignored) {
-
-                } catch (ReinicioEnComunicacionExcepcion e) {
+                } catch (InterruptedException | ReinicioEnComunicacionExcepcion ignored) {
 
                 } finally {
                     if(!getProcesadorMensajes().libreComunicacion(s))

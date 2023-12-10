@@ -10,6 +10,7 @@ import modeloDominio.excepciones.ReinicioEnComunicacionExcepcion;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +32,7 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
         this.s = this.iniciarConexion("localhost", 55555);
     }
 
-    public EjecutorConsolaBonita(ConsolaBonita consolaBonita) throws IOException {
+    public EjecutorConsolaBonita(ConsolaBonita consolaBonita){
         this(null, consolaBonita);
     }
 
@@ -150,19 +151,19 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
         try {
             //Envío el mensaje al servidor
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto("partidas", this.s);
-            String n = "Lista partidas:\n";
+            StringBuilder n = new StringBuilder("Lista partidas:\n");
             //Si la respuesta el correcta
             if (RecibeObjetos.getRecibeObjetos().recibirObjeto() == Codigos.BIEN) {
                 //Recojo la lista que envía el servidor
                 List<String> lista = (List<String>) RecibeObjetos.getRecibeObjetos().recibirObjeto();
                 //Si es nulo es por algún error inesperado
-                if(lista==null)n="No se han podido recibir las partidas";
+                if(lista==null) n = new StringBuilder("No se han podido recibir las partidas");
                 else for (int i = 0, j = lista.size(); i < j; i++) {
-                    n += i + ".- " + lista.get(i) + "\n";
+                    n.append(i).append(".- ").append(lista.get(i)).append("\n");
                 }
             }
             //Muestro el texto
-            this.consolaBonita.meterSalida(n);
+            this.consolaBonita.meterSalida(n.toString());
         } catch (ReinicioEnComunicacionExcepcion e) {
             this.listaPartidas();
         }
@@ -186,21 +187,21 @@ Salida del programa
     Muestra por pantalla el conjunto de jugadores en la partida
      */
     public void listaJugadores() {
-        String cadena = "Juagdores:\n";
+        StringBuilder cadena = new StringBuilder("Juagdores:\n");
         try {
             int i=0;
             for (String ca : this.partida.listaJugadores()
             ) {
-                cadena += ca;
+                cadena.append(ca);
                 if(i<4){
                     i++;
-                    cadena+="\t";
+                    cadena.append("\t");
                 }else {
-                    cadena +="\n";
+                    cadena.append("\n");
                     i=0;
                 }
             }
-            this.consolaBonita.meterSalida(cadena);
+            this.consolaBonita.meterSalida(cadena.toString());
         } catch (ReinicioEnComunicacionExcepcion e) {
             this.listaJugadores();
         }
@@ -213,7 +214,9 @@ Muestra un resumen del estado actual de la partida
     public void verResumen() {
         try {
             this.consolaBonita.meterSalida("Nombre partida: "+this.partida.getNombrePartida()+"\tEstado: "
-                    +this.partida.verEstadoPartida().toString()+"\tFase "+this.partida.verFasePartida() +"\nJugador: "+this.partida.getNombreJuagador());
+                    +this.partida.verEstadoPartida().toString()+"\tFase "+this.partida.verFasePartida()
+                    +"\nJugador: "+this.partida.getNombreJuagador());
+            this.verAnfitrion();
             this.verTurno();
             this.puntuaciones();
             this.verMano();
@@ -248,24 +251,29 @@ Muestra por pantalla la información principal relativa a la partida
 Muestra por pantalla las cartas de la mano y las parejas y escaleras formadas
  */
     public void verMano() {
-        String salida = "";
-        //Solo tienne sentido una vez empezada la partida
+        StringBuilder salida = new StringBuilder();
+        //Solo tiene sentido una vez empezada la partida
         try {
             if (this.partida.verEstadoPartida() == EstadoPartida.ENCURSO) {
-                salida += "Cartas: ";
+                salida.append("Cartas: ");
                 //Obtengo la mano
                 Mano mano = this.partida.verMano();
-                if (mano != null) for (int i = 0, j = mano.numCartas(); i < j; i++) {
-                    salida += "\n" + i + ".-(" + mano.verCarta(i) + ")";
+                if (mano != null){
+                    for (int i = 0, j = mano.numCartas(); i < j; i++) {
+                        salida.append("\n").append(i).append(".-(").append(mano.verCarta(i)).append(")");
+                    }
+                    salida.append("\n\nCasadas:");
+                    //Muestro las cartas casadas
+                    for (BitSet bite : Mano.cartasCasadas(mano)
+                    ) {
+                        salida.append("\n");
+                        for(int i=0;i<7;i++){
+                            if(bite.get(i)) salida.append(mano.verCarta(i)).append("\t");
+                        }
+                    }
                 }
-                salida += "\n\nCasadas:";
-                //Muestro las cartas casadas
-                for (Byte bite : Mano.cartasCasadas(mano)
-                ) {
-                    salida += "\n" + bite.toString();
-                }
-            } else salida = "La partida no está en curso";
-            this.consolaBonita.meterSalida(salida);
+            } else salida = new StringBuilder("La partida no está en curso");
+            this.consolaBonita.meterSalida(salida.toString());
         } catch (ReinicioEnComunicacionExcepcion e) {
             this.verMano();
         }
@@ -276,23 +284,23 @@ Muestra por pantalla las cartas de la mano y las parejas y escaleras formadas
 Muestra por pantalla la tabla de puntuaciones
  */
     public void puntuaciones() {
-        Map<String, Integer> mapa = null;
+        Map<String, Integer> mapa;
         try {
             int i=0;
             mapa = this.partida.verPuntuaciones();
-            String ca = "Puntuaciones:\n\t";
+            StringBuilder ca = new StringBuilder("Puntuaciones:\n\t");
             for (String nombre : mapa.keySet()
             ) {
-                ca+=nombre + ": " + mapa.get(nombre);
+                ca.append(nombre).append(": ").append(mapa.get(nombre));
                 if(i<4){
                     i++;
-                    ca+="\t";
+                    ca.append("\t");
                 }else {
-                    ca += "\n";
+                    ca.append("\n");
                     i=0;
                 }
             }
-            this.consolaBonita.meterSalida(ca);
+            this.consolaBonita.meterSalida(ca.toString());
         } catch (ReinicioEnComunicacionExcepcion e) {
             this.puntuaciones();
         }
@@ -307,7 +315,7 @@ Muestra por pantalla la tabla de puntuaciones
             String turno=this.partida.verTurno();
             if (this.partida.verEstadoPartida()!=EstadoPartida.ENCURSO || turno==null) {
                 this.consolaBonita.meterSalida("No es posible consultar el turno");
-            } else this.consolaBonita.meterSalida("Turno: r"+(turno.compareTo(this.partida.getNombreJuagador())==0?"Te toca":turno));
+            } else this.consolaBonita.meterSalida("Turno: "+(turno.compareTo(this.partida.getNombreJuagador())==0?"Te toca":turno));
         } catch (ReinicioEnComunicacionExcepcion e) {
             this.verTurno();
         }
@@ -329,10 +337,9 @@ Envía al resto de jugadores un mensaje. Es parte de un chat primitivo
 
     @Override
     public void verAnfitrion() {
-        String anfitrion= null;
         try {
-            anfitrion = this.partida.verAnfitrion();
-            this.consolaBonita.meterSalida("Anfitrion: "+anfitrion==null?"Desconocido":anfitrion);
+            String anfitrion = this.partida.verAnfitrion();
+            this.consolaBonita.meterSalida("Anfitrion: "+(anfitrion==null?"Desconocido":anfitrion));
         } catch (ReinicioEnComunicacionExcepcion e) {
             this.empezar();
         }
@@ -409,8 +416,14 @@ Permuta las cartas iésima y jotaésima de la mano
     /*
     Cierra la partida con la iésima carta (si es legal)
      */
-    public void cerrar(int i) {//SIN IMPLEMENTAR
-
+    public void cerrar(int i) {
+        try {
+            if (this.partida.cerrar(i)==Codigos.BIEN) {
+                this.consolaBonita.meterSalida("Cierre efectuado");
+            } else this.consolaBonita.meterSalida("Jugada no válida");
+        } catch (ReinicioEnComunicacionExcepcion e) {
+            this.cerrar(i);
+        }
     }
 
 /*
@@ -420,7 +433,7 @@ Toma la carta cubierta. Por supuesto, solo si es legal
         this.coger("0");
     }
 /*
-Gestiona qué carta se echar a partir de la cadena opción: vubierta/descubierta
+Gestiona qué carta se echa a partir de la cadena opción: vubierta/descubierta
  */
     public void coger(String opcion) {
         //Compruebo cuál de las opciones es

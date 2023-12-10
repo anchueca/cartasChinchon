@@ -22,26 +22,20 @@ public class PartidaCliente {
     private final Socket s;
     private final String nombreJugador;
     private final String nombrePartida;
-    private boolean salida;
 
     public PartidaCliente(String nombrePartida, String nombreJugador, Socket s) {
         this.s = s;
         this.nombreJugador = nombreJugador;
         this.nombrePartida = nombrePartida;
-        this.salida = false;
     }
     public PartidaCliente(String nombrePartida, String nombreJugador, Socket s,RecibeMensajesI receptor) {
         this.s = s;
         this.nombreJugador = nombreJugador;
         this.nombrePartida = nombrePartida;
-        this.salida = false;
         RecibeObjetos.getRecibeObjetos().setReceptor(receptor);
     }
 
     /////////////CONSULTAS////////////////////
-    public boolean enFuncionamiento() {
-        return this.salida;
-    }
 
     public String getNombrePartida() {
         return this.nombrePartida;
@@ -60,7 +54,7 @@ public class PartidaCliente {
                 lista = (List<String>) RecibeObjetos.getRecibeObjetos().recibirObjeto();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        } catch (ReinicioEnComunicacionExcepcion e) {
+        } catch (ReinicioEnComunicacionExcepcion ignored) {
         } finally{
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
@@ -155,10 +149,6 @@ public class PartidaCliente {
         }
     }
 
-    public boolean verManoCerrada()throws ReinicioEnComunicacionExcepcion {
-        return false;
-    }
-
     public Map<String, Integer> verPuntuaciones() throws ReinicioEnComunicacionExcepcion{
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
@@ -226,8 +216,7 @@ public class PartidaCliente {
             getProcesadorMensajes().abrirComunicacion(this.s);
 
             getProcesadorMensajes().enviarObjeto("echar "+carta, this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
-            return codigo;
+            return (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }finally{
@@ -240,8 +229,7 @@ public class PartidaCliente {
             getProcesadorMensajes().abrirComunicacion(this.s);
 
             getProcesadorMensajes().enviarObjeto("cerrar "+carta, this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
-            return codigo;
+            return (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }finally{
@@ -249,7 +237,7 @@ public class PartidaCliente {
         }
     }
 
-    public Codigos meterCarta(int carta,int i)throws ReinicioEnComunicacionExcepcion {
+    /*public Codigos meterCarta(int carta,int i)throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
 
@@ -261,7 +249,7 @@ public class PartidaCliente {
         }finally{
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
-    }
+    }*/
 
     public boolean moverMano(int i, int j)throws ReinicioEnComunicacionExcepcion {
         try {
@@ -307,7 +295,6 @@ public class PartidaCliente {
     public boolean crearIA(String nombre) throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
-
             getProcesadorMensajes().enviarObjeto("crearIA "+nombre, this.s);
             Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             return codigo == Codigos.BIEN;

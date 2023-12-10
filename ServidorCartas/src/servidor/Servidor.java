@@ -141,7 +141,7 @@ Propiedades estáticas
     /*
     Se une a partida y "captura" el hilo.
      */
-    public void entrarPartida(String nombre, String jugador) throws IOException {
+    public void entrarPartida(String nombre, String jugador) {
         Partida partida = buscarPartida(nombre);
         Humano humano;
         //Solo se entra a la partida si esta existe y la partida lo admite

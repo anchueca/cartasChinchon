@@ -1,10 +1,7 @@
 package modeloDominio.baraja;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 
 public class Mano implements Iterable<Carta>, Serializable {
@@ -46,53 +43,43 @@ public class Mano implements Iterable<Carta>, Serializable {
     forma parte del trío o escalera. Las cartas casadas ya están agrupadas y una misma carta no puede estar en varios
     tríos o escaleras
      */
-    public static List<Byte> cartasCasadas(Mano mano) {
-        List<Byte> lista = new ArrayList<>();
-        byte indicador = 0;
+    public static List<BitSet> cartasCasadas(Mano mano) {
+        //Lista que almacenrá las casadas
+        List<BitSet> lista = new ArrayList<>();
+        //Indicador de casadas
+        BitSet indicador = new BitSet(7);
         Carta cartaPrevia = mano.verCarta(0);
         Carta cartaActual;
-        for (int i = 1, j = mano.numCartas(); i < j; i++) {
-            //nueva carta
-            cartaActual = mano.verCarta(i);
+        //Recorro las cartas desde la primera
+        for (int numCarta = 1, cartasTotales = mano.numCartas(); numCarta < cartasTotales; numCarta++) {
+            //Tomo la siguiente carta
+            cartaActual = mano.verCarta(numCarta);
             //si coinciden caso trío
             if (cartaActual.getNumero() == cartaPrevia.getNumero()) {
                 //Si buscaba tríos incorpora la carta
-                if ((indicador >> 6) == 0) indicador |= 1 << i;
-                else {//Sino compruebo si era un trío(o más cartas) y lo tengo en cuenta si procede
-                    if (Mano.comprobacionMayorOIgualQueTres(indicador)) lista.add(indicador);
+                if (!indicador.get(7)) indicador.set(numCarta);
+                else {//Si no compruebo si era un trío(o más cartas) y lo tengo en cuenta si procede
+                    if (indicador.cardinality()>2) lista.add(indicador);
                     //Reinicio
-                    indicador = (byte) (1 << i);
+                    indicador.clear();
                 }
-                //Compruebo si se presta a una escalera
+                //Compruebo si se presta a una escalera del mismo palo
             } else if (cartaActual.getNumero() - 1 == cartaPrevia.getNumero()
                     && cartaPrevia.getPalo() == cartaActual.getPalo()) {
                 //Si buscaba la escalera añado la carta
-                if ((indicador >> 6) == 1) indicador |= 1 << i;
-                else {//Sino compruebo si la escalera es válida (al menos tres cartas) y añado si prcede
-                    if (Mano.comprobacionMayorOIgualQueTres(indicador)) lista.add(indicador);/*al menos tres*/
+                if (indicador.get(7)) indicador.set(numCarta);
+                else {//Sino compruebo si la escalera es válida (al menos tres cartas) y añado si procede
+                    if (indicador.cardinality()-1>2)//al menos tres y debo tener en cuenta el bit de escalera
+                        lista.add(indicador);
                     //reinicio
-                    indicador = (byte) ((1 << i) | (1 << 6));
+                    indicador.clear();
                 }
             }
+            cartaPrevia=cartaActual;
         }
         //Caso final
-        if (Mano.comprobacionMayorOIgualQueTres(indicador)) lista.add(indicador);/*al menos tres*/
+        if (indicador.cardinality()>2) lista.add(indicador);/*al menos tres*/
         return lista;
-    }
-
-    /**
-     * Devuelve verdadero si el byte que recibe como parámetro contiene al menos tres unos.
-     *
-     * @param indicador el byte que se va a comprobar
-     * @return verdadero si el byte contiene al menos tres unos, falso en caso contrario
-     */
-    private static boolean comprobacionMayorOIgualQueTres(byte indicador) {
-        int contador = 0;
-        for (int i = 0; i < 8; i++) {
-            contador += (indicador >> i) & 1;
-            if (contador >= 3) return true;
-        }
-        return false;
     }
 
     public int numCartas() {

@@ -103,6 +103,8 @@ public class ConsolaBonita extends JFrame {
                 }
                 //Añado el comando al historial
                 this.comandos.add(0, entrada);
+                //Añado un tamaño máximo al historial
+                if(this.comandos.size()>100)this.comandos.remove(100);
                 this.indice = -1;
                 break;
             //Navegación por el historial
@@ -113,8 +115,10 @@ public class ConsolaBonita extends JFrame {
                 break;
             case KeyEvent.VK_DOWN:
                 if (this.indice == 0) this.Entrada.setText("");
-                else if (this.indice > 0) this.indice--;
-                else this.Entrada.setText(this.comandos.get(this.indice));
+                else if (this.indice > 0){
+                    this.indice--;
+                    this.Entrada.setText(this.comandos.get(this.indice));
+                }
                 break;
         }
     }

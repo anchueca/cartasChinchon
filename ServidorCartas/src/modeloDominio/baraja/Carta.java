@@ -25,23 +25,13 @@ public class Carta implements Comparable<Carta>, Serializable {
     }
 
     public String toString() {
-        String tipoCarta;
-        switch (numero) {
-            case 1:
-                tipoCarta = "As";
-                break;
-            case 10:
-                tipoCarta = "Sota";
-                break;
-            case 11:
-                tipoCarta = "Caballo";
-                break;
-            case 12:
-                tipoCarta = "Rey";
-                break;
-            default:
-                tipoCarta = String.valueOf(numero);
-        }
+        String tipoCarta = switch (numero) {
+            case 1 -> "As";
+            case 10 -> "Sota";
+            case 11 -> "Caballo";
+            case 12 -> "Rey";
+            default -> String.valueOf(numero);
+        };
 
         return tipoCarta + " de " + this.palo;
     }

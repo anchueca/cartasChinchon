@@ -6,7 +6,9 @@ import modeloDominio.baraja.Carta;
 import modeloDominio.baraja.Mano;
 import servidor.Partida;
 
+import java.util.BitSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -116,7 +118,13 @@ public abstract class Jugador {
      */
     protected boolean echarCarta(int carta) {
         if (this.getPartida().getEstado() == EstadoPartida.ENCURSO && this.turno==1) {
-            this.getPartida().echarCarta(this.mano.tomarCarta(carta));
+            //tomo la carta
+            Carta cartaa=this.mano.tomarCarta(carta);
+            //Compruebo si es nula
+            if(cartaa==null)return false;
+            //la echo
+            this.getPartida().echarCarta(cartaa);
+            //avanzo
             if(this.partida.getFase()== FaseChinchon.ABIERTO)this.getPartida().siguienteTurno();
             return true;
         }
@@ -143,9 +151,11 @@ public abstract class Jugador {
 Devuelve las cartas sin casar
  */
     protected Mano getNoCasadas(){
+        //copio la mano
         Mano mano=new Mano(this.mano);
-        //Hago cosas
-//POR IMPLEMNTAR
+        List<BitSet> noCasadas= Mano.cartasCasadas(mano);
+        //Quito las casadas
+        for (BitSet bit:noCasadas)for(int i=0;i<7;i++)if(bit.get(i))mano.tomarCarta(i);
         return mano;
     }
     /*
@@ -165,10 +175,7 @@ Devuelve las cartas sin casar
     public abstract void recibirMensaje(String mensaje);
 
     protected boolean crearIA(String nombre){
-        if (this.partida.nuevoJugador(nombre)) {
-            return true;
-        }
-        return false;
+        return this.partida.nuevoJugador(nombre);
     }
 //Dos jugadores son iguales si tienen el mismo nombre
     @Override
@@ -184,7 +191,7 @@ Devuelve las cartas sin casar
     }
 
     //SIN IMPLEMENTAR//////
-    protected boolean meterCarta(int carta, int destino) {
+    /*protected boolean meterCarta(int carta, int destino) {
         if(this.partida.getFase()==FaseChinchon.CERRADO && this.turno==1){
             //LA JUGADA DEBE SER LEGAL. ESTÁ SIN COMPROBAR
             this.partida.getTurno().getMano().añadirCarta(this.mano.tomarCarta(carta),destino);
@@ -192,7 +199,7 @@ Devuelve las cartas sin casar
             return true;
         }
         return false;
-    }
+    }*/
 
     protected Jugador turno() {
         return this.partida.getTurno();
