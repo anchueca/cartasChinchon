@@ -55,6 +55,26 @@ Propiedades estáticas
 
     /////////ENTRADA DEL HILO PARA ATENDER CLIENTE ////////////////
 
+    private static synchronized boolean añadirPartida(String nombre, Tamano tamano) {
+        if (Servidor.partidas.size() < Servidor.MAXPartidas && buscarPartida(nombre) == null) {
+            Servidor.partidas.put(nombre, new Partida(nombre, tamano));
+            Servidor.ContadorPartidas++;
+            return true;
+        }
+        return false;
+    }
+
+    public static Partida buscarPartida(String nombre) {
+        return Servidor.partidas.get(nombre);
+    }
+
+    ///////////GESTIÓN//////////////
+
+    public static synchronized void finPartida(Partida partida) {
+        Servidor.partidas.remove(partida.getNombre());
+        System.out.println("Partida " + partida.getNombre() + " eliminada");
+    }
+
     public void run() {
         String mensaje;
         try {
@@ -69,7 +89,7 @@ Propiedades estáticas
         } catch (IOException e) {
             System.out.println("No se ha podido cerrar el socket correctamente.");
             e.printStackTrace();
-        }catch (ReinicioEnComunicacionExcepcion e){
+        } catch (ReinicioEnComunicacionExcepcion e) {
             this.run();
         }
     }
@@ -107,8 +127,6 @@ Propiedades estáticas
         }
     }
 
-    ///////////GESTIÓN//////////////
-
     /*
    Devuelve la lista de nombres de partidas
     */
@@ -122,20 +140,12 @@ Propiedades estáticas
      */
     public void crearPartida(String nombre, String tamano) {
         try {
-            if (Servidor.añadirPartida(nombre,Tamano.valueOf(tamano)))
+            if (Servidor.añadirPartida(nombre, Tamano.valueOf(tamano)))
                 ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.BIEN, this.s);
             else ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL, this.s);
         } catch (IllegalArgumentException e) {
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL, this.s);
         }
-    }
-    private static synchronized boolean añadirPartida(String nombre,Tamano tamano){
-        if (Servidor.partidas.size() < Servidor.MAXPartidas && buscarPartida(nombre) == null) {
-            Servidor.partidas.put(nombre, new Partida(nombre, tamano));
-            Servidor.ContadorPartidas++;
-            return true;
-        }
-        return false;
     }
 
     /*
@@ -152,13 +162,5 @@ Propiedades estáticas
         ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.BIEN, this.s);
         //El objeto Humano "captura" el hilo y se encarga de procesar los mensajes
         humano.receptorHumano();
-    }
-
-    public static Partida buscarPartida(String nombre) {
-        return Servidor.partidas.get(nombre);
-    }
-    public static synchronized void finPartida(Partida partida){
-        Servidor.partidas.remove(partida.getNombre());
-        System.out.println("Partida "+partida.getNombre()+" eliminada");
     }
 }

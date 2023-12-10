@@ -1,4 +1,5 @@
 package modeloDominio;
+
 /*
 Fases de una partida:
 ABIERTO: primera fase de la partida

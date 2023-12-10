@@ -1,4 +1,5 @@
 package modeloDominio;
+
 /*
 Fases de la partida:
 ESPERANDO: Fase en la que entran los jugadores

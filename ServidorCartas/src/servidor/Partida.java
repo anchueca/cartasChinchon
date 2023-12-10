@@ -23,10 +23,11 @@ public class Partida {
 
     //Atributos
 
-    private final ExecutorService hilo =Executors.newSingleThreadExecutor();
+    private final ExecutorService hilo = Executors.newSingleThreadExecutor();
     private final List<Jugador> jugadores;
-    private int MAXJugadores;
     private final Baraja descubierta;
+    private final int puntosMAX;
+    private int MAXJugadores;
     private String nombre;//identificador partida
     private EstadoPartida estado;
     private FaseChinchon fase;
@@ -34,7 +35,6 @@ public class Partida {
     private Baraja baraja;
     private Jugador turno;
     private int numIA;
-    private final int puntosMAX;
 
     //Factoría y constructores
     private Partida() {
@@ -43,8 +43,8 @@ public class Partida {
         this.fase = null;
         this.anfitrion = null;
         this.descubierta = new Baraja();
-        this.puntosMAX=100;
-        this.numIA=0;
+        this.puntosMAX = 100;
+        this.numIA = 0;
         //No puede haber más jugadores de los suficientes para tomar todas las cartas
         //Al menos 1 es para dejar un pequeño margen de cartas sobrantes
     }
@@ -56,7 +56,7 @@ public class Partida {
         this();
         this.nombre = nombrePartida;
         this.baraja = Baraja.barajaFactoria(barajaTamano);
-        this.MAXJugadores=this.baraja.numCartas()/7-1;
+        this.MAXJugadores = this.baraja.numCartas() / 7 - 1;
     }
 
     /*
@@ -101,6 +101,7 @@ public class Partida {
         }
         return lista;
     }
+
     public Mano getMano(String jugador) {
         for (Jugador jugador1 : this.jugadores
         ) {
@@ -112,39 +113,43 @@ public class Partida {
     public Carta getDescubierta() {
         return this.descubierta.verCarta();
     }
-    public Carta cogerDescubierta(){
-        this.enviarMensaje(this.turno.getNombre()+": Carta descubierta cogida");
+
+    public Carta cogerDescubierta() {
+        this.enviarMensaje(this.turno.getNombre() + ": Carta descubierta cogida");
         return this.baraja.tomarCarta();
     }
-    public Carta cogerCubierta(){
-        this.enviarMensaje(this.turno.getNombre()+": Carta cubierta cogida");
+
+    public Carta cogerCubierta() {
+        this.enviarMensaje(this.turno.getNombre() + ": Carta cubierta cogida");
         return this.descubierta.tomarCarta();
     }
-    public void echarCarta(Carta carta){
-        this.enviarMensaje(this.turno.getNombre()+": Carta echada");
+
+    public void echarCarta(Carta carta) {
+        this.enviarMensaje(this.turno.getNombre() + ": Carta echada");
         this.descubierta.meterCarta(carta);
     }
+
     /*
     Cierra la ronda. No hace ninguna comprobación de su legalidad (delegado a Jugador). La carta debe haber sido
     retirada previamente de la mano del jugador
      */
-    public void cerrar(Carta carta){
+    public void cerrar(Carta carta) {
         //Técnicamente, la carta se echaría boca abajo sobre el montón, pero en el juego no tiene sentido tal cosa.
         //Meto la carta en la baraja porque ahí acabarán todas al recoger todas las cartas
         this.baraja.meterCarta(carta);
         //Notifico el cierre
-        this.enviarMensaje("El jugador "+this.turno.getNombre()+"ha cerrado la ronda");
+        this.enviarMensaje("El jugador " + this.turno.getNombre() + "ha cerrado la ronda");
         //La fase pasa a cerrado
-        this.fase=FaseChinchon.CERRADO;
+        this.fase = FaseChinchon.CERRADO;
         //Paso a mostrar los resultados
         Jugador jugador;
-        StringBuilder cadena= new StringBuilder("Nuevas puntuaciones:\n\n");
-        List<Jugador> expulsados=new ArrayList<>();
-        for(int i=0,j=this.numJugadores();i<j;i++){
-            jugador=this.jugadores.get(i);
+        StringBuilder cadena = new StringBuilder("Nuevas puntuaciones:\n\n");
+        List<Jugador> expulsados = new ArrayList<>();
+        for (int i = 0, j = this.numJugadores(); i < j; i++) {
+            jugador = this.jugadores.get(i);
             cadena.append(jugador.getNombre()).append(": ").append(jugador.getPuntuacion()).append(" + ").append(jugador.pagar());
             //De paso miro quienes han perdido
-            if(jugador.getPuntuacion()>this.puntosMAX){
+            if (jugador.getPuntuacion() > this.puntosMAX) {
                 cadena.append(". Fuera");
                 expulsados.add(jugador);
             }
@@ -152,7 +157,7 @@ public class Partida {
         this.enviarMensaje(cadena.toString());
         //ABRÍA QUE GESTIONAR LOS CRITERIOS DE VICTORIA (Y SI SE ELIMINAN TODOS DETERMINAR QUÉ SE HACE: REPETIR, EMPATE,
         // POR PUNTOS...)
-        for(Jugador jugador1: expulsados)this.expulsarJugador(jugador1);
+        for (Jugador jugador1 : expulsados) this.expulsarJugador(jugador1);
         //Se pasa a la siguiente ronda (en el apunte anteior se debería comprobar si la partida prosigue)
         this.inicioRonda();
 
@@ -161,27 +166,29 @@ public class Partida {
     //////JUGADORES////////
 
     public Humano nuevoJugador(String jugador, Socket s) {
-        Humano humano =new Humano(jugador, this, s);
+        Humano humano = new Humano(jugador, this, s);
         if (this.nuevoJugador(humano)) {
-            if (this.numJugadores()==1) this.anfitrion = humano;
-            this.enviarMensaje(jugador+" entra a la partida");
+            if (this.numJugadores() == 1) this.anfitrion = humano;
+            this.enviarMensaje(jugador + " entra a la partida");
             return humano;
         }
         return null;
     }
-    private boolean nuevoJugador(Jugador jugador){
+
+    private boolean nuevoJugador(Jugador jugador) {
         if (this.estado == EstadoPartida.ESPERANDO && !this.getJugadoresS().contains(jugador)
-                && this.numJugadores()<this.MAXJugadores) {
+                && this.numJugadores() < this.MAXJugadores) {
             this.jugadores.add(jugador);
             return true;
         }
         return false;
     }
+
     public boolean nuevoJugador(String jugador) {
-        IA ia=new IA(jugador.isEmpty()?"IA "+this.numIA:jugador,this);
-        if(this.nuevoJugador(ia)){
+        IA ia = new IA(jugador.isEmpty() ? "IA " + this.numIA : jugador, this);
+        if (this.nuevoJugador(ia)) {
             this.numIA++;
-            this.enviarMensaje(ia+" añadido a la partida");
+            this.enviarMensaje(ia + " añadido a la partida");
             return true;
         }
         return false;
@@ -193,42 +200,43 @@ public class Partida {
     public boolean expulsarJugador(Jugador jugador) {
         //Miro si es anfitrión
         if (this.anfitrion == jugador) {
-            for(int i=0,j=this.numJugadores();i<j;i++){
+            for (int i = 0, j = this.numJugadores(); i < j; i++) {
                 //Recorro los jugadores
                 this.anfitrion = this.jugadores.get(i);
                 //Si el nuevo anfitrión no es el propio jugador o una IA salgo
-                if (this.anfitrion != jugador && !(this.anfitrion instanceof IA))break;
+                if (this.anfitrion != jugador && !(this.anfitrion instanceof IA)) break;
                 //Si no pongo null
-                this.anfitrion=null;
+                this.anfitrion = null;
             }
         }
         //Si no lo echo
-        if (this.estado == EstadoPartida.ESPERANDO || this.estado == EstadoPartida.FINALIZADO || this.fase==FaseChinchon.CERRADO){
+        if (this.estado == EstadoPartida.ESPERANDO || this.estado == EstadoPartida.FINALIZADO || this.fase == FaseChinchon.CERRADO) {
             this.jugadores.remove(jugador);
-            this.enviarMensaje(jugador.getNombre()+" abandona la partida");
+            this.enviarMensaje(jugador.getNombre() + " abandona la partida");
         }
         //Miro si queda algún jugador humano
-        boolean salida=true;
-        for(Jugador jugador1:this.jugadores)if(jugador1 instanceof Humano && jugador1!=jugador){
-            salida=false;
-            break;
-        }
+        boolean salida = true;
+        for (Jugador jugador1 : this.jugadores)
+            if (jugador1 instanceof Humano && jugador1 != jugador) {
+                salida = false;
+                break;
+            }
         //Si no hay nadie elimino la partida
-        if(salida){
+        if (salida) {
             System.out.println("Eliminando partida");
             this.hilo.shutdown();
             Servidor.finPartida(this);
             return true;
         }
         //Notifico el cambio si hay jugadores
-        if(this.anfitrion!=null)this.enviarMensaje(this.anfitrion.getNombre()+" es el nuevo anfitrión");
+        if (this.anfitrion != null) this.enviarMensaje(this.anfitrion.getNombre() + " es el nuevo anfitrión");
         //Si la partida está empezada una IA tomo su control
-        return this.estado != EstadoPartida.ENCURSO || this.fase==FaseChinchon.CERRADO || this.robotizar(jugador);
+        return this.estado != EstadoPartida.ENCURSO || this.fase == FaseChinchon.CERRADO || this.robotizar(jugador);
     }
 
     public boolean robotizar(Jugador jugador) {
         this.jugadores.set(this.jugadores.indexOf(jugador), new IA(jugador));
-        this.enviarMensaje("Una IA ha tomado el control de "+jugador.getNombre()+" la hora de las máquinas ha llegado");
+        this.enviarMensaje("Una IA ha tomado el control de " + jugador.getNombre() + " la hora de las máquinas ha llegado");
         return true;
     }
 
@@ -241,12 +249,13 @@ public class Partida {
         this.estado = EstadoPartida.ENCURSO;
         this.enviarMensaje("La partida comienza");
         //Determino aleatoriamente el primer jugador. Será el siguiente por la implementación de inicioRonda
-        this.turno=this.jugadores.get(Math.abs(new Random().nextInt()%this.numJugadores()));
+        this.turno = this.jugadores.get(Math.abs(new Random().nextInt() % this.numJugadores()));
         this.inicioRonda();
     }
-/*
-Inicia una nueva ronda
- */
+
+    /*
+    Inicia una nueva ronda
+     */
     public void inicioRonda() {
         //recojo las deescubiertas
         if (this.descubierta.numCartas() != 0) this.baraja.meterCarta(this.descubierta);
@@ -268,6 +277,7 @@ Inicia una nueva ronda
         //Comienoz juego
         this.siguienteTurno();
     }
+
     /*
     Asigna el turno siguiente y lo notifica al jugador. Si es uns IA jugará
      */
@@ -277,7 +287,7 @@ Inicia una nueva ronda
         turno %= this.jugadores.size();
         this.turno = this.jugadores.get(turno);
         //Le doy el turno
-        this.enviarMensaje("Te toca",this.turno);
+        this.enviarMensaje("Te toca", this.turno);
         this.turno.recibirTurno();
     }
 
@@ -291,16 +301,18 @@ Inicia una nueva ronda
         return Math.min(carta.getNumero(), 10);
     }
 
-    public void enviarMensaje(String mensaje){
-        this.enviarMensaje(mensaje,this.jugadores);
+    public void enviarMensaje(String mensaje) {
+        this.enviarMensaje(mensaje, this.jugadores);
     }
-    public void enviarMensaje(String mensaje,Jugador jugador){
-        List<Jugador> lista=new ArrayList<>();
+
+    public void enviarMensaje(String mensaje, Jugador jugador) {
+        List<Jugador> lista = new ArrayList<>();
         lista.add(jugador);
         this.enviarMensaje(mensaje, new ArrayList<>(lista));
     }
-    public void enviarMensaje(String mensaje, Collection<Jugador> jugadores){
-        for (Jugador jugador: jugadores
+
+    public void enviarMensaje(String mensaje, Collection<Jugador> jugadores) {
+        for (Jugador jugador : jugadores
         ) {
             jugador.recibirMensaje(mensaje);
         }

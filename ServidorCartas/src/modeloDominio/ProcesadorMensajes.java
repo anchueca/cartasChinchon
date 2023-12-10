@@ -62,7 +62,7 @@ public class ProcesadorMensajes {
     private ObjectOutputStream getObjectOutputStream(Socket s) throws IOException {
         Object[] streams;
         if ((streams = this.streams.get(s)) == null) {
-            this.streams.put(s,this.nuevoSocket(s));
+            this.streams.put(s, this.nuevoSocket(s));
             System.out.println("Elemento cacheado: " + s);
         } else return (ObjectOutputStream) streams[0];
         return this.getObjectOutputStream(s);
@@ -72,7 +72,7 @@ public class ProcesadorMensajes {
     private ObjectInputStream getObjectInputStream(Socket s) throws IOException {
         Object[] streams;
         if ((streams = this.streams.get(s)) == null) {
-            this.streams.put(s,this.nuevoSocket(s));
+            this.streams.put(s, this.nuevoSocket(s));
             System.out.println("Elemento cacheado: " + s);
         } else return (ObjectInputStream) streams[1];
         return this.getObjectInputStream(s);
@@ -80,9 +80,10 @@ public class ProcesadorMensajes {
 
     private synchronized Object[] nuevoSocket(Socket s) throws IOException {
         return new Object[]{new ObjectOutputStream(s.getOutputStream()),
-                new ObjectInputStream(s.getInputStream()),new Semaphore(1)};
+                new ObjectInputStream(s.getInputStream()), new Semaphore(1)};
     }
-    private Semaphore getSemaforo(Socket s){
+
+    private Semaphore getSemaforo(Socket s) {
         return (Semaphore) this.streams.get(s)[2];
     }
 
@@ -94,22 +95,24 @@ public class ProcesadorMensajes {
         System.out.println("Inicio comunicación");
 
     }
+
     public void cerrarComunicacion(Socket s) {
         //Si está sin cerrar se cierra
-        if(libreComunicacion(s))return;
+        if (libreComunicacion(s)) return;
         this.getSemaforo(s).release();
         System.out.println("Fin comunicación");
         System.out.println("///////////////////////////////////");
     }
-    public boolean libreComunicacion(Socket s){
-        return this.getSemaforo(s).availablePermits()==1;
+
+    public boolean libreComunicacion(Socket s) {
+        return this.getSemaforo(s).availablePermits() == 1;
     }
 
     public boolean enviarObjeto(Object objeto, Socket s) {
         // Escribir el documento XML en el OutputStream
         boolean i = false;
         try {
-            System.out.print(new Date()+" Mandando el elemento "+objeto);
+            System.out.print(new Date() + " Mandando el elemento " + objeto);
             ObjectOutputStream out = this.getObjectOutputStream(s);
             out.writeObject(objeto);
             i = true;
@@ -122,19 +125,19 @@ public class ProcesadorMensajes {
     }
 
     public String recibirString(Socket s) throws ClassCastException, ReinicioEnComunicacionExcepcion {
-        Object objeto=this.recibirObjeto(s);
-        if(objeto==null)return null;
-        return (objeto instanceof String)?(String) objeto:objeto.toString();
+        Object objeto = this.recibirObjeto(s);
+        if (objeto == null) return null;
+        return (objeto instanceof String) ? (String) objeto : objeto.toString();
     }
 
     public Object recibirObjeto(Socket s) throws ReinicioEnComunicacionExcepcion {
         try {
-            System.out.println(RecibeObjetos.getRecibeObjetos()==Thread.currentThread()?new Date()+" RecogeObjetos esperando objeto":new Date()+" Esperando objeto");
+            System.out.println(RecibeObjetos.getRecibeObjetos() == Thread.currentThread() ? new Date() + " RecogeObjetos esperando objeto" : new Date() + " Esperando objeto");
             ObjectInputStream in = this.getObjectInputStream(s);
             Object objeto;
             objeto = in.readObject();
             System.out.println("Elemento recibido: " + objeto);
-            if(objeto==Codigos.REINICIO)throw new ReinicioEnComunicacionExcepcion();
+            if (objeto == Codigos.REINICIO) throw new ReinicioEnComunicacionExcepcion();
             return objeto;
 
         } catch (IOException e) {
@@ -155,8 +158,8 @@ public class ProcesadorMensajes {
 
     public boolean enEspera(Socket s) {
         try {
-            int pendiente=s.getInputStream().available();
-            return  pendiente!= 0;
+            int pendiente = s.getInputStream().available();
+            return pendiente != 0;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -167,7 +170,9 @@ public class ProcesadorMensajes {
      */
     public void reset(Socket s) {
         try {
-            synchronized (s){this.getObjectOutputStream(s).reset();}
+            synchronized (s) {
+                this.getObjectOutputStream(s).reset();
+            }
         } catch (IOException e) {
             System.out.println("Error al resetear el ObjectStream");
             e.printStackTrace();

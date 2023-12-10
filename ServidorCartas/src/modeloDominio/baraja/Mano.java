@@ -10,13 +10,15 @@ public class Mano implements Iterable<Carta>, Serializable {
     public Mano(List<Carta> cartas) {
         this.cartas = cartas;
     }
+
     /*
     Constructor copia
      */
-    public Mano (Mano mano){
-        this.cartas=new ArrayList<>(mano.numCartas());
-        for(Carta carta : mano)this.cartas.add(carta);
+    public Mano(Mano mano) {
+        this.cartas = new ArrayList<>(mano.numCartas());
+        for (Carta carta : mano) this.cartas.add(carta);
     }
+
     public Mano(Collection<Carta> cartas) {
         this.cartas = new ArrayList<>(cartas);
     }
@@ -57,59 +59,61 @@ public class Mano implements Iterable<Carta>, Serializable {
             cartaActual = mano.verCarta(numCarta);
 
             //Gestiono caso base particlar escalera
-            if(cartaActual.getNumero() - 1 == cartaPrevia.getNumero()
-                    && cartaPrevia.getPalo() == cartaActual.getPalo()&& numCarta==1)
+            if (cartaActual.getNumero() - 1 == cartaPrevia.getNumero()
+                    && cartaPrevia.getPalo() == cartaActual.getPalo() && numCarta == 1)
                 indicador.set(0);
 
 
             //si coinciden caso trío
             if (cartaActual.getNumero() == cartaPrevia.getNumero()) {
                 //Si buscaba tríos incorpora la carta
-                if (!indicador.get(0)) indicador.set(numCarta+1);
+                if (!indicador.get(0)) indicador.set(numCarta + 1);
                 else {//Se acaban las posibles casadas. Compruebo si era una escalera y lo tengo en cuenta si procede
-                    if (indicador.cardinality()>3) {//Tengo en cuenta el uno de la escalera
+                    if (indicador.cardinality() > 3) {//Tengo en cuenta el uno de la escalera
                         lista.add(indicador);
-                        indicador=new BitSet(8);
+                        indicador = new BitSet(8);
                     }
                     //Reinicio
                     indicador.clear();
                     //Añado el actual
-                    indicador.set(numCarta+1);
+                    indicador.set(numCarta + 1);
                 }
                 //Compruebo si se presta a una escalera del mismo palo
             } else if (cartaActual.getNumero() - 1 == cartaPrevia.getNumero()
                     && cartaPrevia.getPalo() == cartaActual.getPalo()) {
                 //Si buscaba la escalera añado la carta
-                if (indicador.get(0)) indicador.set(numCarta+1);
+                if (indicador.get(0)) indicador.set(numCarta + 1);
                 else {//Si no compruebo si el trío es válido (al menos tres cartas) y añado si procede
-                    if (indicador.cardinality()>2){
+                    if (indicador.cardinality() > 2) {
                         lista.add(indicador);
-                        indicador=new BitSet(8);
+                        indicador = new BitSet(8);
                     }
                     //reinicio
                     indicador.clear();
                     //pongo el primero y el actual
                     indicador.set(0);
                     indicador.set(numCarta);
-                    indicador.set(numCarta+1);
+                    indicador.set(numCarta + 1);
                 }
-            }else{//Caso que no se preste a ninguna. Se cancela también el posible
-                if (indicador.cardinality()>(indicador.get(0)?3:2)){
+            } else {//Caso que no se preste a ninguna. Se cancela también el posible
+                if (indicador.cardinality() > (indicador.get(0) ? 3 : 2)) {
                     lista.add(indicador);
-                    indicador=new BitSet(8);
+                    indicador = new BitSet(8);
                 }
                 //reinicio
                 indicador.clear();
             }
-            cartaPrevia=cartaActual;
+            cartaPrevia = cartaActual;
         }
         //Caso final
-        if (indicador.cardinality()>2) lista.add(indicador);//al menos tres
+        if (indicador.cardinality() > 2) lista.add(indicador);//al menos tres
         return lista;
     }
+
     public int numCartas() {
         return this.cartas.size();
     }
+
     public Carta tomarCarta(Carta carta) {
         int i = this.cartas.indexOf(carta);
         if (i != -1) {
@@ -119,6 +123,7 @@ public class Mano implements Iterable<Carta>, Serializable {
         }
         return null;
     }
+
     public Carta tomarCarta(int carta) {
         try {
             Carta carta1 = this.cartas.get(carta);
@@ -137,6 +142,7 @@ public class Mano implements Iterable<Carta>, Serializable {
             return null;
         }
     }
+
     public Carta verCarta(Carta i) {
         int j = this.cartas.indexOf(i);
         if (j != -1) {
@@ -148,26 +154,31 @@ public class Mano implements Iterable<Carta>, Serializable {
     public void añadirCarta(Carta carta) {
         this.cartas.add(carta);
     }
-    public void añadirCarta(Carta carta,int destino) {
-        this.cartas.add(destino,carta);
+
+    public void añadirCarta(Carta carta, int destino) {
+        this.cartas.add(destino, carta);
     }
 
     public void ordenar() {
         this.cartas.sort(null);
     }
 
-    public void permutar(int i, int j) {
+    public boolean permutar(int i, int j) {
         if (i >= 0 && i < this.cartas.size() && j >= 0 && j < this.cartas.size()) {
             Carta carta = this.cartas.get(i);
             this.cartas.set(i, this.cartas.get(j));
             this.cartas.set(j, carta);
+            return true;
         }
+        return false;
     }
+
     @Override
     public Iterator<Carta> iterator() {
         return this.cartas.iterator();
     }
-    public String toString(){
-        return "Mano: "+this.cartas.toString();
+
+    public String toString() {
+        return "Mano: " + this.cartas.toString();
     }
 }

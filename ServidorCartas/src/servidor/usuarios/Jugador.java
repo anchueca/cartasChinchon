@@ -16,9 +16,9 @@ El jugador realiza acciones que comunica a la partida a traves del atrobuto part
  */
 public abstract class Jugador {
     private final String nombre;
-    protected Mano mano;
-    private int puntuacion;
     private final Partida partida;
+    protected Mano mano;
+    private final int puntuacion;
     private int turno;
 
     protected Jugador(String nombre, Partida partida) {
@@ -41,18 +41,22 @@ public abstract class Jugador {
         return this.partida;
     }
 
-    public void recibirTurno(){
-        this.turno=2;
+    public void recibirTurno() {
+        this.turno = 2;
     }
-    public int getTurno(){
+
+    public int getTurno() {
         return this.turno;
     }
+
     public String getNombre() {
         return this.nombre;
     }
+
     public int getPuntuacion() {
         return this.puntuacion;
     }
+
     protected Map<String, Integer> puntuaciones() {
         Map<String, Integer> puntuaciones = new HashMap<>();
         for (Jugador jugador : this.partida.getJugadores()
@@ -70,75 +74,80 @@ public abstract class Jugador {
     public void darCarta(Carta carta) {
         this.mano.añadirCarta(carta);
     }
+
     public Carta tomarCarta(int carta) {
         return this.mano.tomarCarta(carta);
     }
 
     /////////ACCIOENS////////////
     protected boolean moverMano(int i, int j) {
-        if (this.getPartida().getEstado() == EstadoPartida.ENCURSO){
-            this.mano.permutar(i, j);
+        if (this.getPartida().getEstado() == EstadoPartida.ENCURSO) {
+            return this.mano.permutar(i, j);
+        }
+        return false;
+    }
+
+    protected boolean ordenarMano() {
+        if (this.getPartida().getEstado() == EstadoPartida.ENCURSO) {
+            this.getMano().ordenar();
             return true;
         }
         return false;
     }
-    protected boolean ordenarMano(){
-    if (this.getPartida().getEstado() == EstadoPartida.ENCURSO) {
-        this.getMano().ordenar();
-        return true;
-    }
-    return false;
-}
+
     /*
     Toma la carta descubierta de la mesa y la añade a la mano si la acción es legal
      */
     protected Carta cogerCartaCubierta() {
-        Carta carta=null;
-        if (this.getPartida().getEstado() == EstadoPartida.ENCURSO && this.turno==2) {
-            carta=this.getPartida().cogerCubierta();
+        Carta carta = null;
+        if (this.getPartida().getEstado() == EstadoPartida.ENCURSO && this.turno == 2) {
+            carta = this.getPartida().cogerCubierta();
             this.mano.añadirCarta(carta);
             this.turno--;
         }
         return carta;
     }
+
     /*
     Toma una carta de la baraja y la añade a la mano si la acción es legal
      */
     protected Carta cogerCartaDecubierta() {
-        Carta carta=null;
-        if (this.getPartida().getEstado() == EstadoPartida.ENCURSO && this.turno==2) {
-            carta=this.getPartida().cogerDescubierta();
+        Carta carta = null;
+        if (this.getPartida().getEstado() == EstadoPartida.ENCURSO && this.turno == 2) {
+            carta = this.getPartida().cogerDescubierta();
             this.mano.añadirCarta(carta);
             this.turno--;
         }
         return carta;
     }
+
     /*
     Echa una carta al montón si la acción es legal
      */
     protected boolean echarCarta(int carta) {
-        if (this.getPartida().getEstado() == EstadoPartida.ENCURSO && this.turno==1) {
+        if (this.getPartida().getEstado() == EstadoPartida.ENCURSO && this.turno == 1) {
             //tomo la carta
-            Carta cartaa=this.mano.tomarCarta(carta);
+            Carta cartaa = this.mano.tomarCarta(carta);
             //Compruebo si es nula
-            if(cartaa==null)return false;
+            if (cartaa == null) return false;
             //la echo
             this.getPartida().echarCarta(cartaa);
             //avanzo
-            if(this.partida.getFase()== FaseChinchon.ABIERTO)this.getPartida().siguienteTurno();
+            if (this.partida.getFase() == FaseChinchon.ABIERTO) this.getPartida().siguienteTurno();
             return true;
         }
         return false;
     }
+
     /*
     Efectúa el cierre
      */
-    protected boolean cerrar(Carta carta){
-        if (this.getPartida().getEstado() == EstadoPartida.ENCURSO && this.turno==1) {
+    protected boolean cerrar(Carta carta) {
+        if (this.getPartida().getEstado() == EstadoPartida.ENCURSO && this.turno == 1) {
             //Tomo la que voy a echar para que no moleste en la siguiente instrucción
             this.mano.tomarCarta(carta);
             //Obtengo las no casadas
-            Mano noCasadas=this.getNoCasadas();
+            Mano noCasadas = this.getNoCasadas();
             //Devuelvo la carta a su sitio
             this.mano.añadirCarta(carta);
             //Si solo hay una debe valer tres o menos
@@ -147,25 +156,27 @@ public abstract class Jugador {
         }
         return false;
     }
-/*
-Devuelve las cartas sin casar
- */
-    protected Mano getNoCasadas(){
+
+    /*
+    Devuelve las cartas sin casar
+     */
+    protected Mano getNoCasadas() {
         //copio la mano
-        Mano mano=new Mano(this.mano);
-        List<BitSet> noCasadas= Mano.cartasCasadas(mano);
+        Mano mano = new Mano(this.mano);
+        List<BitSet> noCasadas = Mano.cartasCasadas(mano);
         //Quito las casadas
-        for (BitSet bit:noCasadas)for(int i=0;i<7;i++)if(bit.get(i))mano.tomarCarta(i);
+        for (BitSet bit : noCasadas) for (int i = 0; i < 7; i++) if (bit.get(i)) mano.tomarCarta(i);
         return mano;
     }
+
     /*
     Devuelve lo que tiene que pagar el jugador
      */
-    public int pagar(){
-        int coste=0;
+    public int pagar() {
+        int coste = 0;
         //Calculo los costes
-        for(Carta carta:this.getNoCasadas()){
-            coste+=this.partida.costeCarta(carta);
+        for (Carta carta : this.getNoCasadas()) {
+            coste += this.partida.costeCarta(carta);
         }
         return coste;
     }
@@ -174,14 +185,15 @@ Devuelve las cartas sin casar
 
     public abstract void recibirMensaje(String mensaje);
 
-    protected boolean crearIA(String nombre){
+    protected boolean crearIA(String nombre) {
         return this.partida.nuevoJugador(nombre);
     }
-//Dos jugadores son iguales si tienen el mismo nombre
+
+    //Dos jugadores son iguales si tienen el mismo nombre
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof Jugador){
-            return this.nombre.compareTo(((Jugador) obj).nombre)==0;
+        if (obj instanceof Jugador) {
+            return this.nombre.compareTo(((Jugador) obj).nombre) == 0;
         }
         return false;
     }

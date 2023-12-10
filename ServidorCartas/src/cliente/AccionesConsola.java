@@ -50,10 +50,15 @@ public interface AccionesConsola {
     void mover(int i, int j);
 
     void verMano();
+
     void crearIA(String nombre);
+
     void verTurno();
+
     void enviarChat(String texto);
-    Socket iniciarConexion(String direccion,int puerto);
+
+    Socket iniciarConexion(String direccion, int puerto);
+
     void verAnfitrion();
 
     void ayuda();

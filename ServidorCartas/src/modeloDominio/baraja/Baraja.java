@@ -3,22 +3,22 @@ package modeloDominio.baraja;
 import java.util.*;
 
 public class Baraja implements Iterable<Carta> {
-    private Deque<Carta> cartas;
     private final Tamano tipo;
+    private Deque<Carta> cartas;
 
-    public Baraja(Deque<Carta> cartas,Tamano tamano) {
+    public Baraja(Deque<Carta> cartas, Tamano tamano) {
         this.cartas = cartas;
-        this.tipo=tamano;
+        this.tipo = tamano;
     }
 
-    public Baraja(Collection<Carta> cartas,Tamano tamano) {
+    public Baraja(Collection<Carta> cartas, Tamano tamano) {
         this.cartas = new ArrayDeque<>(cartas);
-        this.tipo=tamano;
+        this.tipo = tamano;
     }
 
     public Baraja() {
         this.cartas = new ArrayDeque<>();
-        this.tipo=null;
+        this.tipo = null;
     }
 
     public static Baraja barajaFactoria(Tamano tamano) {//Comvendría establecer otros parámetros
@@ -30,17 +30,19 @@ public class Baraja implements Iterable<Carta> {
                 cartas.add(new Carta(i, palo));
             }
         }
-        return new Baraja(cartas,tamano);
+        return new Baraja(cartas, tamano);
     }
-/*
-Toma una carta de la baraja
- */
+
+    /*
+    Toma una carta de la baraja
+     */
     public Carta tomarCarta() {
         return this.cartas.poll();
     }
-/*
-Devuelve la carta sin quitarla de la baraja
- */
+
+    /*
+    Devuelve la carta sin quitarla de la baraja
+     */
     public Carta verCarta() {
         return this.cartas.peek();
     }
@@ -54,9 +56,10 @@ Devuelve la carta sin quitarla de la baraja
     public void meterCarta(Carta carta) {
         this.cartas.addFirst(carta);
     }
-/*
-Mete un conjunto de cartas en la baraja
- */
+
+    /*
+    Mete un conjunto de cartas en la baraja
+     */
     public void meterCarta(Collection<Carta> cartas) {
         this.cartas.addAll(cartas);
     }
@@ -74,7 +77,7 @@ Mete un conjunto de cartas en la baraja
         return this.cartas.iterator();
     }
 
-    public String toString(){
-        return "Baraja "+this.tipo.toString().toLowerCase()+": cartas "+this.numCartas();
+    public String toString() {
+        return "Baraja " + this.tipo.toString().toLowerCase() + ": cartas " + this.numCartas();
     }
 }

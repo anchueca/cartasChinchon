@@ -26,7 +26,7 @@ public class ProcesadorComandos {
     el resultado de ayuda (está sin implementar).
      */
     public boolean procesarInstruccion(String instruccion) throws NumeroParametrosExcepcion {
-        if(instruccion.charAt(0)==':'){
+        if (instruccion.charAt(0) == ':') {
             this.acciones.enviarChat(instruccion.substring(1));
             return true;
         }
@@ -136,7 +136,7 @@ public class ProcesadorComandos {
                 }
                 case "crearIA": {
                     if (palabras.length > 3) throw new NumeroParametrosExcepcion();
-                    if (palabras.length ==2) this.acciones.crearIA(palabras[1]);
+                    if (palabras.length == 2) this.acciones.crearIA(palabras[1]);
                     else this.acciones.crearIA("");
                     break;
                 }

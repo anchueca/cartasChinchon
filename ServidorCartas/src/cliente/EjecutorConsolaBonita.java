@@ -18,21 +18,21 @@ import java.util.Map;
 Implementación de las acciones asociadas a la presentación de consolaBonita
  */
 
-public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
+public class EjecutorConsolaBonita implements AccionesConsola, RecibeMensajesI {
 
-    private Socket s;
     private final ConsolaBonita consolaBonita;
+    private Socket s;
     /////Atributos//////
     private PartidaCliente partida;
 
     //////Contructores/////////
-    public EjecutorConsolaBonita(PartidaCliente partida, ConsolaBonita consolaBonita){
+    public EjecutorConsolaBonita(PartidaCliente partida, ConsolaBonita consolaBonita) {
         this.consolaBonita = consolaBonita;
         this.partida = partida;
         this.s = this.iniciarConexion("localhost", 55555);
     }
 
-    public EjecutorConsolaBonita(ConsolaBonita consolaBonita){
+    public EjecutorConsolaBonita(ConsolaBonita consolaBonita) {
         this(null, consolaBonita);
     }
 
@@ -51,18 +51,18 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
 
     ////////Accioens de gestión (fuera de partida)///////////////
 
-    public Socket iniciarConexion(String direccion,int puerto){
+    public Socket iniciarConexion(String direccion, int puerto) {
         try {
-            if(this.s!=null)s.close();
+            if (this.s != null) s.close();
             this.consolaBonita.meterSalida("Inicando conexión...");
-            Socket s=new Socket(direccion,puerto);
-            this.consolaBonita.meterSalida("Conexión establecida a "+direccion+":"+puerto);
+            Socket s = new Socket(direccion, puerto);
+            this.consolaBonita.meterSalida("Conexión establecida a " + direccion + ":" + puerto);
             RecibeObjetos.getRecibeObjetos(s);
             RecibeObjetos.getRecibeObjetos().setReceptor(this);
-            this.s=s;
+            this.s = s;
             return s;
         } catch (IOException e) {
-            this.consolaBonita.meterSalida("No se ha podido conectar a "+direccion+":"+puerto);
+            this.consolaBonita.meterSalida("No se ha podido conectar a " + direccion + ":" + puerto);
             return null;
         }
     }
@@ -71,7 +71,7 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
     Gestiona la entrada a la partida
      */
     public void unirsePartida(String partida, String jugador) {
-        if(this.s==null){
+        if (this.s == null) {
             this.consolaBonita.meterSalida("No está conectado");
             return;
         }
@@ -81,7 +81,7 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
             //Si la respuesta del servidor es correcta
             if (RecibeObjetos.getRecibeObjetos().recibirObjeto() == Codigos.BIEN) {
                 //Inicia la partida en el cliente
-                this.setPartida(new PartidaCliente(partida, jugador, this.s,this));
+                this.setPartida(new PartidaCliente(partida, jugador, this.s, this));
                 //Actualiza la interfaz
                 this.consolaBonita.setPartida(partida);
                 this.consolaBonita.setJugador(jugador);
@@ -97,7 +97,7 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
     Crea una partida en el servidor, pero no se une a ella
      */
     public void crearPartida(String partida, String baraja) {
-        if(this.s==null){
+        if (this.s == null) {
             this.consolaBonita.meterSalida("No está conectado");
             return;
         }
@@ -111,7 +111,7 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
                 this.consolaBonita.meterSalida("Partida creada");
             else this.consolaBonita.meterSalida("No se ha podido crear");
         } catch (ReinicioEnComunicacionExcepcion e) {
-            this.crearPartida(partida,baraja);
+            this.crearPartida(partida, baraja);
         }
     }
 
@@ -144,7 +144,7 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
     Muetsra por pantalla las partidas del servidor
      */
     public void listaPartidas() {
-        if(this.s==null){
+        if (this.s == null) {
             this.consolaBonita.meterSalida("No está conectado");
             return;
         }
@@ -157,7 +157,7 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
                 //Recojo la lista que envía el servidor
                 List<String> lista = (List<String>) RecibeObjetos.getRecibeObjetos().recibirObjeto();
                 //Si es nulo es por algún error inesperado
-                if(lista==null) n = new StringBuilder("No se han podido recibir las partidas");
+                if (lista == null) n = new StringBuilder("No se han podido recibir las partidas");
                 else for (int i = 0, j = lista.size(); i < j; i++) {
                     n.append(i).append(".- ").append(lista.get(i)).append("\n");
                 }
@@ -169,14 +169,15 @@ public class EjecutorConsolaBonita implements AccionesConsola,RecibeMensajesI{
         }
 
     }
-/*
-Salida del programa
- */
+
+    /*
+    Salida del programa
+     */
     public void salir() {
         this.consolaBonita.dispose();
         this.consolaBonita.meterSalida("Saliendo...");
         try {
-            if(s!=null)this.s.close();
+            if (s != null) this.s.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -189,16 +190,16 @@ Salida del programa
     public void listaJugadores() {
         StringBuilder cadena = new StringBuilder("Juagdores:\n");
         try {
-            int i=0;
+            int i = 0;
             for (String ca : this.partida.listaJugadores()
             ) {
                 cadena.append(ca);
-                if(i<4){
+                if (i < 4) {
                     i++;
                     cadena.append("\t");
-                }else {
+                } else {
                     cadena.append("\n");
-                    i=0;
+                    i = 0;
                 }
             }
             this.consolaBonita.meterSalida(cadena.toString());
@@ -208,14 +209,15 @@ Salida del programa
 
 
     }
-/*
-Muestra un resumen del estado actual de la partida
- */
+
+    /*
+    Muestra un resumen del estado actual de la partida
+     */
     public void verResumen() {
         try {
-            this.consolaBonita.meterSalida("Nombre partida: "+this.partida.getNombrePartida()+"\tEstado: "
-                    +this.partida.verEstadoPartida().toString()+"\tFase "+this.partida.verFasePartida()
-                    +"\nJugador: "+this.partida.getNombreJuagador());
+            this.consolaBonita.meterSalida("Nombre partida: " + this.partida.getNombrePartida() + "\tEstado: "
+                    + this.partida.verEstadoPartida().toString() + "\tFase " + this.partida.verFasePartida()
+                    + "\nJugador: " + this.partida.getNombreJuagador());
             this.verAnfitrion();
             this.verTurno();
             this.puntuaciones();
@@ -224,9 +226,9 @@ Muestra un resumen del estado actual de la partida
         }
     }
 
-/*
-Muestra por pantalla la información principal relativa a la partida
- */
+    /*
+    Muestra por pantalla la información principal relativa a la partida
+     */
     public void pintarPartida() {
         //this.consolaBonita.limpiarPantalla();
         String salida = "";
@@ -244,9 +246,10 @@ Muestra por pantalla la información principal relativa a la partida
             this.pintarPartida();
         }
     }
-/*
-Muestra por pantalla las cartas de la mano y las parejas y escaleras formadas
- */
+
+    /*
+    Muestra por pantalla las cartas de la mano y las parejas y escaleras formadas
+     */
     public void verMano() {
         StringBuilder salida = new StringBuilder();
         //Solo tiene sentido una vez empezada la partida
@@ -255,7 +258,7 @@ Muestra por pantalla las cartas de la mano y las parejas y escaleras formadas
                 salida.append("Cartas: ");
                 //Obtengo la mano
                 Mano mano = this.partida.verMano();
-                if (mano != null){
+                if (mano != null) {
                     for (int i = 0, j = mano.numCartas(); i < j; i++) {
                         salida.append("\n").append(i).append(".-(").append(mano.verCarta(i)).append(")");
                     }
@@ -267,40 +270,42 @@ Muestra por pantalla las cartas de la mano y las parejas y escaleras formadas
             this.verMano();
         }
     }
+
     /*
     Indica las casadas
      */
-    public String verCasadas(Mano mano){
+    public String verCasadas(Mano mano) {
         StringBuilder salida = new StringBuilder();
         salida.append("\n\nCasadas:");
         //Muestro las cartas casadas
         for (BitSet bite : Mano.cartasCasadas(mano)
         ) {
             salida.append("\n");
-            for(int i=0;i<7;i++){
-                if(bite.get(i)) salida.append(mano.verCarta(i)).append("\t");
+            for (int i = 0; i < 7; i++) {
+                if (bite.get(i)) salida.append(mano.verCarta(i)).append("\t");
             }
         }
         return salida.toString();
     }
-/*
-Muestra por pantalla la tabla de puntuaciones
- */
+
+    /*
+    Muestra por pantalla la tabla de puntuaciones
+     */
     public void puntuaciones() {
         Map<String, Integer> mapa;
         try {
-            int i=0;
+            int i = 0;
             mapa = this.partida.verPuntuaciones();
             StringBuilder ca = new StringBuilder("Puntuaciones:\n\t");
             for (String nombre : mapa.keySet()
             ) {
                 ca.append(nombre).append(": ").append(mapa.get(nombre));
-                if(i<4){
+                if (i < 4) {
                     i++;
                     ca.append("\t");
-                }else {
+                } else {
                     ca.append("\n");
-                    i=0;
+                    i = 0;
                 }
             }
             this.consolaBonita.meterSalida(ca.toString());
@@ -313,22 +318,24 @@ Muestra por pantalla la tabla de puntuaciones
     /*
     Muestra por pantalla de quién es el turno
      */
-    public void verTurno(){
+    public void verTurno() {
         try {
-            String turno=this.partida.verTurno();
-            if (this.partida.verEstadoPartida()!=EstadoPartida.ENCURSO || turno==null) {
+            String turno = this.partida.verTurno();
+            if (this.partida.verEstadoPartida() != EstadoPartida.ENCURSO || turno == null) {
                 this.consolaBonita.meterSalida("No es posible consultar el turno");
-            } else this.consolaBonita.meterSalida("Turno: "+(turno.compareTo(this.partida.getNombreJuagador())==0?"Te toca":turno));
+            } else
+                this.consolaBonita.meterSalida("Turno: " + (turno.compareTo(this.partida.getNombreJuagador()) == 0 ? "Te toca" : turno));
         } catch (ReinicioEnComunicacionExcepcion e) {
             this.verTurno();
         }
     }
-/*
-Envía al resto de jugadores un mensaje. Es parte de un chat primitivo
- */
+
+    /*
+    Envía al resto de jugadores un mensaje. Es parte de un chat primitivo
+     */
     @Override
     public void enviarChat(String texto) {
-        if(this.partida==null)this.consolaBonita.meterSalida("No hay nadie que te escuche");
+        if (this.partida == null) this.consolaBonita.meterSalida("No hay nadie que te escuche");
         else {
             try {
                 this.partida.enviarChat(texto);
@@ -342,7 +349,7 @@ Envía al resto de jugadores un mensaje. Es parte de un chat primitivo
     public void verAnfitrion() {
         try {
             String anfitrion = this.partida.verAnfitrion();
-            this.consolaBonita.meterSalida("Anfitrion: "+(anfitrion==null?"Desconocido":anfitrion));
+            this.consolaBonita.meterSalida("Anfitrion: " + (anfitrion == null ? "Desconocido" : anfitrion));
         } catch (ReinicioEnComunicacionExcepcion e) {
             this.empezar();
         }
@@ -350,7 +357,7 @@ Envía al resto de jugadores un mensaje. Es parte de un chat primitivo
 
     @Override
     public void ayuda() {
-        if(this.partida==null)this.consolaBonita.meterSalida(
+        if (this.partida == null) this.consolaBonita.meterSalida(
                 "Lista de comando:\n\n salir,salir!,ayuda,partidas,conectar");
         else this.consolaBonita.meterSalida("salir,salir!,ayuda,mover,echar,cerrar,coger,ordenar,empezar,jugadores," +
                 "estado,puntuaciones,ver,turno,anfitrion,crearIA");
@@ -370,6 +377,7 @@ Envía al resto de jugadores un mensaje. Es parte de un chat primitivo
             this.empezar();
         }
     }
+
     /*
     Solicita al servidor que ordene la mano
      */
@@ -381,13 +389,14 @@ Envía al resto de jugadores un mensaje. Es parte de un chat primitivo
             this.ordenar();
         }
     }
-/*
-Lanza la carta iésima de la mano
- */
+
+    /*
+    Lanza la carta iésima de la mano
+     */
     public void echar(int i) {
         try {
             Mano mano = this.partida.verMano();
-            if (this.partida.echarCarta(i)==Codigos.BIEN) {
+            if (this.partida.echarCarta(i) == Codigos.BIEN) {
                 mano.tomarCarta(i);
                 this.consolaBonita.meterSalida("OK");
             } else this.consolaBonita.meterSalida("Jugada no válida");
@@ -395,9 +404,10 @@ Lanza la carta iésima de la mano
             this.echar(i);
         }
     }
-/*
-Abandona la partida si el servidor te deja (lo hará)
- */
+
+    /*
+    Abandona la partida si el servidor te deja (lo hará)
+     */
     public void salirPartida() {
         try {
             if (this.partida.salir()) {
@@ -409,15 +419,16 @@ Abandona la partida si el servidor te deja (lo hará)
             this.salirPartida();
         }
     }
-/*
-Permuta las cartas iésima y jotaésima de la mano
- */
+
+    /*
+    Permuta las cartas iésima y jotaésima de la mano
+     */
     public void mover(int i, int j) {
         try {
             if (this.partida.moverMano(i, j)) this.consolaBonita.meterSalida("Movimiento efectuado");
             else this.consolaBonita.meterSalida("Movimiento incorrecto");
         } catch (ReinicioEnComunicacionExcepcion e) {
-            this.mover(i,j);
+            this.mover(i, j);
         }
     }
 
@@ -426,7 +437,7 @@ Permuta las cartas iésima y jotaésima de la mano
      */
     public void cerrar(int i) {
         try {
-            if (this.partida.cerrar(i)==Codigos.BIEN) {
+            if (this.partida.cerrar(i) == Codigos.BIEN) {
                 this.consolaBonita.meterSalida("Cierre efectuado");
             } else this.consolaBonita.meterSalida("Jugada no válida");
         } catch (ReinicioEnComunicacionExcepcion e) {
@@ -434,41 +445,44 @@ Permuta las cartas iésima y jotaésima de la mano
         }
     }
 
-/*
-Toma la carta cubierta. Por supuesto, solo si es legal
- */
+    /*
+    Toma la carta cubierta. Por supuesto, solo si es legal
+     */
     public void coger() {
         this.coger("0");
     }
-/*
-Gestiona qué carta se echa a partir de la cadena opción: vubierta/descubierta
- */
+
+    /*
+    Gestiona qué carta se echa a partir de la cadena opción: vubierta/descubierta
+     */
     public void coger(String opcion) {
         //Compruebo cuál de las opciones es
         try {
             Carta carta;
-            if(opcion.compareTo("descubierta") == 0)carta=this.cogerCartaDecubierta();
-            else if(opcion.compareTo("cubierta") == 0)carta=this.cogerCartaCubierta();
+            if (opcion.compareTo("descubierta") == 0) carta = this.cogerCartaDecubierta();
+            else if (opcion.compareTo("cubierta") == 0) carta = this.cogerCartaCubierta();
             else {
                 this.consolaBonita.meterSalida("Opción desconocida");
                 return;
             }
-            if(carta==null)this.consolaBonita.meterSalida("Jugada inválida");
-            else this.consolaBonita.meterSalida("Carta obtenida: "+carta);
-        }catch (ReinicioEnComunicacionExcepcion e){
+            if (carta == null) this.consolaBonita.meterSalida("Jugada inválida");
+            else this.consolaBonita.meterSalida("Carta obtenida: " + carta);
+        } catch (ReinicioEnComunicacionExcepcion e) {
             this.coger(opcion);
         }
 
     }
-/*
-Toma la carta descubierta
- */
+
+    /*
+    Toma la carta descubierta
+     */
     public Carta cogerCartaDecubierta() throws ReinicioEnComunicacionExcepcion {
         return this.partida.cogerCartaDecubierta();
     }
-/*
-Toma la carta cubierta
- */
+
+    /*
+    Toma la carta cubierta
+     */
     public Carta cogerCartaCubierta() throws ReinicioEnComunicacionExcepcion {
         return this.partida.cogerCartaCubierta();
     }
@@ -476,41 +490,42 @@ Toma la carta cubierta
     /*
     Recibe los datos sin esperar leer el código de mensaje que lo recibe como parámetro
      */
-    public boolean recibirMensaje(Codigos codigo){
+    public boolean recibirMensaje(Codigos codigo) {
         String cadena;
         try {
             //Si es el recogeObjetos no hace falta que reserve la conexión
-            if(Thread.currentThread()!=RecibeObjetos.getRecibeObjetos())
+            if (Thread.currentThread() != RecibeObjetos.getRecibeObjetos())
                 ProcesadorMensajes.getProcesadorMensajes().abrirComunicacion(this.s);
             //Si todavía no hay partida se rechaza el mensaje
-            if(this.partida==null)ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL,this.s);
+            if (this.partida == null) ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL, this.s);
             else {
                 //Informo al servidor que se ha recibido la petción correctamente
-                ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.BIEN,this.s);
+                ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.BIEN, this.s);
                 //Si la respuesta no es nula la imprimo or pantalla
-                if ((cadena=this.partida.procesarMensaje(codigo))!=null) {
+                if ((cadena = this.partida.procesarMensaje(codigo)) != null) {
                     this.consolaBonita.meterSalida(cadena);
                     return true;
                 }
             }
-        //Si ae produce un error devuelvo mal
-        } catch (InterruptedException| ClassCastException e) {
-            ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL,this.s);
+            //Si ae produce un error devuelvo mal
+        } catch (InterruptedException | ClassCastException e) {
+            ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL, this.s);
             return false;
         }
         //Finalmente se cierra la conexión
         catch (ReinicioEnComunicacionExcepcion ignored) {
 
         } finally {
-            if(Thread.currentThread()!=RecibeObjetos.getRecibeObjetos())
+            if (Thread.currentThread() != RecibeObjetos.getRecibeObjetos())
                 ProcesadorMensajes.getProcesadorMensajes().cerrarComunicacion(this.s);
         }
         return false;
     }
+
     /*
     Crea un jugador IA en la partida. Solo se puede si se es anfitrión
      */
-    public void crearIA(String nombre){
+    public void crearIA(String nombre) {
         try {
             if (this.partida.crearIA(nombre)) this.consolaBonita.meterSalida("IA creada");
             else this.consolaBonita.meterSalida("No se ha podido crear");

@@ -1,4 +1,5 @@
 package modeloDominio.baraja;
+
 /*
 Tamaño de las barajas
  */

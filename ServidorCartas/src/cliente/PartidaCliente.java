@@ -28,7 +28,8 @@ public class PartidaCliente {
         this.nombreJugador = nombreJugador;
         this.nombrePartida = nombrePartida;
     }
-    public PartidaCliente(String nombrePartida, String nombreJugador, Socket s,RecibeMensajesI receptor) {
+
+    public PartidaCliente(String nombrePartida, String nombreJugador, Socket s, RecibeMensajesI receptor) {
         this.s = s;
         this.nombreJugador = nombreJugador;
         this.nombrePartida = nombrePartida;
@@ -44,70 +45,72 @@ public class PartidaCliente {
     public String getNombreJuagador() {
         return this.nombreJugador;
     }
-    public List<String> listaJugadores()throws ReinicioEnComunicacionExcepcion {
+
+    public List<String> listaJugadores() throws ReinicioEnComunicacionExcepcion {
         List<String> lista = new ArrayList<>();
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
-        getProcesadorMensajes().enviarObjeto("jugadores", this.s);
-            Codigos codigo= (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            getProcesadorMensajes().enviarObjeto("jugadores", this.s);
+            Codigos codigo = (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             if (codigo == Codigos.BIEN)
                 lista = (List<String>) RecibeObjetos.getRecibeObjetos().recibirObjeto();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } catch (ReinicioEnComunicacionExcepcion ignored) {
-        } finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
         return lista;
     }
 
-    public String verTurno() throws ReinicioEnComunicacionExcepcion{
+    public String verTurno() throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
             getProcesadorMensajes().enviarObjeto("turno", this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
-            if (codigo== Codigos.BIEN)return (String) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            Codigos codigo = (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            if (codigo == Codigos.BIEN) return (String) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             return null;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }finally{
-            getProcesadorMensajes().cerrarComunicacion(this.s);
-        }
-    }
-    public String verAnfitrion()throws ReinicioEnComunicacionExcepcion {
-        try {
-            getProcesadorMensajes().abrirComunicacion(this.s);
-            getProcesadorMensajes().enviarObjeto("anfitrion", this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
-            if (codigo== Codigos.BIEN)return  (String) RecibeObjetos.getRecibeObjetos().recibirObjeto();
-            return null;
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
     }
 
-    public Mano verMano() throws ReinicioEnComunicacionExcepcion{
+    public String verAnfitrion() throws ReinicioEnComunicacionExcepcion {
+        try {
+            getProcesadorMensajes().abrirComunicacion(this.s);
+            getProcesadorMensajes().enviarObjeto("anfitrion", this.s);
+            Codigos codigo = (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            if (codigo == Codigos.BIEN) return (String) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            return null;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } finally {
+            getProcesadorMensajes().cerrarComunicacion(this.s);
+        }
+    }
+
+    public Mano verMano() throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
             getProcesadorMensajes().enviarObjeto("verMano", this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            Codigos codigo = (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             if (codigo == Codigos.BIEN)
                 return (Mano) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             return null;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
     }
 
-    public EstadoPartida verEstadoPartida()throws ReinicioEnComunicacionExcepcion {
+    public EstadoPartida verEstadoPartida() throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
             getProcesadorMensajes().enviarObjeto("estado", this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            Codigos codigo = (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             if (codigo == Codigos.BIEN)
                 return (EstadoPartida) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             getProcesadorMensajes().enviarObjeto(Codigos.MAL, this.s);
@@ -115,123 +118,125 @@ public class PartidaCliente {
         } catch (InterruptedException | ClassCastException e) {
             getProcesadorMensajes().enviarObjeto(Codigos.REINICIO, this.s);
             throw new ReinicioEnComunicacionExcepcion();
-        }finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
     }
-    public FaseChinchon verFasePartida()throws ReinicioEnComunicacionExcepcion {
+
+    public FaseChinchon verFasePartida() throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
             getProcesadorMensajes().enviarObjeto("fase", this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            Codigos codigo = (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             if (codigo == Codigos.BIEN)
                 return (FaseChinchon) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             return null;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
     }
 
-    public Carta verCartaDescubierta()throws ReinicioEnComunicacionExcepcion {
+    public Carta verCartaDescubierta() throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
             getProcesadorMensajes().enviarObjeto("cartaDescubierta", this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            Codigos codigo = (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             if (codigo == Codigos.BIEN)
                 return (Carta) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             return null;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
     }
 
-    public Map<String, Integer> verPuntuaciones() throws ReinicioEnComunicacionExcepcion{
+    public Map<String, Integer> verPuntuaciones() throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
 
             getProcesadorMensajes().enviarObjeto("puntuaciones", this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            Codigos codigo = (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             if (codigo == Codigos.BIEN)
                 return (Map<String, Integer>) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             return null;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
     }
-//////////////////ACCIOENS//////////////////////////
-    public boolean empezarPartida()throws ReinicioEnComunicacionExcepcion {
+
+    //////////////////ACCIOENS//////////////////////////
+    public boolean empezarPartida() throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
 
             getProcesadorMensajes().enviarObjeto("empezar", this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            Codigos codigo = (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             return codigo == Codigos.BIEN;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
     }
 
-    public Carta cogerCartaCubierta() throws ReinicioEnComunicacionExcepcion{
+    public Carta cogerCartaCubierta() throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
 
             getProcesadorMensajes().enviarObjeto("cogerDescubierta", this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
-            if(codigo == Codigos.BIEN)
+            Codigos codigo = (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            if (codigo == Codigos.BIEN)
                 return (Carta) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             return null;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
     }
 
-    public Carta cogerCartaDecubierta() throws ReinicioEnComunicacionExcepcion{
+    public Carta cogerCartaDecubierta() throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
 
             getProcesadorMensajes().enviarObjeto("cogerCubierta", this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
-            if(codigo == Codigos.BIEN)
+            Codigos codigo = (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            if (codigo == Codigos.BIEN)
                 return (Carta) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             return null;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
     }
 
-    public Codigos echarCarta(int carta)throws ReinicioEnComunicacionExcepcion {
+    public Codigos echarCarta(int carta) throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
 
-            getProcesadorMensajes().enviarObjeto("echar "+carta, this.s);
+            getProcesadorMensajes().enviarObjeto("echar " + carta, this.s);
             return (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
     }
 
-    public Codigos cerrar(int carta)throws ReinicioEnComunicacionExcepcion {
+    public Codigos cerrar(int carta) throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
-            getProcesadorMensajes().enviarObjeto("cerrar "+carta, this.s);
+            getProcesadorMensajes().enviarObjeto("cerrar " + carta, this.s);
             return (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
     }
@@ -250,43 +255,43 @@ public class PartidaCliente {
         }
     }*/
 
-    public boolean moverMano(int i, int j)throws ReinicioEnComunicacionExcepcion {
+    public boolean moverMano(int i, int j) throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
 
             getProcesadorMensajes().enviarObjeto("mover " + i + " " + j, this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            Codigos codigo = (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             return codigo == Codigos.BIEN;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
     }
 
-    public boolean salir()throws ReinicioEnComunicacionExcepcion {
+    public boolean salir() throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
             getProcesadorMensajes().enviarObjeto("salir", this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            Codigos codigo = (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             return codigo == Codigos.BIEN;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
     }
 
-    public boolean ordenar()throws ReinicioEnComunicacionExcepcion {
+    public boolean ordenar() throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
 
             getProcesadorMensajes().enviarObjeto("ordenar", this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            Codigos codigo = (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             return codigo == Codigos.BIEN;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
     }
@@ -294,12 +299,12 @@ public class PartidaCliente {
     public boolean crearIA(String nombre) throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
-            getProcesadorMensajes().enviarObjeto("crearIA "+nombre, this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            getProcesadorMensajes().enviarObjeto("crearIA " + nombre, this.s);
+            Codigos codigo = (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
             return codigo == Codigos.BIEN;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
     }
@@ -311,29 +316,31 @@ public class PartidaCliente {
     la comunicación)
      */
     public String procesarMensaje(Codigos codigo) throws ReinicioEnComunicacionExcepcion {
-        System.out.println("Mensaje recibido del servidor con código: "+codigo);
-        switch (codigo){
-            case MENSAJE :
+        System.out.println("Mensaje recibido del servidor con código: " + codigo);
+        switch (codigo) {
+            case MENSAJE:
                 //Si entra aquí desde el RecibeObjetos no puedo esperar
-                if(Thread.currentThread()==RecibeObjetos.getRecibeObjetos())
+                if (Thread.currentThread() == RecibeObjetos.getRecibeObjetos())
                     return ProcesadorMensajes.getProcesadorMensajes().recibirString(this.s);
                 //Si no entro de forma normal
                 return (String) RecibeObjetos.getRecibeObjetos().recibirObjeto();
-            default : return null;
+            default:
+                return null;
         }
     }
-/*
-Realiza el envío de un mensaje para el resto de jugadores
- */
+
+    /*
+    Realiza el envío de un mensaje para el resto de jugadores
+     */
     public void enviarChat(String texto) throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
             getProcesadorMensajes().enviarObjeto("chat", this.s);
-            Codigos codigo=(Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
-            if(codigo == Codigos.BIEN)getProcesadorMensajes().enviarObjeto(texto, this.s);
+            Codigos codigo = (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
+            if (codigo == Codigos.BIEN) getProcesadorMensajes().enviarObjeto(texto, this.s);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             getProcesadorMensajes().cerrarComunicacion(this.s);
         }
     }

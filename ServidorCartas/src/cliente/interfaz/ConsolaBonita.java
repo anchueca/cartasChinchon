@@ -96,15 +96,16 @@ public class ConsolaBonita extends JFrame {
                         return;
                     }
                     //Manda procesar y ejecutar el comando
-                    if(entrada.compareTo("limpiar")==0)this.limpiarPantalla();
-                    else if (!this.procesadorComandos.procesarInstruccion(entrada)) meterSalida("Comando no reconocido");
+                    if (entrada.compareTo("limpiar") == 0) this.limpiarPantalla();
+                    else if (!this.procesadorComandos.procesarInstruccion(entrada))
+                        meterSalida("Comando no reconocido");
                 } catch (NumeroParametrosExcepcion ex) {
                     meterSalida("Número de parámetros incorrecto");
                 }
                 //Añado el comando al historial
                 this.comandos.add(0, entrada);
                 //Añado un tamaño máximo al historial
-                if(this.comandos.size()>100)this.comandos.remove(100);
+                if (this.comandos.size() > 100) this.comandos.remove(100);
                 this.indice = -1;
                 break;
             //Navegación por el historial
@@ -115,7 +116,7 @@ public class ConsolaBonita extends JFrame {
                 break;
             case KeyEvent.VK_DOWN:
                 if (this.indice == 0) this.Entrada.setText("");
-                else if (this.indice > 0){
+                else if (this.indice > 0) {
                     this.indice--;
                     this.Entrada.setText(this.comandos.get(this.indice));
                 }

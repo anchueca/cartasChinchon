@@ -1,5 +1,5 @@
 package modeloDominio;
 
 public enum Codigos {
-    BIEN,MAL,INEXISTENTE,MENSAJE,REINICIO
+    BIEN, MAL, INEXISTENTE, MENSAJE, REINICIO
 }
