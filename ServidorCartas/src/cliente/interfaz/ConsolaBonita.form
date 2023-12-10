@@ -65,6 +65,7 @@
               <columns value="0"/>
               <editable value="false"/>
               <lineWrap value="false"/>
+              <text value="Juego de cartas Chinchón.&#10;Autor: Ander Chueca&#10;Elaborado para la asignatura de Sistemas Distribuidos&#10;&#10;Escribe ayuda para ver los comandos"/>
             </properties>
           </component>
         </children>

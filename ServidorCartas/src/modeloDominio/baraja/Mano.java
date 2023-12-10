@@ -30,62 +30,86 @@ public class Mano implements Iterable<Carta>, Serializable {
         this.cartas = new ArrayList<>();
     }
 
-    /*
-        Por ahora asumo que las escaleras y tríos están agrupados
-    Codificado primer bit 0 si es un trío o 1 si es pareja el resto de bits representan las cartas onvolucradas
-    ej: 10001110 escalera de la cuarta, quinta y sexta carta.
+    /**
+     * Recibe una mano ordenada de siete u ocho cartas y devuelve una lista de BitSets que codifican lo siguiente:
+     * cada byte representa un conjunto de cartas coincidentes (tres o más cartas del mismo número, llamado trio,
+     * o tres o más cartas en secuencia ascendente del mismo palo, llamado escalera).
+     * El primer bit representa si es un trío (0) o una escalera (1), y el bit n-ésimo indica
+     * si la carta n-ésima en la mano es parte del trío o escalera.
+     * Se asume que las cartas coincidentes están agrupadas, y la misma carta no puede estar en múltiples tríos o escaleras.
+     * Las escaleras deben ser del mismo palo. En caso de que haya ocho cartas, se ignora la última.
+     *
+     * @param mano la mano de cartas
+     * @return una lista de BitSets que representan las cartas coincidentes
      */
-    /*
-    Recibe una lista de 7 cartas (pares de valores número, palo) ordenado y devuelva una lista de bytes que codifica
-    lo siguiente: cada byte representa un conjunto de cartas casadas (conjunto de tres o más cartas del mismo número
-    al que llamaré siempre trío o tres o más cartas en escalera del mismo palo) de modo que el primer bit representa
-    si es un trío (0) o una escalera (1) y el resto de bits estarán a uno si la posición de esa carta en la lista
-    forma parte del trío o escalera. Las cartas casadas ya están agrupadas y una misma carta no puede estar en varios
-    tríos o escaleras
-     */
+    //AUN HAY QUE RETOCAR. SI EL TRÍO VA PRIMERO PARECE IR BIEN
     public static List<BitSet> cartasCasadas(Mano mano) {
         //Lista que almacenrá las casadas
         List<BitSet> lista = new ArrayList<>();
         //Indicador de casadas
-        BitSet indicador = new BitSet(7);
-        Carta cartaPrevia = mano.verCarta(0);
+        BitSet indicador = new BitSet(8);
+        indicador.set(1);//Caso inicial
+        Carta cartaPrevia = mano.verCarta(1);
         Carta cartaActual;
-        //Recorro las cartas desde la primera
-        for (int numCarta = 1, cartasTotales = mano.numCartas(); numCarta < cartasTotales; numCarta++) {
+        //Recorro las cartas desde la segunda
+        for (int numCarta = 1; numCarta < 7; numCarta++) {
             //Tomo la siguiente carta
             cartaActual = mano.verCarta(numCarta);
+
+            //Gestiono caso base particlar escalera
+            if(cartaActual.getNumero() - 1 == cartaPrevia.getNumero()
+                    && cartaPrevia.getPalo() == cartaActual.getPalo()&& numCarta==1)
+                indicador.set(0);
+
+
             //si coinciden caso trío
             if (cartaActual.getNumero() == cartaPrevia.getNumero()) {
                 //Si buscaba tríos incorpora la carta
-                if (!indicador.get(7)) indicador.set(numCarta);
-                else {//Si no compruebo si era un trío(o más cartas) y lo tengo en cuenta si procede
-                    if (indicador.cardinality()>2) lista.add(indicador);
+                if (!indicador.get(0)) indicador.set(numCarta+1);
+                else {//Se acaban las posibles casadas. Compruebo si era una escalera y lo tengo en cuenta si procede
+                    if (indicador.cardinality()>3) {//Tengo en cuenta el uno de la escalera
+                        lista.add(indicador);
+                        indicador=new BitSet(8);
+                    }
                     //Reinicio
                     indicador.clear();
+                    //Añado el actual
+                    indicador.set(numCarta+1);
                 }
                 //Compruebo si se presta a una escalera del mismo palo
             } else if (cartaActual.getNumero() - 1 == cartaPrevia.getNumero()
                     && cartaPrevia.getPalo() == cartaActual.getPalo()) {
                 //Si buscaba la escalera añado la carta
-                if (indicador.get(7)) indicador.set(numCarta);
-                else {//Sino compruebo si la escalera es válida (al menos tres cartas) y añado si procede
-                    if (indicador.cardinality()-1>2)//al menos tres y debo tener en cuenta el bit de escalera
+                if (indicador.get(0)) indicador.set(numCarta+1);
+                else {//Si no compruebo si el trío es válido (al menos tres cartas) y añado si procede
+                    if (indicador.cardinality()>2){
                         lista.add(indicador);
+                        indicador=new BitSet(8);
+                    }
                     //reinicio
                     indicador.clear();
+                    //pongo el primero y el actual
+                    indicador.set(0);
+                    indicador.set(numCarta);
+                    indicador.set(numCarta+1);
                 }
+            }else{//Caso que no se preste a ninguna. Se cancela también el posible
+                if (indicador.cardinality()>(indicador.get(0)?3:2)){
+                    lista.add(indicador);
+                    indicador=new BitSet(8);
+                }
+                //reinicio
+                indicador.clear();
             }
             cartaPrevia=cartaActual;
         }
         //Caso final
-        if (indicador.cardinality()>2) lista.add(indicador);/*al menos tres*/
+        if (indicador.cardinality()>2) lista.add(indicador);//al menos tres
         return lista;
     }
-
     public int numCartas() {
         return this.cartas.size();
     }
-
     public Carta tomarCarta(Carta carta) {
         int i = this.cartas.indexOf(carta);
         if (i != -1) {
@@ -95,7 +119,6 @@ public class Mano implements Iterable<Carta>, Serializable {
         }
         return null;
     }
-
     public Carta tomarCarta(int carta) {
         try {
             Carta carta1 = this.cartas.get(carta);

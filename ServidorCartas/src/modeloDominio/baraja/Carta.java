@@ -35,28 +35,5 @@ public class Carta implements Comparable<Carta>, Serializable {
 
         return tipoCarta + " de " + this.palo;
     }
-		/*String formaCarta = "+-----+\n|     |\n|  %s |\n|     |\n+-----+";
 
-		// Esto representaría un valor básico de la carta en ASCII
-		String contenido;
-		switch (numero) {
-			case 1:
-				contenido = "A"; // As
-				break;
-			case 10:
-				contenido = "S"; // Sota
-				break;
-			case 11:
-				contenido = "C"; // Caballo
-				break;
-			case 12:
-				contenido = "R"; // Rey
-				break;
-			default:
-				contenido = String.valueOf(numero); // Número de la carta
-		}
-
-		// Coloca el contenido en la forma de la carta
-		return String.format(formaCarta, contenido);
-	}*/
 }

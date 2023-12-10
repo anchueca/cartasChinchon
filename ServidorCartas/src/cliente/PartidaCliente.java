@@ -227,7 +227,6 @@ public class PartidaCliente {
     public Codigos cerrar(int carta)throws ReinicioEnComunicacionExcepcion {
         try {
             getProcesadorMensajes().abrirComunicacion(this.s);
-
             getProcesadorMensajes().enviarObjeto("cerrar "+carta, this.s);
             return (Codigos) RecibeObjetos.getRecibeObjetos().recibirObjeto();
         } catch (InterruptedException e) {

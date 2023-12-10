@@ -50,7 +50,7 @@ public class ProcesadorComandos {
                     break;
                 }
                 case "ayuda": {
-                    //"Mostrando ayuda " + (this.acciones.enPartida() ? "inicio" : "juego");
+                    this.acciones.ayuda();
                     break;
                 }
                 case "partidas": {

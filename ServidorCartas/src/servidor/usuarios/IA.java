@@ -21,8 +21,9 @@ public class IA extends Jugador {
         //Por ahora de inteligencia tiene poco
         this.cogerCartaDecubierta();
         Mano nocasadas=this.getNoCasadas();
-        //Si hay dos cartas o menos sin casar intento cerrar (pruebo si pedo cerrar con una y luego con otra). Si
-        //hay una siempre podré
+        //Si hay dos cartas o menos sin casar intento cerrar (pruebo si pedo cerrar con una y luego con otra).
+        //Si hay una siempre podré
+        //HAY QUE QUITARLA DE LA MANO ANTES DE MANDARLA (Y METERLA DE NUEVO SI NO ES VÁLIDA)
         if(nocasadas.numCartas()<=2)if(this.cerrar(nocasadas.verCarta(0))){
             this.getPartida().cerrar(this.mano.tomarCarta(nocasadas.verCarta(0)));
             return;

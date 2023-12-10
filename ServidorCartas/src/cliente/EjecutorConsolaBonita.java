@@ -221,7 +221,6 @@ Muestra un resumen del estado actual de la partida
             this.puntuaciones();
             this.verMano();
         } catch (ReinicioEnComunicacionExcepcion ignored) {
-
         }
     }
 
@@ -244,8 +243,6 @@ Muestra por pantalla la información principal relativa a la partida
         } catch (ReinicioEnComunicacionExcepcion e) {
             this.pintarPartida();
         }
-        //Muestro por pantalla
-
     }
 /*
 Muestra por pantalla las cartas de la mano y las parejas y escaleras formadas
@@ -262,23 +259,29 @@ Muestra por pantalla las cartas de la mano y las parejas y escaleras formadas
                     for (int i = 0, j = mano.numCartas(); i < j; i++) {
                         salida.append("\n").append(i).append(".-(").append(mano.verCarta(i)).append(")");
                     }
-                    salida.append("\n\nCasadas:");
-                    //Muestro las cartas casadas
-                    for (BitSet bite : Mano.cartasCasadas(mano)
-                    ) {
-                        salida.append("\n");
-                        for(int i=0;i<7;i++){
-                            if(bite.get(i)) salida.append(mano.verCarta(i)).append("\t");
-                        }
-                    }
+                    salida.append(this.verCasadas(mano));
                 }
             } else salida = new StringBuilder("La partida no está en curso");
             this.consolaBonita.meterSalida(salida.toString());
         } catch (ReinicioEnComunicacionExcepcion e) {
             this.verMano();
         }
-        //Muestra por pantalla
-
+    }
+    /*
+    Indica las casadas
+     */
+    public String verCasadas(Mano mano){
+        StringBuilder salida = new StringBuilder();
+        salida.append("\n\nCasadas:");
+        //Muestro las cartas casadas
+        for (BitSet bite : Mano.cartasCasadas(mano)
+        ) {
+            salida.append("\n");
+            for(int i=0;i<7;i++){
+                if(bite.get(i)) salida.append(mano.verCarta(i)).append("\t");
+            }
+        }
+        return salida.toString();
     }
 /*
 Muestra por pantalla la tabla de puntuaciones
@@ -345,6 +348,14 @@ Envía al resto de jugadores un mensaje. Es parte de un chat primitivo
         }
     }
 
+    @Override
+    public void ayuda() {
+        if(this.partida==null)this.consolaBonita.meterSalida(
+                "Lista de comando:\n\n salir,salir!,ayuda,partidas,conectar");
+        else this.consolaBonita.meterSalida("salir,salir!,ayuda,mover,echar,cerrar,coger,ordenar,empezar,jugadores," +
+                "estado,puntuaciones,ver,turno,anfitrion,crearIA");
+    }
+
     //////////ACCIOENES DE JUEGO/////////////
 
     /*
@@ -354,13 +365,11 @@ Envía al resto de jugadores un mensaje. Es parte de un chat primitivo
         try {
             if (this.partida.empezarPartida()) {
                 this.consolaBonita.meterSalida("Partida iniciada correctamente");
-                //this.verResumen();
             } else this.consolaBonita.meterSalida("No se ha podido iniciar");
         } catch (ReinicioEnComunicacionExcepcion e) {
             this.empezar();
         }
     }
-
     /*
     Solicita al servidor que ordene la mano
      */
@@ -375,8 +384,7 @@ Envía al resto de jugadores un mensaje. Es parte de un chat primitivo
 /*
 Lanza la carta iésima de la mano
  */
-    public void echar(int i) {//por refinar
-
+    public void echar(int i) {
         try {
             Mano mano = this.partida.verMano();
             if (this.partida.echarCarta(i)==Codigos.BIEN) {
@@ -465,7 +473,6 @@ Toma la carta cubierta
         return this.partida.cogerCartaCubierta();
     }
 
-
     /*
     Recibe los datos sin esperar leer el código de mensaje que lo recibe como parámetro
      */
@@ -486,7 +493,7 @@ Toma la carta cubierta
                     return true;
                 }
             }
-//Si ae produce un error devuelvo mal
+        //Si ae produce un error devuelvo mal
         } catch (InterruptedException| ClassCastException e) {
             ProcesadorMensajes.getProcesadorMensajes().enviarObjeto(Codigos.MAL,this.s);
             return false;

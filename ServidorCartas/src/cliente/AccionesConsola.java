@@ -55,4 +55,6 @@ public interface AccionesConsola {
     void enviarChat(String texto);
     Socket iniciarConexion(String direccion,int puerto);
     void verAnfitrion();
+
+    void ayuda();
 }

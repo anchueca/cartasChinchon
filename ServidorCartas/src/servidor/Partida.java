@@ -130,23 +130,30 @@ public class Partida {
      */
     public void cerrar(Carta carta){
         //Técnicamente, la carta se echaría boca abajo sobre el montón, pero en el juego no tiene sentido tal cosa.
-        //Meto la carta en la baraja porque ahí acabaarán todas al recoger todas las cartas
+        //Meto la carta en la baraja porque ahí acabarán todas al recoger todas las cartas
         this.baraja.meterCarta(carta);
+        //Notifico el cierre
         this.enviarMensaje("El jugador "+this.turno.getNombre()+"ha cerrado la ronda");
+        //La fase pasa a cerrado
         this.fase=FaseChinchon.CERRADO;
+        //Paso a mostrar los resultados
         Jugador jugador;
         StringBuilder cadena= new StringBuilder("Nuevas puntuaciones:\n\n");
         List<Jugador> expulsados=new ArrayList<>();
         for(int i=0,j=this.numJugadores();i<j;i++){
             jugador=this.jugadores.get(i);
             cadena.append(jugador.getNombre()).append(": ").append(jugador.getPuntuacion()).append(" + ").append(jugador.pagar());
+            //De paso miro quienes han perdido
             if(jugador.getPuntuacion()>this.puntosMAX){
                 cadena.append(". Fuera");
                 expulsados.add(jugador);
             }
         }
         this.enviarMensaje(cadena.toString());
+        //ABRÍA QUE GESTIONAR LOS CRITERIOS DE VICTORIA (Y SI SE ELIMINAN TODOS DETERMINAR QUÉ SE HACE: REPETIR, EMPATE,
+        // POR PUNTOS...)
         for(Jugador jugador1: expulsados)this.expulsarJugador(jugador1);
+        //Se pasa a la siguiente ronda (en el apunte anteior se debería comprobar si la partida prosigue)
         this.inicioRonda();
 
     }
